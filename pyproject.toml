@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "exonware-xdata"
-version = "0.0.1"
+dynamic = ["version"]
 description = "Advanced data manipulation and processing library"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -24,8 +24,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    # Add your dependencies here
-    # Example: "requests>=2.25.0",
+    "exonware-xwsystem>=0.0.1",
 ]
 
 [[project.authors]]
@@ -55,14 +54,14 @@ Documentation = "https://github.com/exonware/xdata#readme"
 
 [tool.black]
 line-length = 88
-target-version = [ "py313",]
+target-version = [ "py38",]
 
 [tool.isort]
 profile = "black"
 line_length = 88
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.8"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
@@ -89,6 +88,9 @@ markers = [
     "xdata_unit: Unit tests for individual components", 
     "xdata_integration: Integration tests between components", 
 ]
+
+[tool.hatch.version]
+path = "src/exonware/xwdata/version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/exonware",]
