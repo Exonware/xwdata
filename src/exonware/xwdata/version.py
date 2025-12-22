@@ -1,12 +1,11 @@
 """
-Centralized version management for xwdata.
+Centralized version management for eXonware projects.
 
 Company: eXonware.com
 Author: Eng. Muhammad AlShehri
 Email: connect@exonware.com
-Generation Date: October 07, 2025
 
-This module provides centralized version management for the entire xwdata project.
+This module provides centralized version management for the entire project.
 All version references should import from this module to ensure consistency.
 """
 
@@ -15,14 +14,13 @@ All version references should import from this module to ensure consistency.
 # =============================================================================
 
 # Main version - update this to change version across entire project
-__version__ = "0.0.1.2"
+__version__ = "0.1.0.1"
 
-# Dynamically parse version components from __version__
-_parts = __version__.split('.')
-VERSION_MAJOR = int(_parts[0]) if len(_parts) > 0 else 0
-VERSION_MINOR = int(_parts[1]) if len(_parts) > 1 else 0
-VERSION_PATCH = int(_parts[2]) if len(_parts) > 2 else 0
-VERSION_BUILD = int(_parts[3]) if len(_parts) > 3 else None
+# Version components for programmatic access
+VERSION_MAJOR = 0
+VERSION_MINOR = 1
+VERSION_PATCH = 0
+VERSION_BUILD = 1  # Set to None for releases, or build number for dev builds
 
 # Version metadata
 VERSION_SUFFIX = ""  # e.g., "dev", "alpha", "beta", "rc1"

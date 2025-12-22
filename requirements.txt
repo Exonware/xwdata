@@ -1,11 +1,11 @@
-# {LIBRARY_NAME} Requirements
+# xwdata Requirements
 # Company: eXonware.com
 # Author: Eng. Muhammad AlShehri
 # Email: connect@exonware.com
-# Version: 0.0.1.2
-# Generation Date: {GENERATION_DATE}
+# Version: 0.1.0.1
+# Generation Date: 26-Oct-2025
 #
-# This file contains all dependencies needed for {LIBRARY_NAME}
+# This file contains all dependencies needed for xwdata
 # Compatible with Python 3.8+ for maximum compatibility
 #
 # Usage:
@@ -18,10 +18,9 @@
 # CORE DEPENDENCIES
 # =============================================================================
 
-# Add your core dependencies here
-# Example:
-# requests>=2.25.0                    # HTTP requests library
-# pydantic>=1.8.0                     # Data validation and settings management
+# eXonware ecosystem dependencies
+exonware-xwsystem>=0.0.1        # Core utilities, serialization, security
+exonware-xwnode>=0.0.1           # Node structures and navigation
 
 # =============================================================================
 # DEVELOPMENT AND TESTING DEPENDENCIES
@@ -55,7 +54,7 @@ mypy>=0.950                          # Static type checking
 # Python Version Compatibility:
 # - Minimum: Python 3.8 (for maximum compatibility)
 # - Recommended: Python 3.8+ for best compatibility
-# - Tested: Python 3.8, 3.9, 3.10, 3.11, 3.12, 3.13
+# - Tested: Python 3.8, 3.9, 3.10, 3.11, 3.12
 #
 # Platform Compatibility:
 # - Windows: Full support

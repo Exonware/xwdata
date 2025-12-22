@@ -5,6 +5,10 @@
 # CI/CD Tools (keep private)
 .ci/
 
+# Migration/legacy directories (may contain paths too long for Windows)
+MIGRAT/
+MIGRATE/
+
 # ========================================
 # Python
 # ========================================
@@ -251,6 +255,12 @@ Temporary Items
 # ========================================
 # Development Tools
 # ========================================
+
+# Test runner output files (auto-generated)
+**/runner_out.md
+tests/runner_out.md
+tests/*/runner_out.md
+tests/*/*/runner_out.md
 
 # Backup files
 *.bak

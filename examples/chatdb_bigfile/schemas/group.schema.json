@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://exonware.com/schemas/chatdb/group.schema.json",
+  "title": "Group payload",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["title", "members"],
+  "properties": {
+    "title": { "type": "string", "minLength": 1 },
+    "members": {
+      "type": "array",
+      "items": { "$ref": "./ref.schema.json" }
+    },
+    "admins": {
+      "type": "array",
+      "items": { "$ref": "./ref.schema.json" }
+    },
+    "permissions": { "type": "object" }
+  }
+}

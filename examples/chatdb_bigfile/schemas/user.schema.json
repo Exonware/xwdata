@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://exonware.com/schemas/chatdb/user.schema.json",
+  "title": "User payload",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["username", "display_name"],
+  "properties": {
+    "username": { "type": "string", "minLength": 1 },
+    "display_name": { "type": "string", "minLength": 1 },
+    "settings": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "followers": {
+      "type": "array",
+      "items": { "$ref": "./ref.schema.json" }
+    },
+    "following": {
+      "type": "array",
+      "items": { "$ref": "./ref.schema.json" }
+    }
+  }
+}

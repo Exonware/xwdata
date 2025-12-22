@@ -3,11 +3,11 @@ requires = [ "hatchling",]
 build-backend = "hatchling.build"
 
 [project]
-name = "exonware-xdata"
+name = "exonware-xwdata"
 dynamic = ["version"]
-description = "Advanced data manipulation and processing library"
+description = "Advanced data manipulation with XWNode integration, async operations, and universal format conversion"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 keywords = [ "data", "manipulation", "processing", "transformation", "analysis", "exonware",]
 classifiers = [ 
     "Development Status :: 3 - Alpha", 
@@ -15,16 +15,12 @@ classifiers = [
     "License :: OSI Approved :: MIT License", 
     "Operating System :: OS Independent", 
     "Programming Language :: Python :: 3", 
-    "Programming Language :: Python :: 3.8", 
-    "Programming Language :: Python :: 3.9", 
-    "Programming Language :: Python :: 3.10", 
-    "Programming Language :: Python :: 3.11", 
     "Programming Language :: Python :: 3.12", 
-    "Programming Language :: Python :: 3.13", 
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "exonware-xwsystem>=0.0.1",
+    "exonware-xwsystem",
+    "exonware-xwnode",
 ]
 
 [[project.authors]]
@@ -43,8 +39,19 @@ dev = [
     "isort>=5.12.0", 
     "mypy>=1.0.0",
 ]
-all = [
-    # Add optional dependencies here
+lazy = [
+    "exonware-xwsystem[lazy]",
+    "exonware-xwnode[lazy]",
+]
+full = [
+    # xwdata leverages xwsystem and xwnode full capabilities
+    "exonware-xwsystem[full]",
+    "exonware-xwnode[full]",
+    
+    # xwdata-specific dependencies
+    "json5>=0.9.0",
+    "pyyaml>=6.0.0",
+    "toml>=0.10.0",
 ]
 
 [project.urls]
@@ -61,7 +68,7 @@ profile = "black"
 line_length = 88
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "0.1.0.1"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
@@ -82,11 +89,18 @@ testpaths = [ "tests",]
 python_files = [ "test_*.py",]
 python_classes = [ "Test*",]
 python_functions = [ "test_*",]
-addopts = "-v --tb=short"
+asyncio_mode = "auto"
+addopts = "-v --tb=short -x --strict-markers"
 markers = [ 
-    "xdata_core: Core functionality tests", 
-    "xdata_unit: Unit tests for individual components", 
-    "xdata_integration: Integration tests between components", 
+    "xwdata_core: Core functionality tests (fast, high-value)",
+    "xwdata_unit: Unit tests for individual components",
+    "xwdata_integration: Integration tests between components",
+    "xwdata_advance: Advance quality tests (v1.0.0+)",
+    "xwdata_security: Security excellence tests (Priority #1)",
+    "xwdata_usability: Usability excellence tests (Priority #2)",
+    "xwdata_maintainability: Maintainability excellence tests (Priority #3)",
+    "xwdata_performance: Performance excellence tests (Priority #4)",
+    "xwdata_extensibility: Extensibility excellence tests (Priority #5)",
 ]
 
 [tool.hatch.version]

@@ -104,7 +104,7 @@ xData follows a structured 5-phase development approach designed to deliver ente
 
 ### **Key Deliverables:**
 - RUST core implementation
-- Python facade (exonware-xdata)
+- Python facade (exonware-xwdata)
 - TypeScript/Node.js facade
 - Go facade
 - Rust facade

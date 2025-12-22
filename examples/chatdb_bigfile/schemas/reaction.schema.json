@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://exonware.com/schemas/chatdb/reaction.schema.json",
+  "title": "Reaction payload",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["message", "user", "emoji"],
+  "properties": {
+    "message": { "$ref": "./ref.schema.json" },
+    "user": { "$ref": "./ref.schema.json" },
+    "emoji": { "type": "string", "minLength": 1 }
+  }
+}
