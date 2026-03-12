@@ -8,13 +8,11 @@ def get_package_size(package_name: str) -> dict:
     """Get package size information."""
     try:
         import importlib.util
-        
         # Try to find the package
         try:
             spec = importlib.util.find_spec(package_name)
             if spec is None or spec.origin is None:
                 return {"found": False, "error": "Package not found"}
-            
             # Get the package location
             if spec.submodule_search_locations:
                 # It's a package (directory)
@@ -34,16 +32,13 @@ def get_package_size(package_name: str) -> dict:
                     }
                 else:
                     package_path = package_path.parent
-            
             # Calculate total size - only count files in the package directory
             total_size = 0
             file_count = 0
-            
             if package_path.exists():
                 # Get the package root (the directory containing the package)
                 package_root = package_path.parent
                 package_dir_name = package_path.name
-                
                 # Walk only the package directory
                 for root, dirs, files in os.walk(package_path):
                     # Skip __pycache__ and .pyc files
@@ -57,7 +52,6 @@ def get_package_size(package_name: str) -> dict:
                                 file_count += 1
                             except:
                                 pass
-            
             return {
                 "found": True,
                 "path": str(package_path),
@@ -78,7 +72,6 @@ def main():
     print("LIBRARY SIZE CHECK: JSON Parsers")
     print("=" * 70)
     print()
-    
     packages = [
         ("orjson", "orjson"),
         ("msgspec", "msgspec"),
@@ -87,9 +80,7 @@ def main():
         ("python-rapidjson", "rapidjson"),
         ("stdlib json", None),  # Built-in, no package
     ]
-    
     results = []
-    
     for package_name, import_name in packages:
         if import_name is None:
             # stdlib json is built-in
@@ -107,7 +98,6 @@ def main():
             try:
                 __import__(import_name)
                 info = get_package_size(import_name)
-                
                 if info.get("found"):
                     print(f"  Path: {info['path']}")
                     print(f"  Size: {info['size_kb']:.2f} KB ({info['size_mb']:.2f} MB)")
@@ -133,16 +123,13 @@ def main():
                     "error": "Not installed",
                 })
             print()
-    
     # Summary table
     print("=" * 70)
     print("SUMMARY TABLE")
     print("=" * 70)
     print()
-    
     print(f"{'Package':<25} {'Size (KB)':<15} {'Size (MB)':<15} {'Files':<10}")
     print("-" * 65)
-    
     for result in results:
         package = result["package"]
         if result.get("size_kb") is not None:
@@ -153,10 +140,7 @@ def main():
         else:
             error = result.get("error", "N/A")
             print(f"{package:<25} {'N/A':<15} {'N/A':<15} {error}")
-    
     print()
-
-
 if __name__ == "__main__":
     import importlib.util
     main()

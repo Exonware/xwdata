@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """
 #exonware/xwdata/tests/0.core/test_core_lazy_xwdata_integration.py
-
 Integration tests for XWData lazy loading, atomic access, and paging.
-
 Company: eXonware.com
-Author:   Eng. Muhammad AlShehri
+Author:   eXonware Backend Team
 Email:    connect@exonware.com
 Version:  0.0.1
 Generation Date: 15-Dec-2025
@@ -13,22 +11,18 @@ Generation Date: 15-Dec-2025
 
 import json
 from pathlib import Path
-
 import pytest
-
 from exonware.xwdata import XWData
 from exonware.xwdata.config import XWDataConfig
-
-
 @pytest.mark.xwdata_core
 @pytest.mark.asyncio
+
 class TestXWDataLazyFileMode:
     """Verify lazy file-backed behaviour of XWData (atomic get/set + paging)."""
 
     async def _make_lazy_config(self) -> XWDataConfig:
         """
         Create a config that forces LAZY strategy for small test files.
-
         We set:
         - thresholds.small_mb = 0.0  (so any non-zero size skips FULL)
         - thresholds.medium_mb = 1000.0 (so normal test files fall into LAZY)
@@ -51,16 +45,12 @@ class TestXWDataLazyFileMode:
         }
         file_path: Path = tmp_path / "users.json"
         file_path.write_text(json.dumps(data), encoding="utf-8")
-
         cfg = await self._make_lazy_config()
-
         # Load with config that forces LAZY strategy
         xw = await XWData.load(file_path, config=cfg)
-
         # Engine should have created a lazy, file-backed node
         assert xw._metadata.get("lazy_mode") == "file"
         assert xw._metadata.get("source_path") == str(file_path)
-
         # Access a value via lazy get – this should go through atomic_read_path
         name = await xw.get("users.0.name")
         age = await xw.get("users.1.age")
@@ -72,19 +62,14 @@ class TestXWDataLazyFileMode:
         original = {"counter": 0, "meta": {"version": 1}}
         file_path: Path = tmp_path / "counter.json"
         file_path.write_text(json.dumps(original), encoding="utf-8")
-
         cfg = await self._make_lazy_config()
         xw = await XWData.load(file_path, config=cfg)
-
         assert xw._metadata.get("lazy_mode") == "file"
-
         # Perform an atomic update
         updated = await xw.set("counter", 5)
-
         # The returned instance should still be in lazy file mode
         assert updated._metadata.get("lazy_mode") == "file"
         assert updated._metadata.get("source_path") == str(file_path)
-
         # Re-load the file normally and verify the counter changed on disk
         reloaded = await XWData.load(file_path, config=cfg)
         value = await reloaded.get("counter")
@@ -96,24 +81,20 @@ class TestXWDataLazyFileMode:
         records = [{"id": i, "value": f"v{i}"} for i in range(10)]
         file_path: Path = tmp_path / "records.json"
         file_path.write_text(json.dumps(records), encoding="utf-8")
-
         cfg = await self._make_lazy_config()
-
         # We still load via XWData.load; detection will treat this as text/JSON,
         # but our lazy strategy will mark it as file-backed lazy.
         xw = await XWData.load(file_path, config=cfg)
         assert xw._metadata.get("lazy_mode") == "file"
-
         # Request a page of size 3
         page = await xw.get_page(page_number=2, page_size=3)
         assert len(page) == 3
-
         # Verify contents match the expected slice (records[3:6])
         expected_slice = records[3:6]
         got = [item.to_native() for item in page]
         assert got == expected_slice
-
     @pytest.mark.asyncio
+
     async def test_jsonl_uses_specialized_serializer_for_streaming_paging(self, tmp_path):
         """
         Verify that JSONL files use JsonLinesSerializer.get_record_page()
@@ -122,42 +103,35 @@ class TestXWDataLazyFileMode:
         # Create a JSONL file with many records
         jsonl_file = tmp_path / "records.jsonl"
         records = [{"id": i, "name": f"Record{i}", "value": i * 10} for i in range(100)]
-        
         # Write as JSONL (one JSON object per line)
         with jsonl_file.open("w", encoding="utf-8") as f:
             for record in records:
                 f.write(json.dumps(record) + "\n")
-
         cfg = await self._make_lazy_config()
-
         # Load in lazy mode
         xw = await XWData.load(jsonl_file, config=cfg)
         assert xw._metadata.get("lazy_mode") == "file"
         assert xw._metadata.get("format") == "JSONL"  # Should detect as JSONL
-
         # Request a page - this should use JsonLinesSerializer.get_record_page()
         # which streams line-by-line without loading the entire file
         page = await xw.get_page(page_number=2, page_size=10)
         assert len(page) == 10
-
         # Verify we got the correct records (indices 10-19)
         expected_slice = records[10:20]
         got = [item.to_native() for item in page]
         assert got == expected_slice
-
         # Verify metadata on page items
         for item in page:
             assert item._metadata.get("source_path") == str(jsonl_file)
             assert item._metadata.get("format") == "JSONL"
             assert item._metadata.get("page_number") == 2
             assert item._metadata.get("page_size") == 10
-
-
 @pytest.mark.xwdata_core
 @pytest.mark.asyncio
+
 class TestMultiDocumentYAMLStreaming:
     """Test multi-document YAML streaming support."""
-    
+
     async def test_yaml_multi_document_streaming(self, tmp_path):
         """
         Verify that YAML multi-document files use incremental_load()
@@ -185,19 +159,15 @@ type: metadata
 version: 1.0
 """
         yaml_file.write_text(yaml_content, encoding="utf-8")
-        
         # Import engine to test stream_load directly
         from exonware.xwdata.data.engine import XWDataEngine
         from exonware.xwdata.config import XWDataConfig
-        
         cfg = XWDataConfig.default()
         engine = XWDataEngine(config=cfg)
-        
         # Use stream_load to get documents one at a time
         documents = []
         async for node in engine.stream_load(yaml_file):
             documents.append(node.to_native())
-        
         # Verify we got 3 separate documents
         assert len(documents) == 3
         assert documents[0]["name"] == "Document 1"
@@ -206,12 +176,11 @@ version: 1.0
         assert documents[1]["type"] == "data"
         assert documents[2]["name"] == "Document 3"
         assert documents[2]["type"] == "metadata"
-        
         # Verify each document is independent
         assert "values" in documents[0]
         assert "items" in documents[1]
         assert "version" in documents[2]
-    
+
     async def test_yaml_single_document_fallback(self, tmp_path):
         """
         Verify that single-document YAML files still work correctly
@@ -227,24 +196,20 @@ values:
   - c
 """
         yaml_file.write_text(yaml_content, encoding="utf-8")
-        
         from exonware.xwdata.data.engine import XWDataEngine
         from exonware.xwdata.config import XWDataConfig
-        
         cfg = XWDataConfig.default()
         engine = XWDataEngine(config=cfg)
-        
         # Use stream_load - should yield one document
         documents = []
         async for node in engine.stream_load(yaml_file):
             documents.append(node.to_native())
-        
         # Verify we got 1 document
         assert len(documents) == 1
         assert documents[0]["name"] == "Single Document"
         assert documents[0]["type"] == "config"
         assert len(documents[0]["values"]) == 3
-    
+
     async def test_yaml_streaming_via_xwdata(self, tmp_path):
         """
         Test YAML multi-document streaming through XWData.stream_load() if available.
@@ -262,23 +227,17 @@ id: 3
 name: Third
 """
         yaml_file.write_text(yaml_content, encoding="utf-8")
-        
         # Test via engine directly (XWData.stream_load may not exist yet)
         from exonware.xwdata.data.engine import XWDataEngine
         from exonware.xwdata.config import XWDataConfig
-        
         cfg = XWDataConfig.default()
         engine = XWDataEngine(config=cfg)
-        
         # Stream load and collect documents
         collected = []
         async for node in engine.stream_load(yaml_file):
             collected.append(node.to_native())
-        
         # Verify streaming worked
         assert len(collected) == 3
         assert collected[0]["id"] == 1
         assert collected[1]["id"] == 2
         assert collected[2]["id"] == 3
-
-

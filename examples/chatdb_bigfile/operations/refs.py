@@ -1,29 +1,24 @@
 """Internal-only $ref resolver for xwdb://Type/id references.
-
 This example does NOT rely on external files for references.
 Instead it resolves references inside the single JSONL database file using the index.
-
 Reference format:
     {"$ref": "xwdb://User/user_000001"}
 """
 
 from __future__ import annotations
-
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import urlparse
-
 _OPS_DIR = Path(__file__).resolve().parent
 if str(_OPS_DIR) not in sys.path:
     sys.path.insert(0, str(_OPS_DIR))
-
 from cache import LRUCache
 from db_io import ChatDBIndex, read_record_by_key
-
-
 @dataclass(frozen=True)
+
+
 class RefTarget:
     type_name: str
     id_value: str
@@ -46,6 +41,7 @@ def is_ref_obj(obj: Any) -> bool:
 
 
 class InternalRefResolver:
+
     def __init__(
         self,
         db_path,
@@ -54,7 +50,6 @@ class InternalRefResolver:
         cache_capacity: int = 10_000,
     ):
         from pathlib import Path
-
         self.db_path = Path(db_path)
         self.index = index
         self.cache: LRUCache[str, dict[str, Any]] = LRUCache(capacity=cache_capacity)
@@ -79,10 +74,8 @@ class InternalRefResolver:
         """Recursively resolve internal $ref objects up to max_depth."""
         if _seen is None:
             _seen = set()
-
         if _depth > max_depth:
             return obj
-
         if is_ref_obj(obj):
             ref_str = obj["$ref"]
             target = parse_xwdb_ref(ref_str)
@@ -92,14 +85,11 @@ class InternalRefResolver:
             _seen.add(key)
             resolved = self.get_one(target.type_name, target.id_value)
             return self.resolve(resolved, max_depth=max_depth, _depth=_depth + 1, _seen=_seen)
-
         if isinstance(obj, dict):
             return {
                 k: self.resolve(v, max_depth=max_depth, _depth=_depth, _seen=_seen)
                 for k, v in obj.items()
             }
-
         if isinstance(obj, list):
             return [self.resolve(v, max_depth=max_depth, _depth=_depth, _seen=_seen) for v in obj]
-
         return obj

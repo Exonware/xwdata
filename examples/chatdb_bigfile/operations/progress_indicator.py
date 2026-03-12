@@ -1,7 +1,6 @@
 """Progress indicator with spinning animation and percentage.
-
 Company: eXonware.com
-Author: Eng. Muhammad AlShehri
+Author: eXonware Backend Team
 Email: connect@exonware.com
 Version: 0.0.1.0
 Generation Date: 2025-01-XX
@@ -11,7 +10,6 @@ import sys
 import threading
 import time
 from typing import Optional
-
 # Disable buffering for stderr to ensure real-time updates
 if hasattr(sys.stderr, 'reconfigure'):
     try:
@@ -23,7 +21,6 @@ if hasattr(sys.stderr, 'reconfigure'):
 class ProgressIndicator:
     """
     Progress indicator with spinning animation and percentage.
-    
     Features:
     - Spinning animation: | / - \
     - Percentage display
@@ -31,13 +28,11 @@ class ProgressIndicator:
     - Thread-safe
     - Context manager support
     """
-    
     SPINNER_FRAMES = ['|', '/', '-', '\\']
-    
+
     def __init__(self, message: str = "Processing...", total: Optional[int] = None):
         """
         Initialize progress indicator.
-        
         Args:
             message: Message to display
             total: Total items (for percentage calculation)
@@ -50,7 +45,7 @@ class ProgressIndicator:
         self._frame_index = 0
         self._lock = threading.Lock()
         self._last_update = time.time()
-    
+
     def start(self) -> 'ProgressIndicator':
         """Start the progress indicator."""
         with self._lock:
@@ -59,7 +54,7 @@ class ProgressIndicator:
                 self._thread = threading.Thread(target=self._animate, daemon=True)
                 self._thread.start()
         return self
-    
+
     def stop(self):
         """Stop the progress indicator."""
         with self._lock:
@@ -82,11 +77,10 @@ class ProgressIndicator:
                             sys.stdout.flush()
                         except:
                             pass
-    
+
     def update(self, current: int, total: Optional[int] = None):
         """
         Update progress.
-        
         Args:
             current: Current progress value
             total: Total value (if different from initial)
@@ -96,7 +90,7 @@ class ProgressIndicator:
             if total is not None:
                 self.total = total
             self._last_update = time.time()
-    
+
     def _animate(self):
         """Animation loop."""
         last_percentage = -1
@@ -104,7 +98,6 @@ class ProgressIndicator:
             with self._lock:
                 if not self._running:
                     break
-                
                 # Calculate percentage
                 if self.total and self.total > 0:
                     percentage = min(100.0, (self.current / self.total) * 100.0)
@@ -112,14 +105,12 @@ class ProgressIndicator:
                 else:
                     percentage_str = "---"
                     percentage = 0
-                
                 # Only update display if percentage changed (reduces output when piped)
                 # Always show first update (percentage == 0) and when percentage changes
                 if int(percentage) != int(last_percentage) or (last_percentage == -1 and percentage == 0):
                     # Get spinner frame
                     spinner = self.SPINNER_FRAMES[self._frame_index]
                     self._frame_index = (self._frame_index + 1) % len(self.SPINNER_FRAMES)
-                    
                     # Format message - use \r to overwrite same line
                     # Pad with spaces to clear any remaining characters from previous updates
                     line = f"\r{self.message} {percentage_str} {spinner}"
@@ -137,19 +128,17 @@ class ProgressIndicator:
                             sys.stdout.flush()
                         except:
                             pass  # Ignore if both fail
-                    
                     last_percentage = percentage
                 else:
                     # Still advance spinner even if percentage hasn't changed
                     self._frame_index = (self._frame_index + 1) % len(self.SPINNER_FRAMES)
-            
             time.sleep(0.1)  # Update every 100ms
-    
+
     def __enter__(self):
         """Context manager entry."""
         self.start()
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager exit."""
         self.stop()
@@ -159,7 +148,6 @@ class ProgressIndicator:
 def show_progress(message: str, total: Optional[int] = None):
     """
     Context manager for progress indicator.
-    
     Usage:
         with show_progress("Converting...", total=1000):
             for i in range(1000):
@@ -167,4 +155,3 @@ def show_progress(message: str, total: Optional[int] = None):
                 progress.update(i + 1)
     """
     return ProgressIndicator(message, total)
-

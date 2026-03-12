@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 """
 #exonware/xwdata/src/exonware/xwdata/utils/__init__.py
-
 Utility functions for XWData.
-
 Company: eXonware.com
-Author: Eng. Muhammad AlShehri
+Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.1.0.1
+Version: 0.9.0.1
 Generation Date: 29-Oct-2025
 """
 
@@ -20,7 +18,6 @@ from .format_helpers import (
     supports_canonical,
     supports_streaming
 )
-
 __all__ = [
     'detect_format_fast',
     'is_core_format',
@@ -30,4 +27,3 @@ __all__ = [
     'supports_canonical',
     'supports_streaming'
 ]
-

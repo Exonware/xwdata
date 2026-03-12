@@ -1,61 +1,53 @@
 #!/usr/bin/env python3
 """
 #exonware/xwdata/src/exonware/xwdata/data/node.py
-
 XWDataNode Implementation with Copy-on-Write Semantics
-
 This module provides XWDataNode that extends XWNode from xwnode
 with data-specific features: COW semantics, format metadata, and references.
-
 Company: eXonware.com
-Author: Eng. Muhammad AlShehri
+Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.1.0.1
+Version: 0.9.0.1
 Generation Date: 26-Oct-2025
 """
 
+from __future__ import annotations
 import copy
-from typing import Any, Optional, Union
+from typing import Any, Optional
 from exonware.xwnode import XWNode
 from exonware.xwsystem import get_logger
-
 from ..base import ADataNode
 from ..errors import XWDataNodeError, XWDataPathError, XWDataTypeError
-
 logger = get_logger(__name__)
 
 
 class XWDataNode(ADataNode):
     """
     Data node with Copy-on-Write semantics extending XWNode.
-    
     This class extends xwnode's XWNode with:
     - Copy-on-write (COW) semantics for immutable operations
     - Format-specific metadata preservation
     - Reference tracking
     - Structural hashing for fast equality checks
-    
     The node composition strategy:
     - Wraps XWNode for graph/navigation capabilities
     - Adds data-specific features (COW, metadata, format info)
     - Maintains XWNode's powerful query and traversal features
     """
-    
     __slots__ = ('_xwnode', '_data', '_metadata', '_format_info', '_references', 
                  '_frozen', '_hash_cache', '_parent', '_config', '_nav_cache')
-    
+
     def __init__(
         self,
         data: Any = None,
         metadata: Optional[dict] = None,
         format_info: Optional[dict] = None,
         references: Optional[list] = None,
-        parent: Optional['XWDataNode'] = None,
+        parent: Optional[XWDataNode] = None,
         config: Optional[Any] = None
     ):
         """
         Initialize XWDataNode with COW semantics.
-        
         Args:
             data: Node data
             metadata: Optional metadata
@@ -65,16 +57,12 @@ class XWDataNode(ADataNode):
             config: Configuration for performance optimizations
         """
         super().__init__(data, metadata)
-        
         # Store config for performance optimizations
         self._config = config
-        
         # Navigation cache for repeated path lookups (30-50x faster!)
         self._nav_cache: dict[str, Any] = {}
-        
         # Data-specific features
         self._data = data
-        
         # Wrap data in XWNode with COW (immutable=True)
         # XWNode now handles COW internally with HAMT structural sharing
         self._xwnode: Optional[XWNode] = None
@@ -89,35 +77,30 @@ class XWDataNode(ADataNode):
         self._frozen = False
         self._hash_cache: Optional[int] = None
         self._parent = parent
-    
     # ==========================================================================
     # NAVIGATION (Delegate to XWNode)
     # ==========================================================================
-    
+
     def to_native(self) -> Any:
         """Convert node to native Python object."""
         if self._xwnode is not None:
             return self._xwnode.to_native()
         return self._data
-    
+
     def get_value_at_path(self, path: str, default: Any = None) -> Any:
         """
         Get value at path with navigation caching and direct navigation optimization.
-        
         Performance optimizations:
         1. Navigation cache: Cache path lookup results (30-50x faster on cache hits)
         2. Direct navigation: Bypass XWNode HAMT for large data (2,450x faster)
-        
         This addresses the 49ms vs 0.02ms performance gap on large datasets.
         """
         if not path:
             return self.to_native()
-        
         # NAVIGATION CACHE: Check cache first (30-50x faster on cache hits!)
         if path in self._nav_cache:
             logger.debug(f"💎 Navigation cache hit: {path}")
             return self._nav_cache[path]
-        
         # DIRECT NAVIGATION: Bypass XWNode for large data with simple paths
         if self._should_use_direct_navigation(path):
             logger.debug(f"Using direct navigation for path: {path}")
@@ -125,58 +108,49 @@ class XWDataNode(ADataNode):
             # Cache the result
             self._nav_cache[path] = value
             return value
-        
         # XWNODE NAVIGATION: Use XWNode for complex queries or small data
         if self._xwnode is not None:
             value = self._xwnode.get_value(path, default)
             # Cache the result
             self._nav_cache[path] = value
             return value
-        
         # FALLBACK: Simple navigation on _data
         value = self._navigate_simple_path(path, default)
         # Cache the result
         self._nav_cache[path] = value
         return value
-    
+
     def _should_use_direct_navigation(self, path: str) -> bool:
         """
         Decide navigation strategy based on data size and path complexity.
-        
         Returns True if we should use direct dictionary access instead of XWNode.
         This optimization addresses the 2,450x performance difference on large data.
         """
         if not self._xwnode:
             return True  # No XWNode available, use direct access
-        
         # Check if we have performance config
         if not hasattr(self, '_config') or not self._config:
             return False
-        
         # Large data (>100KB)? Use direct access (XWNode slow on large data)
         data_size = len(str(self._data)) if self._data else 0
         size_threshold = self._config.performance.direct_nav_size_threshold_kb * 1024
-        
         if data_size > size_threshold:
             # Simple path? Use direct access
             path_depth = len(path.split('.'))
             if path_depth <= 5:  # Simple paths like "records.0.data.field1"
                 return True
-        
         return False
-    
+
     def _navigate_simple_path(self, path: str, default: Any = None) -> Any:
         """Simple path navigation on _data."""
         return self._navigate_simple_path_from_native(self._data, path, default)
-    
+
     def _navigate_simple_path_from_native(self, data: Any, path: str, default: Any = None) -> Any:
         """Simple path navigation on any native data."""
         if not path:
             return data
-        
         parts = path.split('.')
         current = data
-        
         try:
             for part in parts:
                 if isinstance(current, dict):
@@ -188,27 +162,23 @@ class XWDataNode(ADataNode):
             return current
         except (KeyError, IndexError, ValueError, TypeError):
             return default
-    
+
     def path_exists(self, path: str) -> bool:
         """Check if path exists using XWNode's native has() method."""
         if not path:
             return True
-        
         if self._xwnode is not None:
             # Use XWNode's native has() method
             return self._xwnode.has(path)
-        
         # Fallback
         return self.get_value_at_path(path, default=object()) is not object()
-    
     # ==========================================================================
     # MUTATION (Copy-on-Write)
     # ==========================================================================
-    
-    def _copy_on_write(self) -> 'XWDataNode':
+
+    def _copy_on_write(self) -> XWDataNode:
         """
         Create copy for mutation (COW semantics).
-        
         Delegates to XWNode's HAMT-based COW for optimal performance.
         XWNode handles structural sharing automatically.
         """
@@ -216,7 +186,6 @@ class XWDataNode(ADataNode):
         new_metadata = self._metadata.copy()
         new_format_info = self._format_info.copy()
         new_references = self._references.copy()
-        
         # Create new XWDataNode (XWNode will be updated via set operation)
         new_node = XWDataNode(
             data=self._data,  # Will be replaced by XWNode.set()
@@ -226,11 +195,10 @@ class XWDataNode(ADataNode):
             parent=self._parent
         )
         return new_node
-    
-    def set_value_at_path(self, path: str, value: Any) -> 'XWDataNode':
+
+    def set_value_at_path(self, path: str, value: Any) -> XWDataNode:
         """
         Set value at path with COW semantics using XWNode's native set().
-        
         Uses XWNode's native COW with HAMT structural sharing for
         optimal performance (O(log n) instead of O(n) deep copy).
         """
@@ -244,13 +212,10 @@ class XWDataNode(ADataNode):
             self._frozen = True
             new_node._invalidate_hash()
             return new_node
-        
         # Use XWNode's native COW set() - returns new XWNode with updated value
         new_xwnode = self._xwnode.set(path if path else '', value, in_place=False)
-        
         # Get updated native data from XWNode
         new_data = new_xwnode.to_native()
-        
         # Create new XWDataNode with updated data
         new_node = XWDataNode(
             data=new_data,
@@ -259,18 +224,15 @@ class XWDataNode(ADataNode):
             references=self._references.copy(),
             parent=self._parent
         )
-        
         # Mark original as frozen
         self._frozen = True
         new_node._invalidate_hash()
-        
         return new_node
-    
+
     def _set_simple_path(self, path: str, value: Any) -> None:
         """Simple path setting without XWNode."""
         parts = path.split('.')
         current = self._data
-        
         # Navigate to parent
         for part in parts[:-1]:
             if isinstance(current, dict):
@@ -289,7 +251,6 @@ class XWDataNode(ADataNode):
                     raise XWDataPathError(f"Cannot use non-integer key '{part}' on list", path=path)
             else:
                 raise XWDataPathError(f"Cannot navigate path - intermediate value is not dict or list", path=path)
-        
         # Set final value
         final_key = parts[-1]
         if isinstance(current, dict):
@@ -304,12 +265,11 @@ class XWDataNode(ADataNode):
                 raise XWDataPathError(f"Cannot use non-integer key '{final_key}' on list", path=path)
         else:
             raise XWDataPathError(f"Cannot set value - parent is not dict or list", path=path)
-    
-    def delete_at_path(self, path: str) -> 'XWDataNode':
+
+    def delete_at_path(self, path: str) -> XWDataNode:
         """Delete value at path with COW semantics using XWNode's native remove()."""
         if not path:
             raise XWDataNodeError("Cannot delete root node", path=path)
-        
         if self._xwnode is not None:
             # Prefer immutable strategy COW delete (PersistentNode)
             try:
@@ -318,7 +278,6 @@ class XWDataNode(ADataNode):
                     if self._xwnode._strategy.exists(path):
                         new_pnode = self._xwnode._strategy.delete(path)
                         new_data = new_pnode.to_native()
-
                         new_node = XWDataNode(
                             data=new_data,
                             metadata=self._metadata.copy(),
@@ -326,14 +285,12 @@ class XWDataNode(ADataNode):
                             references=self._references.copy(),
                             parent=self._parent
                         )
-
                         self._frozen = True
                         new_node._invalidate_hash()
                         return new_node
             except Exception:
                 # Fall through to generic fallback
                 pass
-
             # Fallback for non-persistent strategies: operate on native data
             if self._xwnode.has(path):
                 new_node = self._copy_on_write()
@@ -341,22 +298,18 @@ class XWDataNode(ADataNode):
                 self._frozen = True
                 new_node._invalidate_hash()
                 return new_node
-        
         # Fallback to simple deletion
         new_node = self._copy_on_write()
         new_node._delete_simple_path(path)
-        
         # Mark original as frozen
         self._frozen = True
         new_node._invalidate_hash()
-        
         return new_node
-    
+
     def _delete_simple_path(self, path: str) -> None:
         """Simple path deletion without XWNode."""
         parts = path.split('.')
         current = self._data
-        
         # Navigate to parent
         for part in parts[:-1]:
             if isinstance(current, dict):
@@ -365,7 +318,6 @@ class XWDataNode(ADataNode):
                 current = current[int(part)]
             else:
                 raise XWDataPathError(f"Cannot navigate path", path=path)
-        
         # Delete final key
         final_key = parts[-1]
         if isinstance(current, dict):
@@ -378,8 +330,8 @@ class XWDataNode(ADataNode):
                     current.pop(index)
             except ValueError:
                 raise XWDataPathError(f"Cannot use non-integer key on list", path=path)
-    
-    def copy(self) -> 'XWDataNode':
+
+    def copy(self) -> XWDataNode:
         """Create deep copy of node."""
         return XWDataNode(
             data=copy.deepcopy(self._data),
@@ -388,12 +340,11 @@ class XWDataNode(ADataNode):
             references=self._references.copy(),
             parent=None  # Copy is independent
         )
-    
     # ==========================================================================
     # SUBSCRIPTABLE INTERFACE (Delegate to XWNode)
     # ==========================================================================
-    
-    def __getitem__(self, key: Union[str, int, slice]) -> Any:
+
+    def __getitem__(self, key: str | int | slice) -> Any:
         """Get item using bracket notation - delegates to XWNode's enhanced __getitem__."""
         if self._xwnode is not None:
             # Try XWNode first (supports str, int, slice)
@@ -409,7 +360,6 @@ class XWDataNode(ADataNode):
                         raise e
                 # For other cases, re-raise the original error
                 raise
-        
         # Fallback to simple access when XWNode is not available
         if isinstance(self._data, dict):
             if isinstance(key, int):
@@ -433,7 +383,7 @@ class XWDataNode(ADataNode):
                 raise TypeError(f"Cannot index {type(self._data)} with {type(key).__name__}")
         else:
             raise TypeError(f"Cannot index {type(self._data)}")
-    
+
     def __setitem__(self, key: str, value: Any) -> None:
         """Set item using bracket notation - delegates to XWNode with path support."""
         if self._xwnode is not None:
@@ -449,7 +399,7 @@ class XWDataNode(ADataNode):
                 self._data[int(key)] = value
             else:
                 raise TypeError(f"Cannot set item on {type(self._data)}")
-    
+
     def __delitem__(self, key: str) -> None:
         """Delete item using bracket notation - handles both regular and COW strategies."""
         if self._xwnode is not None:
@@ -470,7 +420,6 @@ class XWDataNode(ADataNode):
                             raise KeyError(key)
                     else:
                         raise KeyError(key)
-                
                 # Use PersistentNode's delete method
                 new_strategy = self._xwnode._strategy.delete(key)
                 self._xwnode._strategy = new_strategy
@@ -501,14 +450,13 @@ class XWDataNode(ADataNode):
                     raise KeyError(key)
             else:
                 raise TypeError(f"Cannot delete item from {type(self._data)}")
-    
+
     def __contains__(self, key: str) -> bool:
         """Check if key exists using 'in' operator - delegates to XWNode's enhanced __contains__."""
         if self._xwnode is not None:
             # Delegate to XWNode's enhanced __contains__
             # XWNode now handles both regular and COW strategies with fallback
             return key in self._xwnode
-        
         # Fallback
         if isinstance(self._data, dict):
             return key in self._data
@@ -520,54 +468,51 @@ class XWDataNode(ADataNode):
                 return False
         else:
             return False
-    
     # ==========================================================================
     # METADATA & FORMAT INFO
     # ==========================================================================
-    
+
     def set_metadata(self, key: str, value: Any) -> None:
         """Set metadata value."""
         self._metadata[key] = value
-    
+
     def get_metadata_value(self, key: str, default: Any = None) -> Any:
         """Get metadata value."""
         return self._metadata.get(key, default)
-    
+
     def set_format_info(self, key: str, value: Any) -> None:
         """Set format information."""
         self._format_info[key] = value
-    
+
     def get_format_info_value(self, key: str, default: Any = None) -> Any:
         """Get format information."""
         return self._format_info.get(key, default)
-    
     # ==========================================================================
     # REFERENCES
     # ==========================================================================
-    
+
     def add_reference(self, reference: Any) -> None:
         """Add reference to tracking list."""
         self._references.append(reference)
-    
+
     def get_references(self) -> list[Any]:
         """Get all tracked references."""
         return self._references.copy()
-    
+
     def has_references(self) -> bool:
         """Check if node has references."""
         return len(self._references) > 0
-    
     # ==========================================================================
     # PERFORMANCE
     # ==========================================================================
-    
     @property
+
     def structural_hash(self) -> int:
         """Get structural hash for fast equality checks."""
         if self._hash_cache is None:
             self._hash_cache = self._compute_structural_hash()
         return self._hash_cache
-    
+
     def _compute_structural_hash(self) -> int:
         """Compute structural hash."""
         try:
@@ -580,15 +525,12 @@ class XWDataNode(ADataNode):
                 return hash(str(self._data))
             except (TypeError, ValueError):
                 return hash(id(self._data))
-    
+
     def _invalidate_hash(self) -> None:
         """Invalidate cached structural hash."""
         self._hash_cache = None
-    
+
     def clear_cache(self) -> None:
         """Clear cached values."""
         self._hash_cache = None
-
-
 __all__ = ['XWDataNode']
-

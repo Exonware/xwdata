@@ -1,27 +1,23 @@
 #!/usr/bin/env python3
 """
 #exonware/xwdata/src/exonware/xwdata/data/metadata/universal.py
-
 Universal Metadata System
-
 Preserves format-specific semantics for perfect roundtrips between formats.
-
 Company: eXonware.com
-Author: Eng. Muhammad AlShehri
+Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.1.0.1
+Version: 0.9.0.1
 Generation Date: 26-Oct-2025
 """
 
+from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional
-
-
 @dataclass
+
 class UniversalMetadata:
     """
     Universal metadata for format-agnostic data preservation.
-    
     Preserves:
     - Source format information
     - Reserved characters and special keys
@@ -29,7 +25,6 @@ class UniversalMetadata:
     - Structural information
     - Format-specific semantics
     """
-    
     source_format: str = ''
     reserved_chars: list[str] = field(default_factory=list)
     reserved_keys: list[str] = field(default_factory=list)
@@ -42,7 +37,7 @@ class UniversalMetadata:
     multi_document: bool = False
     document_count: int = 1
     custom_fields: dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
@@ -59,9 +54,9 @@ class UniversalMetadata:
             'document_count': self.document_count,
             'custom_fields': self.custom_fields
         }
-    
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> 'UniversalMetadata':
+
+    def from_dict(cls, data: dict[str, Any]) -> UniversalMetadata:
         """Create from dictionary."""
         return cls(
             source_format=data.get('source_format', ''),
@@ -77,7 +72,4 @@ class UniversalMetadata:
             document_count=data.get('document_count', 1),
             custom_fields=data.get('custom_fields', {})
         )
-
-
 __all__ = ['UniversalMetadata']
-

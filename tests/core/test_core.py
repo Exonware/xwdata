@@ -1,50 +1,38 @@
 """
-Core functionality tests for {LIBRARY_NAME}
-
+Core functionality tests for xwdata
 Company: eXonware.com
-Author: Eng. Muhammad AlShehri
+Author: eXonware Backend Team
 Email: connect@exonware.com
 Version: 0.0.1
-Generation Date: {GENERATION_DATE}
+Generation Date: 26-Oct-2025
 """
-
 import pytest
-# from exonware.{LIBRARY_NAME} import YourMainClass  # Uncomment and modify as needed
+import exonware.xwdata
+
 
 class TestCore:
     """Test core functionality."""
-    
     def test_import(self):
         """Test that the library can be imported."""
-        try:
-            import exonware.{LIBRARY_NAME}
-            assert True
-        except ImportError:
-            pytest.fail("Could not import exonware.{LIBRARY_NAME}")
-    
+        import exonware.xwdata
+        assert True
+
     def test_convenience_import(self):
         """Test that the convenience import works."""
-        try:
-            import {LIBRARY_NAME}
-            assert True
-        except ImportError:
-            pytest.fail("Could not import {LIBRARY_NAME}")
-    
+        import xdata
+        assert True
+
     def test_version_info(self):
         """Test that version information is available."""
-        import exonware.{LIBRARY_NAME}
-        
-        assert hasattr(exonware.{LIBRARY_NAME}, '__version__')
-        assert hasattr(exonware.{LIBRARY_NAME}, '__author__')
-        assert hasattr(exonware.{LIBRARY_NAME}, '__email__')
-        assert hasattr(exonware.{LIBRARY_NAME}, '__company__')
-        
+        assert hasattr(exonware.xwdata, '__version__')
+        assert hasattr(exonware.xwdata, '__author__')
+        assert hasattr(exonware.xwdata, '__email__')
+        assert hasattr(exonware.xwdata, '__company__')
         # Verify values are strings
-        assert isinstance(exonware.{LIBRARY_NAME}.__version__, str)
-        assert isinstance(exonware.{LIBRARY_NAME}.__author__, str)
-        assert isinstance(exonware.{LIBRARY_NAME}.__email__, str)
-        assert isinstance(exonware.{LIBRARY_NAME}.__company__, str)
-    
+        assert isinstance(exonware.xwdata.__version__, str)
+        assert isinstance(exonware.xwdata.__author__, str)
+        assert isinstance(exonware.xwdata.__email__, str)
+        assert isinstance(exonware.xwdata.__company__, str)
     def test_sample_functionality(self, sample_data):
         """Sample test using fixture data."""
         # Replace this with actual tests for your library

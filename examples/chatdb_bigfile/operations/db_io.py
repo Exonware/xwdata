@@ -1,32 +1,27 @@
 """Low-level DB I/O helpers for chatdb.jsonl.
-
 Includes:
 - Read record by byte offset
 - Read record by Type:id using an index
 - Record paging (delegates to xwsystem JsonLinesSerializer)
 - Atomic record updates (stream rewrite, temp+replace)
-
 These helpers are intentionally simple and file-oriented.
 """
 
 from __future__ import annotations
-
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Optional
-
 from exonware.xwsystem.io.serialization.formats.text.jsonlines import JsonLinesSerializer
 
 
 class ChatDBIOError(RuntimeError):
     pass
-
-
 @dataclass(frozen=True)
+
+
 class ChatDBIndex:
     """In-memory representation of the persisted index."""
-
     meta: dict[str, Any]
     by_key: dict[str, int]
 
@@ -108,15 +103,12 @@ def stream_update_record(
     ensure_ascii: bool = False,
 ) -> int:
     serializer = JsonLinesSerializer()
-
     def _match_any(obj: Any) -> bool:
         return isinstance(obj, dict) and match(obj)
-
     def _updater_any(obj: Any) -> Any:
         if not isinstance(obj, dict):
             return obj
         return updater(obj)
-
     return serializer.stream_update_record(
         db_path,
         _match_any,
@@ -138,7 +130,6 @@ def atomic_update_record_by_key(
 ) -> int:
     """
     Atomic update using append-only log with fallback to full rewrite.
-    
     Args:
         db_path: Path to JSONL file
         type_name: Record type
@@ -146,7 +137,6 @@ def atomic_update_record_by_key(
         updater: Function to update the record
         backup: Whether to create backup (ignored for append-only log)
         use_append_log: If True, use append-only log; if None, auto-detect based on file size
-    
     Returns:
         Number of records updated
     """
@@ -167,11 +157,9 @@ def atomic_update_record_by_key(
     except Exception as e:
         # Fall back on any error
         print(f"Append-only log update failed, using full rewrite: {e}")
-    
     # Original implementation (full rewrite)
     def _match(rec: dict[str, Any]) -> bool:
         return rec.get("@type") == type_name and rec.get("id") == id_value
-
     return stream_update_record(db_path, _match, updater, atomic=True, backup=backup)
 
 

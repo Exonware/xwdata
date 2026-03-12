@@ -1,27 +1,23 @@
 #!/usr/bin/env python3
 """
 #exonware/xwdata/src/exonware/xwdata/common/benchmarking.py
-
 Performance Benchmarking Utilities for XWData
-
 Company: eXonware.com
-Author: Eng. Muhammad AlShehri
+Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.1.0.1
+Version: 0.9.0.1
 Generation Date: 15-Nov-2025
 """
 
 import time
 import statistics
-from typing import Any, Callable, Optional, Dict, List
+from typing import Any, Callable, Optional
 from dataclasses import dataclass
 from pathlib import Path
 from exonware.xwsystem import get_logger
-
 logger = get_logger(__name__)
-
-
 @dataclass
+
 class DataOperationResult:
     """Result of a data operation benchmark."""
     operation: str
@@ -39,8 +35,8 @@ class DataOperationResult:
 
 class XWDataBenchmark:
     """Benchmark utilities for XWData operations."""
-    
     @staticmethod
+
     def benchmark_load(
         file_path: Path,
         format_hint: Optional[str] = None,
@@ -49,18 +45,15 @@ class XWDataBenchmark:
     ) -> DataOperationResult:
         """
         Benchmark file loading operation.
-        
         Args:
             file_path: Path to file to load
             format_hint: Optional format hint
             iterations: Number of iterations
             warmup: Number of warmup iterations
-            
         Returns:
             DataOperationResult with statistics
         """
         from ..facade import XWData
-        
         # Warmup
         for _ in range(warmup):
             try:
@@ -68,7 +61,6 @@ class XWDataBenchmark:
                 asyncio.run(XWData.load(file_path, format_hint=format_hint))
             except Exception:
                 pass
-        
         # Actual benchmark
         times = []
         for _ in range(iterations):
@@ -80,7 +72,6 @@ class XWDataBenchmark:
                 logger.warning(f"Load operation failed: {e}")
             end = time.perf_counter()
             times.append(end - start)
-        
         total_time = sum(times)
         avg_time = statistics.mean(times)
         min_time = min(times)
@@ -88,7 +79,6 @@ class XWDataBenchmark:
         median_time = statistics.median(times)
         std_dev = statistics.stdev(times) if len(times) > 1 else 0.0
         throughput = iterations / total_time if total_time > 0 else 0.0
-        
         return DataOperationResult(
             operation="load",
             format=format_hint or file_path.suffix.lstrip('.'),
@@ -101,8 +91,8 @@ class XWDataBenchmark:
             std_dev=std_dev,
             throughput=throughput
         )
-    
     @staticmethod
+
     def benchmark_save(
         data: Any,
         file_path: Path,
@@ -112,19 +102,16 @@ class XWDataBenchmark:
     ) -> DataOperationResult:
         """
         Benchmark file saving operation.
-        
         Args:
             data: Data to save
             file_path: Path to save to
             format_hint: Optional format hint
             iterations: Number of iterations
             warmup: Number of warmup iterations
-            
         Returns:
             DataOperationResult with statistics
         """
         from ..facade import XWData
-        
         # Warmup
         for _ in range(warmup):
             try:
@@ -133,7 +120,6 @@ class XWDataBenchmark:
                 asyncio.run(xwdata.save(file_path, format_hint=format_hint))
             except Exception:
                 pass
-        
         # Actual benchmark
         times = []
         for _ in range(iterations):
@@ -146,7 +132,6 @@ class XWDataBenchmark:
                 logger.warning(f"Save operation failed: {e}")
             end = time.perf_counter()
             times.append(end - start)
-        
         total_time = sum(times)
         avg_time = statistics.mean(times)
         min_time = min(times)
@@ -154,7 +139,6 @@ class XWDataBenchmark:
         median_time = statistics.median(times)
         std_dev = statistics.stdev(times) if len(times) > 1 else 0.0
         throughput = iterations / total_time if total_time > 0 else 0.0
-        
         return DataOperationResult(
             operation="save",
             format=format_hint or file_path.suffix.lstrip('.'),
@@ -167,8 +151,8 @@ class XWDataBenchmark:
             std_dev=std_dev,
             throughput=throughput
         )
-    
     @staticmethod
+
     def benchmark_conversion(
         source_path: Path,
         target_format: str,
@@ -177,18 +161,15 @@ class XWDataBenchmark:
     ) -> DataOperationResult:
         """
         Benchmark format conversion operation.
-        
         Args:
             source_path: Source file path
             target_format: Target format
             iterations: Number of iterations
             warmup: Number of warmup iterations
-            
         Returns:
             DataOperationResult with statistics
         """
         from ..facade import XWData
-        
         # Warmup
         for _ in range(warmup):
             try:
@@ -198,7 +179,6 @@ class XWDataBenchmark:
                 asyncio.run(data.save(target_path))
             except Exception:
                 pass
-        
         # Actual benchmark
         times = []
         for _ in range(iterations):
@@ -212,7 +192,6 @@ class XWDataBenchmark:
                 logger.warning(f"Conversion operation failed: {e}")
             end = time.perf_counter()
             times.append(end - start)
-        
         total_time = sum(times)
         avg_time = statistics.mean(times)
         min_time = min(times)
@@ -220,7 +199,6 @@ class XWDataBenchmark:
         median_time = statistics.median(times)
         std_dev = statistics.stdev(times) if len(times) > 1 else 0.0
         throughput = iterations / total_time if total_time > 0 else 0.0
-        
         return DataOperationResult(
             operation="conversion",
             format=target_format,
@@ -233,4 +211,3 @@ class XWDataBenchmark:
             std_dev=std_dev,
             throughput=throughput
         )
-

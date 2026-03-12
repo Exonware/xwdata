@@ -1,0 +1,9 @@
+projects:
+  xwdata:
+    repo: xwdata
+    package_main: exonware-xwdata
+    package_wrapper: xwdata
+    python_version: "3.8"
+    has_wrapper: true
+    uses_check_versions: true
+

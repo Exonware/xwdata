@@ -1,6 +1,6 @@
 # xwdata Requirements
 # Company: eXonware.com
-# Author: Eng. Muhammad AlShehri
+# Author: eXonware Backend Team
 # Email: connect@exonware.com
 # Version: 0.1.0.1
 # Generation Date: 26-Oct-2025
@@ -17,10 +17,14 @@
 # =============================================================================
 # CORE DEPENDENCIES
 # =============================================================================
+# Source size (src/*): ~501.3 KB
+pip                     # Package installer (CI and lazy install)
 
-# eXonware ecosystem dependencies
-exonware-xwsystem>=0.0.1        # Core utilities, serialization, security
-exonware-xwnode>=0.0.1           # Node structures and navigation
+# eXonware ecosystem dependencies (xwdata cannot work without these)
+exonware-xwsystem        # Core utilities, serialization, security
+exonware-xwnode           # Node structures and navigation
+exonware-xwquery          # Query engine for data navigation
+exonware-xwjson           # Universal JSON format (required for format conversion)
 
 # =============================================================================
 # DEVELOPMENT AND TESTING DEPENDENCIES
@@ -38,6 +42,16 @@ flake8>=4.0.0                       # Linting
 
 # Type Checking
 mypy>=0.950                          # Static type checking
+
+# =============================================================================
+# TRANSITIVE DEPENDENCIES (Required by xwsystem)
+# =============================================================================
+
+# These are dependencies of xwsystem but need to be explicitly listed
+# to ensure compatibility with the current Python version
+bcrypt>=4.0.0                          # Password hashing (required by xwsystem.security)
+                                        # Note: Must be compatible with Python 3.12+
+                                        # If you get PyO3 errors, reinstall: pip install --upgrade --force-reinstall bcrypt
 
 # =============================================================================
 # OPTIONAL PERFORMANCE ENHANCEMENTS
@@ -80,3 +94,26 @@ mypy>=0.950                          # Static type checking
 #
 # Expected output:
 #   🎉 SUCCESS! exonware.{LIBRARY_NAME} is ready to use!
+aiofiles
+cryptography
+psutil
+opentelemetry-api
+cachebox
+cachetools
+pylru
+msgspec
+orjson
+hyperlight_hyperjson
+json5
+PyYAML
+tomli-w
+xmltodict
+dicttoxml
+msgpack
+cbor2
+pymongo
+httpx
+brotli
+zstandard
+rich
+attrs

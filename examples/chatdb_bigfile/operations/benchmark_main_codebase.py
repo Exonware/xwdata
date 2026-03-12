@@ -1,17 +1,14 @@
 """Benchmark using main codebase APIs (xwsystem.io.data_operations)."""
 
 from __future__ import annotations
-
 import sys
 import time
 from pathlib import Path
-
 # Add paths for imports
 _THIS_DIR = Path(__file__).resolve().parent
 _REPO_ROOT = _THIS_DIR.parents[3]
 if str(_REPO_ROOT / "xwsystem" / "src") not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT / "xwsystem" / "src"))
-
 from exonware.xwsystem.io.data_operations import NDJSONDataOperations
 
 
@@ -33,7 +30,6 @@ def benchmark_index_building():
     print("INDEX BUILDING: Main Codebase (xwsystem.io.data_operations)")
     print("=" * 70)
     print()
-    
     # Get database path (same as build_index.py)
     # _THIS_DIR is operations/, so parents[1] is chatdb_bigfile/
     db_path = _THIS_DIR.parent / "data" / "chatdb.jsonl"
@@ -41,13 +37,10 @@ def benchmark_index_building():
     if not db_path.exists():
         print(f"ERROR: Database file not found: {db_path}")
         return None
-    
     file_size_mb = db_path.stat().st_size / (1024 * 1024)
     print(f"File: {db_path.name} ({file_size_mb:.2f} MB)")
     print()
-    
     ops = NDJSONDataOperations()
-    
     # Single-threaded
     print("1. Single-threaded (baseline)...")
     started = time.perf_counter()
@@ -64,7 +57,6 @@ def benchmark_index_building():
     print(f"   Indexed keys: {keys_single:,}")
     print(f"   Rate: {total_lines_single/elapsed_single:,.0f} lines/s")
     print()
-    
     # Parallel (optimized - auto workers based on file size)
     print("2. Parallel (auto workers, 100MB chunks)...")
     started = time.perf_counter()
@@ -83,7 +75,6 @@ def benchmark_index_building():
     print(f"   Indexed keys: {keys_parallel:,}")
     print(f"   Rate: {total_lines_parallel/elapsed_parallel:,.0f} lines/s")
     print()
-    
     # Comparison
     speedup = elapsed_single / elapsed_parallel if elapsed_parallel > 0 else 0
     print("=" * 70)
@@ -93,7 +84,6 @@ def benchmark_index_building():
     print(f"Parallel:        {_human_time(elapsed_parallel)}")
     print(f"Speedup:         {speedup:.2f}x faster")
     print()
-    
     return {
         "single": {"time": elapsed_single, "keys": keys_single},
         "parallel": {"time": elapsed_parallel, "keys": keys_parallel},
@@ -107,9 +97,7 @@ def benchmark_atomic_updates():
     print("ATOMIC UPDATES: Main Codebase (JsonLinesSerializer)")
     print("=" * 70)
     print()
-    
     from exonware.xwsystem.io.serialization.formats.text.jsonlines import JsonLinesSerializer
-    
     # Get database path (same as build_index.py)
     # _THIS_DIR is operations/, so parent is chatdb_bigfile/
     db_path = _THIS_DIR.parent / "data" / "chatdb.jsonl"
@@ -117,22 +105,17 @@ def benchmark_atomic_updates():
     if not db_path.exists():
         print(f"ERROR: Database file not found: {db_path}")
         return None
-    
     file_size_mb = db_path.stat().st_size / (1024 * 1024)
     print(f"File: {db_path.name} ({file_size_mb:.2f} MB)")
     print()
-    
     serializer = JsonLinesSerializer()
-    
     # Test match function (find first Message record)
     def match_msg(rec: dict) -> bool:
         return isinstance(rec, dict) and rec.get("@type") == "Message" and rec.get("id") == "msg_0"
-    
     def updater(rec: dict) -> dict:
         rec = rec.copy()
         rec["views"] = rec.get("views", 0) + 1
         return rec
-    
     # Full rewrite (baseline)
     print("1. Full rewrite (baseline, use_append_log=False)...")
     started = time.perf_counter()
@@ -147,7 +130,6 @@ def benchmark_atomic_updates():
     print(f"   Time: {_human_time(elapsed_full)}")
     print(f"   Updated: {updated_full} records")
     print()
-    
     # Append-only log (optimized)
     print("2. Append-only log (use_append_log=True)...")
     started = time.perf_counter()
@@ -162,7 +144,6 @@ def benchmark_atomic_updates():
     print(f"   Time: {_human_time(elapsed_append)}")
     print(f"   Updated: {updated_append} records")
     print()
-    
     # Comparison
     if elapsed_append > 0 and elapsed_full > 0:
         speedup = elapsed_full / elapsed_append
@@ -173,7 +154,6 @@ def benchmark_atomic_updates():
         print(f"Append-only log: {_human_time(elapsed_append)}")
         print(f"Speedup:         {speedup:.2f}x {'faster' if speedup > 1 else 'slower'}")
         print()
-    
     return {
         "full_rewrite": {"time": elapsed_full, "updated": updated_full},
         "append_log": {"time": elapsed_append, "updated": updated_append},
@@ -185,16 +165,12 @@ def main():
     print("BENCHMARKING MAIN CODEBASE PERFORMANCE")
     print("=" * 70)
     print()
-    
     # Index building
     index_results = benchmark_index_building()
-    
     print()
     print()
-    
     # Atomic updates
     atomic_results = benchmark_atomic_updates()
-    
     print()
     print("=" * 70)
     print("SUMMARY")
@@ -206,7 +182,5 @@ def main():
             atomic_speedup = atomic_results['full_rewrite']['time'] / atomic_results['append_log']['time']
             print(f"Atomic Updates Speedup: {atomic_speedup:.2f}x")
     print()
-
-
 if __name__ == "__main__":
     main()

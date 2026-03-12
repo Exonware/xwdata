@@ -13,13 +13,13 @@ from exonware.xwnode import XWNode
 
 class XWDataLazyProxy:
     """Lightweight proxy for performance testing."""
-    
+
     def __init__(self, parent: XWData, key: Any, value: Any):
         self._parent = parent
         self._key = key
         self._value = value
         self._materialized = None
-    
+
     def _materialize(self) -> XWData:
         if self._materialized is None:
             self._materialized = XWData.from_native(
@@ -28,10 +28,10 @@ class XWDataLazyProxy:
                 config=self._parent._config
             )
         return self._materialized
-    
+
     def __getattr__(self, name: str) -> Any:
         return getattr(self._materialize(), name)
-    
+
     def __getitem__(self, key: Any) -> Any:
         if isinstance(self._value, (dict, list)):
             nested_value = self._value[key]
@@ -43,13 +43,13 @@ class XWDataLazyProxy:
 
 class XWNodeLazyProxy:
     """Lightweight proxy for performance testing."""
-    
+
     def __init__(self, parent: XWNode, key: Any, value: Any):
         self._parent = parent
         self._key = key
         self._value = value
         self._materialized = None
-    
+
     def _materialize(self) -> XWNode:
         if self._materialized is None:
             self._materialized = XWNode.from_native(
@@ -59,10 +59,10 @@ class XWNodeLazyProxy:
                 **self._parent._options
             )
         return self._materialized
-    
+
     def __getattr__(self, name: str) -> Any:
         return getattr(self._materialize(), name)
-    
+
     def __getitem__(self, key: Any) -> Any:
         if isinstance(self._value, (dict, list)):
             nested_value = self._value[key]
@@ -90,32 +90,26 @@ def test_xwdata_indexing_overhead():
     print("\n" + "="*60)
     print("XWData Indexing Overhead Test")
     print("="*60)
-    
     data = XWData.from_native(create_large_dataset(1000))
-    
     # Test 1: Native value return (current behavior)
     start = time.perf_counter()
     for i in range(10000):
         result = data._node["key_0"]  # Direct access, returns native dict
     native_time = time.perf_counter() - start
-    
     # Test 2: Lightweight proxy return (proposed behavior)
     native_value = data._node["key_0"]
     start = time.perf_counter()
     for i in range(10000):
         result = XWDataLazyProxy(data, "key_0", native_value)
     proxy_time = time.perf_counter() - start
-    
     # Calculate overhead
     overhead_ratio = proxy_time / native_time if native_time > 0 else float('inf')
     overhead_percent = (overhead_ratio - 1) * 100
-    
     print(f"Native value return:  {native_time*1000:.2f} ms")
     print(f"Lightweight proxy:    {proxy_time*1000:.2f} ms")
     print(f"Overhead ratio:       {overhead_ratio:.3f}x")
     print(f"Overhead:              {overhead_percent:+.2f}%")
     print("="*60)
-    
     return overhead_ratio < 2.0
 
 
@@ -124,32 +118,26 @@ def test_xwnode_indexing_overhead():
     print("\n" + "="*60)
     print("XWNode Indexing Overhead Test")
     print("="*60)
-    
     node = XWNode.from_native(create_large_dataset(1000))
-    
     # Test 1: Native value return (current behavior)
     start = time.perf_counter()
     for i in range(10000):
         result = node["key_0"]  # Direct access, returns native dict
     native_time = time.perf_counter() - start
-    
     # Test 2: Lightweight proxy return (proposed behavior)
     native_value = node["key_0"]
     start = time.perf_counter()
     for i in range(10000):
         result = XWNodeLazyProxy(node, "key_0", native_value)
     proxy_time = time.perf_counter() - start
-    
     # Calculate overhead
     overhead_ratio = proxy_time / native_time if native_time > 0 else float('inf')
     overhead_percent = (overhead_ratio - 1) * 100
-    
     print(f"Native value return:  {native_time*1000:.2f} ms")
     print(f"Lightweight proxy:    {proxy_time*1000:.2f} ms")
     print(f"Overhead ratio:       {overhead_ratio:.3f}x")
     print(f"Overhead:              {overhead_percent:+.2f}%")
     print("="*60)
-    
     return overhead_ratio < 2.0
 
 
@@ -158,26 +146,20 @@ def test_memory_overhead():
     print("\n" + "="*60)
     print("Memory Overhead Test")
     print("="*60)
-    
     data = XWData.from_native({"key": {"nested": "value"}})
     native_value = data._node["key"]
-    
     # Measure native dict size
     native_size = sys.getsizeof(native_value)
-    
     # Measure proxy size
     proxy = XWDataLazyProxy(data, "key", native_value)
     proxy_size = sys.getsizeof(proxy)
-    
     # Calculate overhead
     overhead_bytes = proxy_size - native_size
     overhead_ratio = proxy_size / native_size if native_size > 0 else float('inf')
-    
     print(f"Native dict size:     {native_size} bytes")
     print(f"Proxy object size:    {proxy_size} bytes")
     print(f"Overhead:             {overhead_bytes} bytes ({overhead_ratio:.2f}x)")
     print("="*60)
-    
     return overhead_bytes < 500
 
 
@@ -186,53 +168,42 @@ def test_proxy_materialization_cost():
     print("\n" + "="*60)
     print("Materialization Cost Test")
     print("="*60)
-    
     data = XWData.from_native({"key": {"nested": "value"}})
     native_value = data._node["key"]
-    
     # Test 1: Direct XWData creation
     start = time.perf_counter()
     for i in range(1000):
         direct = XWData.from_native(native_value)
     direct_time = time.perf_counter() - start
-    
     # Test 2: Proxy creation + materialization
     start = time.perf_counter()
     for i in range(1000):
         proxy = XWDataLazyProxy(data, "key", native_value)
         materialized = proxy._materialize()
     proxy_materialize_time = time.perf_counter() - start
-    
     # Test 3: Just proxy creation (no materialization)
     start = time.perf_counter()
     for i in range(1000):
         proxy = XWDataLazyProxy(data, "key", native_value)
     proxy_only_time = time.perf_counter() - start
-    
     print(f"Direct XWData creation:     {direct_time*1000:.2f} ms")
     print(f"Proxy + materialization:    {proxy_materialize_time*1000:.2f} ms")
     print(f"Proxy only (no materialize): {proxy_only_time*1000:.2f} ms")
     print(f"Materialization overhead:   {(proxy_materialize_time - proxy_only_time)*1000:.2f} ms")
     print("="*60)
-    
     ratio = proxy_materialize_time / direct_time if direct_time > 0 else float('inf')
     return ratio < 2.0
-
-
 if __name__ == "__main__":
     print("\n" + "="*60)
     print("LAZY PROXY PERFORMANCE BENCHMARK")
     print("="*60)
     print("Testing claim: 'Zero overhead for indexing'")
     print("="*60)
-    
     results = []
-    
     results.append(("XWData Indexing", test_xwdata_indexing_overhead()))
     results.append(("XWNode Indexing", test_xwnode_indexing_overhead()))
     results.append(("Memory Overhead", test_memory_overhead()))
     results.append(("Materialization Cost", test_proxy_materialization_cost()))
-    
     print("\n" + "="*60)
     print("SUMMARY")
     print("="*60)
@@ -240,7 +211,5 @@ if __name__ == "__main__":
         status = "✅ PASS" if passed else "❌ FAIL"
         print(f"{name:30s} {status}")
     print("="*60)
-    
     all_passed = all(passed for _, passed in results)
     sys.exit(0 if all_passed else 1)
-

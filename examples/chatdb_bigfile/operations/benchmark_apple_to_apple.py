@@ -1,20 +1,16 @@
 """Apple-to-apple comparison: Both codebases with same settings (with/without line_offsets)."""
 
 from __future__ import annotations
-
 import sys
 import time
 from pathlib import Path
-
 # Add paths for imports
 _THIS_DIR = Path(__file__).resolve().parent
 _REPO_ROOT = _THIS_DIR.parents[3]
 if str(_REPO_ROOT / "xwsystem" / "src") not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT / "xwsystem" / "src"))
-
 if str(_THIS_DIR) not in sys.path:
     sys.path.insert(0, str(_THIS_DIR))
-
 from exonware.xwsystem.io.data_operations import NDJSONDataOperations
 from build_index_parallel import build_index_parallel
 
@@ -37,32 +33,25 @@ def benchmark_apple_to_apple():
     print("APPLE-TO-APPLE COMPARISON")
     print("=" * 80)
     print()
-    
     # Get database path
     db_path = _THIS_DIR.parent / "data" / "chatdb.jsonl"
     db_path = db_path.resolve()
     if not db_path.exists():
         print(f"ERROR: Database file not found: {db_path}")
         return None
-    
     file_size_mb = db_path.stat().st_size / 1_048_576
     print(f"File: {db_path.name} ({file_size_mb:.2f} MB)")
     print()
-    
     ops = NDJSONDataOperations()
-    
     # Test configurations
     configs = [
         (False, "Without line_offsets (id_index only)"),
         (True, "With line_offsets (full index)"),
     ]
-    
     results = []
-    
     for build_offsets, description in configs:
         print(f"Testing: {description}")
         print("-" * 80)
-        
         # Example code
         print("  Example code...", end=" ", flush=True)
         try:
@@ -81,7 +70,6 @@ def benchmark_apple_to_apple():
             print(f"FAILED: {e}")
             elapsed_example = None
             rate_example = 0
-        
         # Main codebase
         print("  Main codebase...", end=" ", flush=True)
         try:
@@ -102,15 +90,12 @@ def benchmark_apple_to_apple():
             print(f"FAILED: {e}")
             elapsed_main = None
             rate_main = 0
-        
         if elapsed_example and elapsed_main:
             diff_time = elapsed_main - elapsed_example
             diff_pct = (diff_time / elapsed_example) * 100
             diff_rate = rate_main - rate_example
             diff_rate_pct = (diff_rate / rate_example) * 100
-            
             print(f"  Difference: {diff_time:+.2f}s ({diff_pct:+.1f}%) | Rate: {diff_rate:+,.0f} ({diff_rate_pct:+.1f}%)")
-            
             results.append({
                 "config": description,
                 "example_time": elapsed_example,
@@ -120,9 +105,7 @@ def benchmark_apple_to_apple():
                 "diff_time": diff_time,
                 "diff_pct": diff_pct,
             })
-        
         print()
-    
     # Summary
     print("=" * 80)
     print("SUMMARY")
@@ -130,15 +113,11 @@ def benchmark_apple_to_apple():
     print()
     print(f"{'Config':<50} {'Example':<15} {'Main':<15} {'Difference':<15}")
     print("-" * 80)
-    
     for r in results:
         example_str = _human_time(r["example_time"])
         main_str = _human_time(r["main_time"])
         diff_str = f"{r['diff_time']:+.2f}s ({r['diff_pct']:+.1f}%)"
         print(f"{r['config']:<50} {example_str:<15} {main_str:<15} {diff_str:<15}")
-    
     return results
-
-
 if __name__ == "__main__":
     benchmark_apple_to_apple()

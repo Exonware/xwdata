@@ -1,19 +1,16 @@
 """
 Convenience module for importing {LIBRARY_NAME}.
-
 This allows users to import the library in two ways:
 1. import exonware.{LIBRARY_NAME}
 2. import {LIBRARY_NAME}  # This convenience import
-
 Company: eXonware.com
-Author: Eng. Muhammad AlShehri
+Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.1.0.1
+Version: 0.9.0.1
 Generation Date: {GENERATION_DATE}
 """
-
 # Import everything from the main package
-from exonware.LIBRARY_NAME import *  # noqa: F401, F403
 
-# Preserve the version
-__version__ = "0.0.1"
+from exonware.xwdata import *  # noqa: F401, F403
+# Re-export version from source of truth
+from exonware.xwdata import __version__

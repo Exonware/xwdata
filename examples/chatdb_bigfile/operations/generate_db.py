@@ -1,23 +1,18 @@
 """Generate a large single-file JSONL chat database.
-
 Creates `../data/chatdb.jsonl` with Telegram-like entities:
 - Users
 - Channels
 - Groups
 - Messages
 - Reactions
-
 Records are written as JSONL lines with an envelope:
   {"@type": "User|Channel|Group|Message|Reaction", "id": "...", "ts": 0, "payload": {...}}
-
 Run (from repo root):
   python xwdata/examples/chatdb_bigfile/operations/generate_db.py --target-gb 5
-
 Use --quick for fast local iteration.
 """
 
 from __future__ import annotations
-
 import argparse
 import os
 import random
@@ -26,9 +21,9 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-
-
 @dataclass(frozen=True)
+
+
 class GenConfig:
     target_bytes: int
     seed: int
@@ -98,7 +93,6 @@ def _write_jsonl_line(f, obj: dict[str, Any]) -> int:
     # Write compact JSON (no spaces) for size efficiency.
     # Use UTF-8 and track exact bytes written.
     import json
-
     line = (json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8")
     f.write(line)
     return len(line)
@@ -106,26 +100,20 @@ def _write_jsonl_line(f, obj: dict[str, Any]) -> int:
 
 def generate(db_path: Path, cfg: GenConfig) -> dict[str, Any]:
     db_path.parent.mkdir(parents=True, exist_ok=True)
-
     rng = random.Random(cfg.seed)
     ts0 = int(time.time())
-
     # Deterministic IDs
     user_ids = [f"user_{i:06d}" for i in range(1, cfg.users + 1)]
     channel_ids = [f"chan_{i:06d}" for i in range(1, cfg.channels + 1)]
     group_ids = [f"grp_{i:06d}" for i in range(1, cfg.groups + 1)]
-
     bytes_written = 0
     records_written = 0
     next_progress = cfg.progress_every_mb * 1024 * 1024
-
     msg_seq = 0
     rct_seq = 0
-
     started = time.perf_counter()
     spinner_chars = ["/", "-", "\\", "|"]
     spinner_idx = 0
-
     with db_path.open("wb") as f:
         # --- Header blocks: Users / Channels / Groups ---
         for i, uid in enumerate(user_ids, 1):
@@ -138,7 +126,6 @@ def generate(db_path: Path, cfg: GenConfig) -> dict[str, Any]:
             }
             bytes_written += _write_jsonl_line(f, _record("User", uid, ts0 + i, payload))
             records_written += 1
-
         for i, cid in enumerate(channel_ids, 1):
             owner = rng.choice(user_ids)
             admins = rng.sample(user_ids, k=min(3, len(user_ids)))
@@ -151,7 +138,6 @@ def generate(db_path: Path, cfg: GenConfig) -> dict[str, Any]:
             }
             bytes_written += _write_jsonl_line(f, _record("Channel", cid, ts0 + 10_000 + i, payload))
             records_written += 1
-
         for i, gid in enumerate(group_ids, 1):
             members = rng.sample(user_ids, k=min(max(5, len(user_ids) // 3), len(user_ids)))
             admins = rng.sample(members, k=min(3, len(members)))
@@ -163,7 +149,6 @@ def generate(db_path: Path, cfg: GenConfig) -> dict[str, Any]:
             }
             bytes_written += _write_jsonl_line(f, _record("Group", gid, ts0 + 20_000 + i, payload))
             records_written += 1
-
         # --- Main blocks: per channel message blocks + reaction blocks ---
         # This makes file-order paging meaningful.
         #
@@ -176,12 +161,10 @@ def generate(db_path: Path, cfg: GenConfig) -> dict[str, Any]:
                     msg_seq += 1
                     mid = f"msg_{msg_seq:012d}"
                     channel_message_ids.append(mid)
-
                     author = rng.choice(user_ids)
                     reply_to = None
                     if channel_message_ids and rng.random() < 0.10:
                         reply_to = _ref("Message", rng.choice(channel_message_ids))
-
                     payload = {
                         "chat": _ref("Channel", cid),
                         "author": _ref("User", author),
@@ -191,15 +174,12 @@ def generate(db_path: Path, cfg: GenConfig) -> dict[str, Any]:
                         "edited_ts": None,
                         "version": 1,
                     }
-
                     bytes_written += _write_jsonl_line(
                         f, _record("Message", mid, ts0 + 30_000 + msg_seq, payload)
                     )
                     records_written += 1
-
                     if bytes_written >= cfg.target_bytes:
                         break
-
                     if bytes_written >= next_progress:
                         elapsed = max(time.perf_counter() - started, 1e-9)
                         percent = min(100.0, (bytes_written / cfg.target_bytes) * 100.0)
@@ -212,17 +192,14 @@ def generate(db_path: Path, cfg: GenConfig) -> dict[str, Any]:
                         )
                         sys.stdout.flush()
                         next_progress += cfg.progress_every_mb * 1024 * 1024
-
                 if bytes_written >= cfg.target_bytes:
                     break
-
                 # reaction block (contiguous, optional)
                 for mid in channel_message_ids:
                     for _ in range(cfg.reactions_per_message):
                         if rng.random() < 0.6:
                             # sparse-ish reactions
                             continue
-
                         rct_seq += 1
                         rid = f"rct_{rct_seq:012d}"
                         payload = {
@@ -234,7 +211,6 @@ def generate(db_path: Path, cfg: GenConfig) -> dict[str, Any]:
                             f, _record("Reaction", rid, ts0 + 40_000 + rct_seq, payload)
                         )
                         records_written += 1
-
                         if bytes_written >= next_progress:
                             elapsed = max(time.perf_counter() - started, 1e-9)
                             percent = min(100.0, (bytes_written / cfg.target_bytes) * 100.0)
@@ -247,15 +223,12 @@ def generate(db_path: Path, cfg: GenConfig) -> dict[str, Any]:
                             )
                             sys.stdout.flush()
                             next_progress += cfg.progress_every_mb * 1024 * 1024
-
                         if bytes_written >= cfg.target_bytes:
                             break
                     if bytes_written >= cfg.target_bytes:
                         break
-
             if not channel_ids:
                 break
-
     # Final progress update to 100%
     percent = min(100.0, (bytes_written / cfg.target_bytes) * 100.0)
     spinner = spinner_chars[spinner_idx % len(spinner_chars)]
@@ -266,7 +239,6 @@ def generate(db_path: Path, cfg: GenConfig) -> dict[str, Any]:
         f"\r{percent:.2f}% {spinner} | {_human_bytes(bytes_written)} / {_human_bytes(cfg.target_bytes)} | {rate:.1f} MB/s | {records_written:,} records\n"
     )
     sys.stdout.flush()
-
     return {
         "path": str(db_path),
         "bytes": bytes_written,
@@ -287,7 +259,6 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--target-mb", type=int, default=None, help="Target size in MB (overrides --target-gb)")
     p.add_argument("--quick", action="store_true", help="Fast mode (~25MB) for development")
     p.add_argument("--seed", type=int, default=1337, help="Deterministic RNG seed")
-
     p.add_argument("--users", type=int, default=50_000)
     p.add_argument("--channels", type=int, default=1_000)
     p.add_argument("--groups", type=int, default=250)
@@ -295,13 +266,11 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--reactions-per-message", type=int, default=2)
     p.add_argument("--max-text-len", type=int, default=240)
     p.add_argument("--progress-every-mb", type=int, default=100)
-
     return p.parse_args()
 
 
 def main() -> int:
     args = _parse_args()
-
     if args.quick:
         target_bytes = 25 * 1024 * 1024
         # smaller/faster defaults
@@ -322,9 +291,7 @@ def main() -> int:
         messages_per_channel = args.messages_per_channel
         reactions_per_message = args.reactions_per_message
         progress_every_mb = args.progress_every_mb
-
     out = Path(args.output)
-
     cfg = GenConfig(
         target_bytes=target_bytes,
         seed=args.seed,
@@ -336,14 +303,11 @@ def main() -> int:
         max_text_len=args.max_text_len,
         progress_every_mb=progress_every_mb,
     )
-
     print(f"Generating chatdb JSONL -> {out}")
     print(f"Target size: {_human_bytes(cfg.target_bytes)} (quick={args.quick})")
-
     started = time.perf_counter()
     stats = generate(out, cfg)
     elapsed = max(time.perf_counter() - started, 1e-9)
-
     actual = os.path.getsize(out)
     print(
         "Done. "
@@ -351,7 +315,5 @@ def main() -> int:
         f"({_human_bytes(int(actual / elapsed))}/s), records={stats['records']:,}"
     )
     return 0
-
-
 if __name__ == "__main__":
     raise SystemExit(main())

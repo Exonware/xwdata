@@ -2,7 +2,7 @@
 
 **Status:** ✅ PRODUCTION-READY  
 **Date:** 29-Oct-2025  
-**Author:** Eng. Muhammad AlShehri  
+**Author:** eXonware Backend Team  
 **Email:** connect@exonware.com  
 **Version:** 0.0.1.8 (V8)
 

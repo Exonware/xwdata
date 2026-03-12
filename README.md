@@ -1,356 +1,63 @@
-# 🚀 **xwdata: Universal Data Engine with XWNode Integration**
+# xwdata
 
-**Company:** eXonware.com  
-**Author:** Eng. Muhammad AlShehri  
-**Email:** connect@exonware.com  
-**Version:** 0.1.0.1
+**Format-agnostic data engine with XWNode.** Load from any format, manipulate with copy-on-write semantics, save to any format; xwsystem serialization (30+ formats); path navigation and graph operations via XWNode. Async-first. Per project docs.
 
----
+**Company:** eXonware.com · **Author:** eXonware Backend Team · **Email:** connect@exonware.com  
+**Version:** See [version.py](src/exonware/xwdata/version.py) or PyPI. · **Updated:** See [version.py](src/exonware/xwdata/version.py) (`__date__`)
 
-## 🎯 **What is xwdata?**
-
-**xwdata is the ultimate data manipulation engine** that seamlessly combines format-agnostic operations, powerful graph navigation (XWNode), and intelligent orchestration into one async-first library. Load from any format, manipulate with confidence using copy-on-write semantics, and save to any format - all with one clean API.
-
-### **The Problem We Solve**
-
-Traditional data libraries force you to:
-- ❌ Learn different APIs for each format (json, yaml, xml, etc.)
-- ❌ Write custom code for format conversions
-- ❌ Deal with mutable state causing bugs
-- ❌ Handle format-specific quirks manually
-- ❌ Build complex navigation logic for nested data
-
-### **The xwdata Solution**
-
-✅ **One API for all formats** - Load JSON, save as YAML, convert to XML  
-✅ **Ultra-fast multi-format** - 0.15-0.21ms for all 30+ formats  
-✅ **V8 advanced features** - Partial access, typed loading, canonical hashing (all formats!)  
-✅ **XWNode integration** - Powerful path navigation and graph operations  
-✅ **Copy-on-write semantics** - Safe concurrent access, immutable by default  
-✅ **Universal metadata** - Perfect roundtrips preserve format-specific features  
-✅ **Async by design** - High-performance async operations throughout  
-✅ **Engine orchestration** - Reuses xwsystem serialization (30+ formats!)  
-✅ **Reference resolution** - Automatic handling of $ref, @href, *anchors  
-✅ **Beats V7 performance** - 24-67% faster on medium/large files!  
+[![Status](https://img.shields.io/badge/status-beta-blue.svg)](https://exonware.com)
+[![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ---
 
-## ⚡ **Quick Start**
+## Install
 
-### **Installation**
-
-```bash
-# Lite (Default) - Core Only
-pip install exonware-xwdata
-
-# Lazy (Recommended for Development) - Auto-install on demand
-pip install exonware-xwdata[lazy]
-
-# Full (Recommended for Production) - All dependencies pre-installed
-pip install exonware-xwdata[full]
-```
-
-### **Basic Usage**
-
-```python
-from exonware.xwdata import XWData
-
-# === Synchronous Creation ===
-# From native Python data
-data = XWData({'name': 'Alice', 'age': 30, 'city': 'NYC'})
-
-# Get values (async)
-import asyncio
-name = asyncio.run(data.get('name'))  # 'Alice'
-
-# === Async Operations ===
-async def main():
-    # Load from file (any format!)
-    data = await XWData.load('config.json')
-    
-    # Navigate and modify (copy-on-write!)
-    data = await data.set('api.timeout', 30)
-    data = await data.set('api.retries', 3)
-    
-    # Save to different format
-    await data.save('config.yaml')  # JSON → YAML conversion!
-    await data.save('config.xml')   # → XML too!
-
-asyncio.run(main())
-```
+| Install | What you get | When to use |
+|---------|--------------|-------------|
+| `pip install exonware-xwdata` | **Lite** — core only | Minimal footprint. |
+| `pip install exonware-xwdata[lazy]` | **Lazy** — formats on first use | Development. |
+| `pip install exonware-xwdata[full]` | **Full** — common formats pre-installed | Production or CI. |
 
 ---
 
-## 🌟 **Key Features**
-
-### **1. Format-Agnostic Operations**
+## Quick start
 
 ```python
-# Load from any format
-data = await XWData.load('config.json')    # JSON
-data = await XWData.load('config.yaml')    # YAML
-data = await XWData.load('config.xml')     # XML
-data = await XWData.load('config.toml')    # TOML
+from exonware.xwdata import load_data, save_data
 
-# Save to any format
-await data.save('output.json')   # → JSON
-await data.save('output.yaml')   # → YAML
-await data.save('output.xml')    # → XML
+# Load from any format, save to any format; one API
+data = load_data("input.json")   # or .yaml, .xml, etc.
+data["key"] = "value"
+save_data(data, "output.yaml")
 ```
 
-**Supported Formats:**
-- **Text:** JSON, YAML, XML, TOML, CSV, INI
-- **Extended:** JSON5 (with comments), JSONL (streaming)
-- **Binary:** BSON, MessagePack, Pickle (via xwsystem)
-- **Schema-based:** Avro, Protobuf, Parquet (via xwsystem)
-
-### **2. XWNode Integration - Powerful Navigation**
-
-```python
-# Create from nested data
-data = XWData({
-    'users': [
-        {'name': 'Alice', 'age': 30},
-        {'name': 'Bob', 'age': 25}
-    ]
-})
-
-# Navigate with paths
-alice_age = await data.get('users.0.age')  # 30
-
-# Check existence
-has_email = await data.exists('users.0.email')  # False
-
-# Copy-on-write mutations
-data = await data.set('users.0.city', 'NYC')
-data = await data.delete('users.1')
-```
-
-### **3. Copy-on-Write Semantics - Safe Concurrency**
-
-```python
-# Original data
-data1 = XWData({'counter': 0})
-
-# Modify creates new instance
-data2 = await data1.set('counter', 1)
-data3 = await data1.set('counter', 2)
-
-# Original unchanged
-assert await data1.get('counter') == 0
-assert await data2.get('counter') == 1
-assert await data3.get('counter') == 2
-```
-
-### **4. Multi-Source Merging**
-
-```python
-# Merge multiple sources intelligently
-data = XWData([
-    {'base': 'config'},           # Base dict
-    'overrides.yaml',             # Load and merge file
-    existing_xwdata_instance,     # Merge another XWData
-    {'final': 'override'}         # Final overrides
-], merge_strategy='deep')
-```
-
-### **5. Async-First Design**
-
-```python
-# All I/O operations are async
-async def process_configs():
-    # Load multiple files concurrently
-    config1 = await XWData.load('config1.json')
-    config2 = await XWData.load('config2.yaml')
-    
-    # Merge them
-    merged = await config1.merge(config2)
-    
-    # Transform
-    transformed = await merged.transform(lambda d: {
-        k.upper(): v for k, v in d.items()
-    })
-    
-    # Save results
-    await transformed.save('result.json')
-```
+XWNode integration for path navigation and graph operations; async operations; reference resolution. See [docs/](docs/) and [docs/GUIDE_01_USAGE.md](docs/GUIDE_01_USAGE.md) when present.
 
 ---
 
-## 🏗️ **Architecture**
+## What you get
 
-### **Engine Pattern (Inspired by xwquery)**
-
-```
-XWData (facade) → XWDataEngine (orchestrator) → Services
-                         ↓
-                  XWSerializer (xwsystem - reuse!)
-                         ↓
-                  Format Strategies (metadata & references)
-                         ↓
-                  XWNode (xwnode - navigation)
-```
-
-**Components:**
-- **XWData** - User-facing facade with fluent API
-- **XWDataEngine** - Core orchestrator (the brain)
-- **XWSerializer** - Format I/O from xwsystem (reused, not duplicated)
-- **FormatStrategies** - Lightweight format-specific logic (50 lines each)
-- **XWDataNode** - Extends XWNode with COW and metadata
-- **Services** - Metadata, References, Caching, Monitoring
-
-**No Handler Duplication:** xwdata doesn't reimplement serialization - it orchestrates xwsystem's battle-tested serializers and adds data manipulation features on top!
+| Area | What's in it |
+|------|----------------|
+| **Formats** | One API for 30+ formats via xwsystem; partial access, typed loading. |
+| **XWNode** | Path navigation and graph operations on loaded data. |
+| **Semantics** | Copy-on-write; universal metadata; reference resolution. |
+| **Async** | Async-first operations. |
 
 ---
 
-## 📚 **Advanced Features**
+## Docs and tests
 
-### **Universal Metadata - Perfect Roundtrips**
-
-```python
-# Preserves format-specific semantics
-data = await XWData.load('schema.json')  # Has $ref, @id
-await data.save('schema.xml')            # Converts to @href, preserves meaning
-await data.save('schema.json')           # Perfect roundtrip!
-```
-
-### **Reference Resolution**
-
-```python
-from exonware.xwdata import XWData, XWDataConfig, ReferenceConfig
-
-# Configure reference resolution
-config = XWDataConfig.default()
-config.reference = ReferenceConfig.eager()  # Resolve immediately
-
-# Load file with $ref, @href, *anchor references
-data = await XWData.load('schema.json', config=config)
-
-# References automatically detected and resolved!
-```
-
-### **Performance Caching**
-
-```python
-config = XWDataConfig.fast()  # Enable all caching
-
-# First load - cache miss
-data1 = await XWData.load('large.json', config=config)
-
-# Second load - cache hit (instant!)
-data2 = await XWData.load('large.json', config=config)
-```
-
-### **Streaming Large Files**
-
-```python
-# Stream large JSONL files
-async for chunk in XWData.stream_load('huge_data.jsonl'):
-    process(chunk)
-```
+- **Start:** [docs/INDEX.md](docs/INDEX.md) or [docs/](docs/).
+- **Tests:** Run from project root per project layout.
 
 ---
 
-## 🎓 **Configuration**
+## License and links
 
-### **Presets**
+MIT — see [LICENSE](LICENSE). **Homepage:** https://exonware.com · **Repository:** https://github.com/exonware/xwdata  
 
-```python
-from exonware.xwdata import XWDataConfig
+Contributing → CONTRIBUTING.md · Security → SECURITY.md (when present).
 
-# Default balanced configuration
-config = XWDataConfig.default()
-
-# High security for untrusted data
-config = XWDataConfig.strict()
-
-# High performance for speed
-config = XWDataConfig.fast()
-
-# Development mode with debugging
-config = XWDataConfig.development()
-```
-
-### **Custom Configuration**
-
-```python
-from exonware.xwdata import (
-    XWDataConfig, SecurityConfig, PerformanceConfig, 
-    ReferenceConfig, MetadataConfig, COWConfig
-)
-
-config = XWDataConfig(
-    security=SecurityConfig(max_file_size_mb=50),
-    performance=PerformanceConfig.fast(),
-    reference=ReferenceConfig.lazy(),
-    metadata=MetadataConfig.full(),
-    cow=COWConfig.immutable()
-)
-```
-
----
-
-## 🔧 **Development**
-
-```bash
-# Install in development mode
-pip install -e .
-
-# Run tests
-python tests/runner.py
-
-# Run specific test layers
-python tests/runner.py --core          # Fast core tests
-python tests/runner.py --unit          # Unit tests
-python tests/runner.py --integration   # Integration tests
-
-# Run verification
-python tests/verify_installation.py
-```
-
----
-
-## 🚀 **Project Phases**
-
-### **Current Phase: 🧪 Version 0 - Experimental Stage**
-- **Focus:** Engine architecture, async operations, xwsystem integration
-- **Status:** 🟢 **ACTIVE** - Foundation complete with engine pattern
-
-### **Development Roadmap:**
-- **Version 1 (Q1 2026):** Production Ready - Enterprise deployment
-- **Version 2 (Q2 2026):** Mars Standard Draft - Cross-platform interoperability
-- **Version 3 (Q3 2026):** RUST Core & Facades - High-performance multi-language
-- **Version 4 (Q4 2026):** Mars Standard Implementation - Full compliance
-
-📖 **[View Complete Project Phases](docs/PROJECT_PHASES.md)**
-
----
-
-## 🤝 **Contributing**
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Run the test suite
-6. Submit a pull request
-
----
-
-## 📄 **License**
-
-MIT License - see LICENSE file for details.
-
----
-
-## 🔗 **eXonware Ecosystem**
-
-xwdata integrates seamlessly with:
-- **xwsystem** - Core utilities, serialization (24+ formats), security
-- **xwnode** - Node structures (57 strategies), graph operations
-- **xwquery** - Query languages (35+ languages) - Coming soon!
-- **xwschema** - Schema validation - Coming soon!
-
----
-
-*Built with ❤️ by eXonware.com - Making data manipulation effortless*
+*Built with ❤️ by eXonware.com - Revolutionizing Python Development Since 2025*

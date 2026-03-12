@@ -1,4 +1,3 @@
 """
 Metadata tests package.
 """
-

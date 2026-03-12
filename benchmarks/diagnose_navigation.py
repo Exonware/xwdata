@@ -4,12 +4,10 @@
 import sys
 import time
 from pathlib import Path
-
 # Add paths
 benchmarks_dir = Path(__file__).parent
 xwdata_root = benchmarks_dir.parent
 sys.path.insert(0, str(xwdata_root / "src"))
-
 from exonware.xwdata import XWData
 
 
@@ -39,13 +37,11 @@ def test_navigation_performance():
     """Test different navigation approaches."""
     print("Creating large dataset...")
     data = create_large_data()
-    
     print("Creating XWData instance...")
     start = time.perf_counter()
     xw = XWData.from_native(data)
     creation_time = (time.perf_counter() - start) * 1000
     print(f"  Creation time: {creation_time:.4f}ms")
-    
     # Test 1: Simple top-level access
     print("\nTest 1: Simple access (records.0.id)")
     start = time.perf_counter()
@@ -54,7 +50,6 @@ def test_navigation_performance():
     end = time.perf_counter()
     per_op = ((end - start) * 1000) / 100
     print(f"  Per operation: {per_op:.4f}ms")
-    
     # Test 2: Shallow nested access
     print("\nTest 2: Shallow nested (records.0.data.field1)")
     start = time.perf_counter()
@@ -63,7 +58,6 @@ def test_navigation_performance():
     end = time.perf_counter()
     per_op = ((end - start) * 1000) / 100
     print(f"  Per operation: {per_op:.4f}ms")
-    
     # Test 3: Deep nested access
     print("\nTest 3: Deep nested (records.0.data.nested.level1.level2.value)")
     start = time.perf_counter()
@@ -72,7 +66,6 @@ def test_navigation_performance():
     end = time.perf_counter()
     per_op = ((end - start) * 1000) / 100
     print(f"  Per operation: {per_op:.4f}ms")
-    
     # Test 4: Direct native access for comparison
     print("\nTest 4: Direct native access (baseline)")
     native = data
@@ -82,7 +75,6 @@ def test_navigation_performance():
     end = time.perf_counter()
     per_op = ((end - start) * 1000) / 100
     print(f"  Per operation: {per_op:.4f}ms")
-    
     # Test 5: Using XWDataNode directly
     print("\nTest 5: XWDataNode navigation")
     node = xw._node
@@ -92,15 +84,11 @@ def test_navigation_performance():
     end = time.perf_counter()
     per_op = ((end - start) * 1000) / 100
     print(f"  Per operation: {per_op:.4f}ms")
-    
     # Test 6: Check if XWNode is being used
     print("\nDiagnostics:")
     print(f"  Has _xwnode: {node._xwnode is not None}")
     if node._xwnode:
         print(f"  XWNode type: {type(node._xwnode)}")
         print(f"  XWNode immutable: {getattr(node._xwnode, '_immutable', 'unknown')}")
-
-
 if __name__ == "__main__":
     test_navigation_performance()
-

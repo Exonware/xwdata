@@ -1,7 +1,7 @@
 # 🚀 Complete Performance Analysis: 3-Way Comparison
 
 **Company:** eXonware.com  
-**Author:** Eng. Muhammad AlShehri  
+**Author:** eXonware Backend Team  
 **Email:** connect@exonware.com  
 **Version:** 0.0.1.3  
 **Generation Date:** 28-Oct-2025

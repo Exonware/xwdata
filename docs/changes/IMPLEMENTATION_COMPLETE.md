@@ -332,6 +332,6 @@ The implementation provides a powerful, flexible, and intuitive API for working 
 ---
 
 **Company:** eXonware.com  
-**Author:** Eng. Muhammad AlShehri  
+**Author:** eXonware Backend Team  
 **Email:** connect@exonware.com  
 **Implementation Date:** October 26, 2025

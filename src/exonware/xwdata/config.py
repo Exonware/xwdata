@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
 """
 #exonware/xwdata/src/exonware/xwdata/config.py
-
 XWData Configuration System
-
 This module provides fluent configuration for xwdata with builder pattern
 and sensible defaults for different use cases.
-
 Company: eXonware.com
-Author: Eng. Muhammad AlShehri
+Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.1.0.1
+Version: 0.9.0.1
 Generation Date: 26-Oct-2025
 """
 
+from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional, Any
 from pathlib import Path
-
 from enum import Enum
 from .defs import (
     CacheStrategy, ReferenceResolutionMode, MergeStrategy,
@@ -26,11 +23,10 @@ from .defs import (
     DEFAULT_MAX_NESTING_DEPTH, DEFAULT_TIMEOUT_SECONDS,
     DEFAULT_MERGE_STRATEGY
 )
-
-
 # ==============================================================================
 # V8 ENUMS
 # ==============================================================================
+
 
 class LoadStrategy(Enum):
     """Loading strategy based on file size (V8)."""
@@ -39,16 +35,13 @@ class LoadStrategy(Enum):
     PARTIAL = "partial"        # Use partial access (JSON Pointer/ijson)
     STREAMING = "streaming"    # Stream-only (no full load)
     AUTO = "auto"              # Automatic detection (default)
-
-
 # ==============================================================================
 # SECURITY CONFIGURATION
 # ==============================================================================
-
 @dataclass
+
 class SecurityConfig:
     """Security configuration with defensive defaults."""
-    
     max_file_size_mb: int = DEFAULT_MAX_FILE_SIZE_MB
     max_nesting_depth: int = DEFAULT_MAX_NESTING_DEPTH
     safe_mode: bool = True
@@ -57,9 +50,9 @@ class SecurityConfig:
     timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
     enable_path_validation: bool = True
     enable_sanitization: bool = True
-    
     @classmethod
-    def strict(cls) -> 'SecurityConfig':
+
+    def strict(cls) -> SecurityConfig:
         """High security mode for untrusted data."""
         return cls(
             max_file_size_mb=10,
@@ -71,9 +64,9 @@ class SecurityConfig:
             enable_path_validation=True,
             enable_sanitization=True
         )
-    
     @classmethod
-    def relaxed(cls) -> 'SecurityConfig':
+
+    def relaxed(cls) -> SecurityConfig:
         """Development mode with relaxed limits."""
         return cls(
             max_file_size_mb=500,
@@ -85,16 +78,13 @@ class SecurityConfig:
             enable_path_validation=False,
             enable_sanitization=False
         )
-
-
 # ==============================================================================
 # PERFORMANCE CONFIGURATION
 # ==============================================================================
-
 @dataclass
+
 class PerformanceConfig:
     """Performance configuration for optimization."""
-    
     cache_strategy: CacheStrategy = CacheStrategy.TWO_TIER
     cache_size: int = DEFAULT_CACHE_SIZE
     enable_caching: bool = True
@@ -106,15 +96,14 @@ class PerformanceConfig:
     pool_size: int = 100
     enable_parallel: bool = False
     max_workers: int = 4
-    
     # Fast path optimizations (inspired by xData-Old's simplicity)
     enable_fast_path: bool = True  # Use fast path for small operations
     fast_path_threshold_kb: int = 50  # Files < 50KB use fast path (increased from 10KB)
     enable_direct_navigation: bool = True  # Bypass XWNode for simple paths
     direct_nav_size_threshold_kb: int = 100  # Use direct nav when data > 100KB
-    
     @classmethod
-    def fast(cls) -> 'PerformanceConfig':
+
+    def fast(cls) -> PerformanceConfig:
         """High performance mode with fast path enabled."""
         return cls(
             cache_strategy=CacheStrategy.TWO_TIER,
@@ -132,9 +121,9 @@ class PerformanceConfig:
             enable_direct_navigation=True,  # Direct dict access
             direct_nav_size_threshold_kb=100
         )
-    
     @classmethod
-    def memory_optimized(cls) -> 'PerformanceConfig':
+
+    def memory_optimized(cls) -> PerformanceConfig:
         """Memory-efficient mode."""
         return cls(
             cache_strategy=CacheStrategy.NONE,
@@ -147,17 +136,14 @@ class PerformanceConfig:
             pool_size=10,
             enable_parallel=False
         )
-
-
 # ==============================================================================
 # LAZY CONFIGURATION (Industry Best Practices)
 # ==============================================================================
-
 @dataclass
+
 class LazyConfig:
     """
     Lazy loading configuration following industry best practices.
-    
     Industry Standards:
     - Virtual Proxy Pattern: Defer expensive operations until needed
     - Lazy Initialization: Initialize objects only when accessed
@@ -165,35 +151,30 @@ class LazyConfig:
     - Memory Efficiency: Reduce memory footprint for large datasets
     - Performance Optimization: Avoid unnecessary work
     """
-    
     # Core lazy capabilities
     defer_file_io: bool = True  # Don't read file until accessed
     defer_serialization: bool = True  # Don't parse until accessed
     defer_xwnode_creation: bool = True  # Don't create XWNode until needed
     defer_metadata_extraction: bool = False  # Always extract metadata (security)
-    
     # Thresholds for lazy behavior
     file_size_threshold_kb: int = 10  # Files < 10KB never lazy (fast path)
     data_size_threshold_kb: int = 100  # Data < 100KB never lazy
     navigation_depth_threshold: int = 3  # Deep paths trigger lazy
-    
     # Lazy evaluation strategies
     enable_lazy_evaluation: bool = True  # Defer computation
     enable_lazy_validation: bool = True  # Defer validation until access
     enable_lazy_caching: bool = True  # Cache lazy results
-    
     # Memory management
     enable_memory_mapping: bool = False  # Use memory mapping for large files
     enable_streaming_parsing: bool = True  # Stream parse large files
     enable_chunked_loading: bool = True  # Load data in chunks
-    
     # Performance optimizations
     enable_prefetching: bool = False  # Prefetch likely-to-be-accessed data
     prefetch_distance: int = 2  # How many levels to prefetch
     enable_smart_caching: bool = True  # Cache based on access patterns
-    
     @classmethod
-    def aggressive(cls) -> 'LazyConfig':
+
+    def aggressive(cls) -> LazyConfig:
         """Maximum lazy loading for memory efficiency."""
         return cls(
             defer_file_io=True,
@@ -212,9 +193,9 @@ class LazyConfig:
             enable_prefetching=False,  # Aggressive = no prefetch
             enable_smart_caching=True
         )
-    
     @classmethod
-    def smart(cls) -> 'LazyConfig':
+
+    def smart(cls) -> LazyConfig:
         """Balanced lazy loading with smart optimizations."""
         return cls(
             defer_file_io=True,
@@ -234,9 +215,9 @@ class LazyConfig:
             prefetch_distance=2,
             enable_smart_caching=True
         )
-    
     @classmethod
-    def minimal(cls) -> 'LazyConfig':
+
+    def minimal(cls) -> LazyConfig:
         """Minimal lazy loading for performance."""
         return cls(
             defer_file_io=False,  # Always read immediately
@@ -255,9 +236,9 @@ class LazyConfig:
             enable_prefetching=False,
             enable_smart_caching=False
         )
-    
     @classmethod
-    def off(cls) -> 'LazyConfig':
+
+    def off(cls) -> LazyConfig:
         """Disable all lazy loading."""
         return cls(
             defer_file_io=False,
@@ -276,17 +257,14 @@ class LazyConfig:
             enable_prefetching=False,
             enable_smart_caching=False
         )
-
-
 # ==============================================================================
 # REFERENCE CONFIGURATION (Industry Best Practices)
 # ==============================================================================
-
 @dataclass
+
 class ReferenceConfig:
     """
     Reference resolution configuration following industry best practices.
-    
     Industry Standards:
     - JSON Schema $ref: RFC 3986 URI resolution
     - OpenAPI $ref: JSON Reference specification
@@ -295,7 +273,6 @@ class ReferenceConfig:
     - Security: Path traversal prevention, scheme validation
     - Performance: Caching, lazy resolution, circular detection
     """
-    
     # Core resolution behavior
     resolution_mode: ReferenceResolutionMode = ReferenceResolutionMode.LAZY
     enable_circular_detection: bool = True
@@ -303,33 +280,29 @@ class ReferenceConfig:
     cache_resolved: bool = True
     follow_external: bool = True
     allowed_schemes: tuple[str, ...] = ('file', 'https')
-    
     # Format-specific patterns (industry standard)
     json_ref_patterns: tuple[str, ...] = ('$ref', '$id', '$anchor')
     xml_ref_patterns: tuple[str, ...] = ('@href', '@xlink:href', 'xi:include')
     yaml_ref_patterns: tuple[str, ...] = ('*', '&', '<<')
     custom_ref_patterns: tuple[str, ...] = ()  # User-defined patterns
-    
     # Security controls
     enable_path_validation: bool = True  # Prevent ../ attacks
     enable_scheme_validation: bool = True  # Only allow safe schemes
     enable_content_validation: bool = True  # Validate resolved content
     max_external_size_mb: int = 10  # Limit external reference size
     timeout_seconds: int = 30  # Timeout for external references
-    
     # Performance optimizations
     enable_reference_caching: bool = True  # Cache resolved references
     enable_lazy_resolution: bool = True  # Resolve only when accessed
     enable_batch_resolution: bool = True  # Resolve multiple refs together
     enable_prefetching: bool = False  # Prefetch likely references
-    
     # Error handling
     fail_on_missing_ref: bool = True  # Fail if reference not found
     fail_on_circular_ref: bool = True  # Fail on circular references
     fail_on_invalid_ref: bool = True  # Fail on invalid reference format
-    
     @classmethod
-    def eager(cls) -> 'ReferenceConfig':
+
+    def eager(cls) -> ReferenceConfig:
         """Eager resolution mode - resolve all references immediately."""
         return cls(
             resolution_mode=ReferenceResolutionMode.EAGER,
@@ -344,9 +317,9 @@ class ReferenceConfig:
             fail_on_circular_ref=True,
             fail_on_invalid_ref=True
         )
-    
     @classmethod
-    def lazy(cls) -> 'ReferenceConfig':
+
+    def lazy(cls) -> ReferenceConfig:
         """Lazy resolution mode - resolve references when accessed."""
         return cls(
             resolution_mode=ReferenceResolutionMode.LAZY,
@@ -361,9 +334,9 @@ class ReferenceConfig:
             fail_on_circular_ref=True,
             fail_on_invalid_ref=False
         )
-    
     @classmethod
-    def detect_only(cls) -> 'ReferenceConfig':
+
+    def detect_only(cls) -> ReferenceConfig:
         """Detect references but don't resolve."""
         return cls(
             resolution_mode=ReferenceResolutionMode.DETECT_ONLY,
@@ -378,9 +351,9 @@ class ReferenceConfig:
             fail_on_circular_ref=False,
             fail_on_invalid_ref=False
         )
-    
     @classmethod
-    def secure(cls) -> 'ReferenceConfig':
+
+    def secure(cls) -> ReferenceConfig:
         """High security mode for untrusted data."""
         return cls(
             resolution_mode=ReferenceResolutionMode.LAZY,
@@ -398,9 +371,9 @@ class ReferenceConfig:
             fail_on_circular_ref=True,
             fail_on_invalid_ref=True
         )
-    
     @classmethod
-    def off(cls) -> 'ReferenceConfig':
+
+    def off(cls) -> ReferenceConfig:
         """Disable all reference resolution."""
         return cls(
             resolution_mode=ReferenceResolutionMode.DETECT_ONLY,
@@ -415,25 +388,22 @@ class ReferenceConfig:
             fail_on_circular_ref=False,
             fail_on_invalid_ref=False
         )
-
-
 # ==============================================================================
 # METADATA CONFIGURATION
 # ==============================================================================
-
 @dataclass
+
 class MetadataConfig:
     """Metadata preservation configuration."""
-    
     mode: MetadataMode = MetadataMode.UNIVERSAL
     preserve_format_specifics: bool = True
     preserve_types: bool = True
     preserve_order: bool = True
     preserve_comments: bool = False  # Not all formats support
     enable_universal_metadata: bool = True
-    
     @classmethod
-    def minimal(cls) -> 'MetadataConfig':
+
+    def minimal(cls) -> MetadataConfig:
         """Minimal metadata mode."""
         return cls(
             mode=MetadataMode.BASIC,
@@ -443,9 +413,9 @@ class MetadataConfig:
             preserve_comments=False,
             enable_universal_metadata=False
         )
-    
     @classmethod
-    def full(cls) -> 'MetadataConfig':
+
+    def full(cls) -> MetadataConfig:
         """Full metadata preservation mode."""
         return cls(
             mode=MetadataMode.UNIVERSAL,
@@ -455,23 +425,20 @@ class MetadataConfig:
             preserve_comments=True,
             enable_universal_metadata=True
         )
-
-
 # ==============================================================================
 # COW CONFIGURATION
 # ==============================================================================
-
 @dataclass
+
 class COWConfig:
     """Copy-on-write configuration."""
-    
     mode: COWMode = COWMode.ENABLED
     copy_on_init: bool = False
     structural_sharing: bool = True
     freeze_on_copy: bool = True
-    
     @classmethod
-    def immutable(cls) -> 'COWConfig':
+
+    def immutable(cls) -> COWConfig:
         """Fully immutable mode."""
         return cls(
             mode=COWMode.DEEP_COPY,
@@ -479,9 +446,9 @@ class COWConfig:
             structural_sharing=False,
             freeze_on_copy=True
         )
-    
     @classmethod
-    def mutable(cls) -> 'COWConfig':
+
+    def mutable(cls) -> COWConfig:
         """Mutable mode (no COW)."""
         return cls(
             mode=COWMode.DISABLED,
@@ -489,56 +456,49 @@ class COWConfig:
             structural_sharing=False,
             freeze_on_copy=False
         )
-
-
 # ==============================================================================
 # V8 CONFIGURATION
 # ==============================================================================
-
 @dataclass
+
 class SizeThresholds:
     """
     File size thresholds for automatic strategy selection (V8).
-    
     Based on production best practices:
     - Small: Full load (instant, all in memory)
     - Medium: Lazy load (defer until accessed)
     - Large: Partial access (ijson, JSON Pointer)
     - Ultra: Streaming only (constant memory)
     """
-    
     small_mb: float = 1.0       # < 1MB: FULL load
     medium_mb: float = 50.0     # < 50MB: LAZY load
     large_mb: float = 500.0     # < 500MB: PARTIAL access
     # > 500MB: STREAMING only
-    
     @classmethod
-    def aggressive(cls) -> 'SizeThresholds':
+
+    def aggressive(cls) -> SizeThresholds:
         """More aggressive partial access (use for memory-constrained systems)."""
         return cls(
             small_mb=0.5,
             medium_mb=10.0,
             large_mb=100.0
         )
-    
     @classmethod
-    def relaxed(cls) -> 'SizeThresholds':
+
+    def relaxed(cls) -> SizeThresholds:
         """Relaxed thresholds (use for high-memory systems)."""
         return cls(
             small_mb=10.0,
             medium_mb=100.0,
             large_mb=1000.0
         )
-
-
 @dataclass
+
 class IntegrityConfig:
     """
     File integrity configuration (V8).
-    
     Checksums are OFF by default for maximum performance.
     """
-    
     # OFF by default (benchmarks win!)
     enable_checksums: bool = False
     checksum_algorithm: str = 'xxh3'  # 30GB/s - near-zero overhead
@@ -546,73 +506,64 @@ class IntegrityConfig:
     verify_on_save: bool = True
     checksum_storage: str = 'meta_file'  # or 'embedded', 'xattr'
     fail_on_mismatch: bool = True
-    
     @classmethod
-    def enabled(cls) -> 'IntegrityConfig':
+
+    def enabled(cls) -> IntegrityConfig:
         """Enable checksums with fast algorithm."""
         return cls(enable_checksums=True)
-    
     @classmethod
-    def secure(cls) -> 'IntegrityConfig':
+
+    def secure(cls) -> IntegrityConfig:
         """Secure checksums with SHA256."""
         return cls(
             enable_checksums=True,
             checksum_algorithm='sha256'
         )
-
-
 @dataclass
+
 class PartialAccessConfig:
     """
     Partial access configuration for large files (V8).
-    
     Enables smart partial read/write based on file size.
     """
-    
     # Partial access features (all OFF by default for V6 performance)
     enable_partial_read: bool = False   # Use JSON Pointer/ijson
     enable_partial_write: bool = False  # Use JSON Patch
     enable_node_streaming: bool = False # Use node-based streaming
-    
     # Auto-enable based on file size (smart mode)
     auto_enable_on_size: bool = True    # Auto-detect when to use partial
     partial_threshold_mb: float = 50.0  # Auto-enable if file > 50MB
-    
     # Streaming configuration
     node_buffer_size: int = 100         # Buffer 100 nodes
     stream_batch_size: int = 1000       # Process 1000 nodes per batch
-    
     # Performance
     enable_path_caching: bool = True    # Cache partial access results
     cache_ttl_seconds: int = 300
-    
     @classmethod
-    def enabled(cls) -> 'PartialAccessConfig':
+
+    def enabled(cls) -> PartialAccessConfig:
         """Enable all partial access features."""
         return cls(
             enable_partial_read=True,
             enable_partial_write=True,
             enable_node_streaming=True
         )
-    
     @classmethod
-    def smart(cls) -> 'PartialAccessConfig':
+
+    def smart(cls) -> PartialAccessConfig:
         """Smart mode: Auto-enable based on file size (recommended)."""
         return cls(
             auto_enable_on_size=True,
             partial_threshold_mb=50.0
         )
-
-
 # ==============================================================================
 # MAIN CONFIGURATION
 # ==============================================================================
-
 @dataclass
+
 class XWDataConfig:
     """
     Main xwdata configuration with fluent builder pattern.
-    
     Aggregates all configuration aspects:
     - Security: File size limits, path validation
     - Performance: Caching, pooling, parallel processing
@@ -621,7 +572,6 @@ class XWDataConfig:
     - COW: Copy-on-write semantics
     - V8: Smart loading, partial access, checksums
     """
-    
     # Component configurations (V7)
     security: SecurityConfig = field(default_factory=SecurityConfig)
     performance: PerformanceConfig = field(default_factory=PerformanceConfig)
@@ -629,26 +579,24 @@ class XWDataConfig:
     reference: ReferenceConfig = field(default_factory=ReferenceConfig)
     metadata: MetadataConfig = field(default_factory=MetadataConfig)
     cow: COWConfig = field(default_factory=COWConfig)
-    
     # V8 configurations (advanced features - OFF by default for performance)
     thresholds: SizeThresholds = field(default_factory=SizeThresholds)
     integrity: IntegrityConfig = field(default_factory=IntegrityConfig)
     partial: PartialAccessConfig = field(default_factory=PartialAccessConfig)
-    
     # General settings
     default_merge_strategy: str = DEFAULT_MERGE_STRATEGY
     enable_validation: bool = True
     validation_mode: ValidationMode = ValidationMode.BASIC
     async_by_default: bool = True
-    
     # Presets
     @classmethod
-    def default(cls) -> 'XWDataConfig':
+
+    def default(cls) -> XWDataConfig:
         """Default balanced configuration."""
         return cls()
-    
     @classmethod
-    def strict(cls) -> 'XWDataConfig':
+
+    def strict(cls) -> XWDataConfig:
         """Strict mode for untrusted data."""
         return cls(
             security=SecurityConfig.strict(),
@@ -659,9 +607,9 @@ class XWDataConfig:
             enable_validation=True,
             validation_mode=ValidationMode.STRICT
         )
-    
     @classmethod
-    def fast(cls) -> 'XWDataConfig':
+
+    def fast(cls) -> XWDataConfig:
         """High performance mode."""
         return cls(
             security=SecurityConfig.relaxed(),
@@ -671,9 +619,9 @@ class XWDataConfig:
             cow=COWConfig(),
             enable_validation=False
         )
-    
     @classmethod
-    def development(cls) -> 'XWDataConfig':
+
+    def development(cls) -> XWDataConfig:
         """Development mode with debugging features."""
         return cls(
             security=SecurityConfig.relaxed(),
@@ -684,14 +632,12 @@ class XWDataConfig:
             enable_validation=True,
             validation_mode=ValidationMode.BASIC
         )
-    
     # === V8 PRESETS ===
-    
     @classmethod
-    def v8_smart(cls) -> 'XWDataConfig':
+
+    def v8_smart(cls) -> XWDataConfig:
         """
         V8 Smart Mode (Recommended Default).
-        
         - Auto-detects file size
         - Partial access for large files
         - Checksums OFF (performance first)
@@ -703,12 +649,11 @@ class XWDataConfig:
             partial=PartialAccessConfig.smart(),
             performance=PerformanceConfig.fast()
         )
-    
     @classmethod
-    def v8_secure(cls) -> 'XWDataConfig':
+
+    def v8_secure(cls) -> XWDataConfig:
         """
         V8 Secure Mode (Integrity Focused).
-        
         - Checksums enabled (xxh3 for speed)
         - Partial access for large files
         - Strict security settings
@@ -720,12 +665,11 @@ class XWDataConfig:
             security=SecurityConfig.strict(),
             performance=PerformanceConfig.memory_optimized()
         )
-    
     @classmethod
-    def v8_performance(cls) -> 'XWDataConfig':
+
+    def v8_performance(cls) -> XWDataConfig:
         """
         V8 Performance Mode (Maximum Speed).
-        
         - All advanced features OFF
         - Ultra-fast path only
         - V6-level or better performance
@@ -742,38 +686,35 @@ class XWDataConfig:
             performance=PerformanceConfig.fast(),
             reference=ReferenceConfig(resolution_mode=ReferenceResolutionMode.DISABLED)
         )
-    
     # Fluent builders
-    def with_security(self, security: SecurityConfig) -> 'XWDataConfig':
+
+    def with_security(self, security: SecurityConfig) -> XWDataConfig:
         """Set security configuration."""
         self.security = security
         return self
-    
-    def with_performance(self, performance: PerformanceConfig) -> 'XWDataConfig':
+
+    def with_performance(self, performance: PerformanceConfig) -> XWDataConfig:
         """Set performance configuration."""
         self.performance = performance
         return self
-    
-    def with_reference(self, reference: ReferenceConfig) -> 'XWDataConfig':
+
+    def with_reference(self, reference: ReferenceConfig) -> XWDataConfig:
         """Set reference configuration."""
         self.reference = reference
         return self
-    
-    def with_metadata(self, metadata: MetadataConfig) -> 'XWDataConfig':
+
+    def with_metadata(self, metadata: MetadataConfig) -> XWDataConfig:
         """Set metadata configuration."""
         self.metadata = metadata
         return self
-    
-    def with_cow(self, cow: COWConfig) -> 'XWDataConfig':
+
+    def with_cow(self, cow: COWConfig) -> XWDataConfig:
         """Set COW configuration."""
         self.cow = cow
         return self
-
-
 # ==============================================================================
 # EXPORTS
 # ==============================================================================
-
 __all__ = [
     # Component configs
     'SecurityConfig',
@@ -781,8 +722,6 @@ __all__ = [
     'ReferenceConfig',
     'MetadataConfig',
     'COWConfig',
-    
     # Main config
     'XWDataConfig',
 ]
-

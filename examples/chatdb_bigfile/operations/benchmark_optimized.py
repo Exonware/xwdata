@@ -1,26 +1,21 @@
 """Benchmark optimized serializers vs original.
-
 Compares performance with and without orjson optimization.
 """
 
 from __future__ import annotations
-
 import json
 import time
 from pathlib import Path
 from typing import Any
-
 # Import optimized serializers
 import sys
 _OPS_DIR = Path(__file__).resolve().parent
 if str(_OPS_DIR) not in sys.path:
     sys.path.insert(0, str(_OPS_DIR))
-
 # Add xwsystem to path
 _xwsystem_src = Path(__file__).resolve().parents[4] / "xwsystem" / "src"
 if str(_xwsystem_src) not in sys.path:
     sys.path.insert(0, str(_xwsystem_src))
-
 from exonware.xwsystem.io.serialization.formats.text.jsonlines import JsonLinesSerializer
 from exonware.xwsystem.io.serialization.parsers.registry import get_parser, get_best_available_parser
 
@@ -31,7 +26,6 @@ def benchmark_parser_comparison():
     print("PARSER COMPARISON")
     print("=" * 70)
     print()
-    
     # Sample record
     sample_record = {
         "@type": "Message",
@@ -48,7 +42,6 @@ def benchmark_parser_comparison():
     }
     sample_line = json.dumps(sample_record, ensure_ascii=False, separators=(",", ":")) + "\n"
     iterations = 1_000_000
-    
     # Test stdlib json
     print("1. Standard library json.loads()...")
     start = time.perf_counter()
@@ -58,7 +51,6 @@ def benchmark_parser_comparison():
     stdlib_rate = iterations / elapsed
     print(f"   stdlib json: {stdlib_rate:,.0f} records/s ({elapsed:.2f}s)")
     print()
-    
     # Test standard parser
     print("2. Standard parser (via registry)...")
     standard_parser = get_parser("standard")
@@ -69,7 +61,6 @@ def benchmark_parser_comparison():
     standard_rate = iterations / elapsed
     print(f"   Standard parser: {standard_rate:,.0f} records/s ({elapsed:.2f}s)")
     print()
-    
     # Test orjson parser (if available)
     print("3. Orjson parser (if available)...")
     orjson_parser = get_parser("orjson")
@@ -85,7 +76,6 @@ def benchmark_parser_comparison():
         print("   Orjson not available (install with: pip install orjson)")
         orjson_rate = None
     print()
-    
     # Test best available parser
     print("4. Best available parser (auto-detect)...")
     best_parser = get_best_available_parser()
@@ -98,7 +88,6 @@ def benchmark_parser_comparison():
     if best_parser.parser_name == "orjson":
         print(f"   Improvement: {best_rate/stdlib_rate:.2f}x faster than stdlib")
     print()
-    
     return {
         "stdlib": stdlib_rate,
         "standard": standard_rate,
@@ -114,17 +103,13 @@ def benchmark_jsonlines_serializer():
     print("JSONLINES SERIALIZER COMPARISON")
     print("=" * 70)
     print()
-    
     db_path = Path(__file__).parents[1] / "data" / "chatdb.jsonl"
-    
     if not db_path.exists():
         print(f"  Skipping (file not found: {db_path})")
         return None, None
-    
     file_size_mb = db_path.stat().st_size / (1024 * 1024)
     print(f"File: {db_path.name} ({file_size_mb:.2f} MB)")
     print()
-    
     # Test with standard parser
     print("1. JsonLinesSerializer with standard parser...")
     serializer_std = JsonLinesSerializer(parser_name="standard")
@@ -134,7 +119,6 @@ def benchmark_jsonlines_serializer():
     std_rate = len(page) / elapsed if elapsed > 0 else 0
     print(f"   Standard: {std_rate:,.0f} records/s ({elapsed:.4f}s for {len(page)} records)")
     print()
-    
     # Test with orjson parser (if available)
     print("2. JsonLinesSerializer with orjson parser (if available)...")
     serializer_orjson = JsonLinesSerializer(parser_name="orjson")
@@ -149,7 +133,6 @@ def benchmark_jsonlines_serializer():
         print("   Orjson not available")
         orjson_rate = None
     print()
-    
     # Test with auto-detect (best available)
     print("3. JsonLinesSerializer with auto-detect (best available)...")
     serializer_best = JsonLinesSerializer()  # Auto-detect
@@ -161,7 +144,6 @@ def benchmark_jsonlines_serializer():
     if serializer_best._parser.parser_name == "orjson":
         print(f"   Improvement: {best_rate/std_rate:.2f}x faster than standard")
     print()
-    
     return {
         "standard": std_rate,
         "orjson": orjson_rate,
@@ -176,15 +158,11 @@ def benchmark_index_building():
     print("INDEX BUILDING COMPARISON")
     print("=" * 70)
     print()
-    
     db_path = Path(__file__).parents[1] / "data" / "chatdb.jsonl"
-    
     if not db_path.exists():
         print(f"  Skipping (file not found: {db_path})")
         return None
-    
     import build_index
-    
     # Test with standard parser (via build_index using stdlib)
     print("1. Index building with standard parser...")
     # We'll need to modify build_index to use the parser, but for now
@@ -196,10 +174,8 @@ def benchmark_index_building():
     std_rate = total_keys / elapsed if elapsed > 0 else 0
     print(f"   Standard: {std_rate:,.0f} keys/s ({elapsed:.2f}s for {total_keys:,} keys)")
     print()
-    
     # Note: To test with orjson, we'd need to update build_index.py
     # to use the parser abstraction. For now, we'll just show the standard result.
-    
     return {
         "standard": std_rate,
         "total_keys": total_keys,
@@ -215,20 +191,16 @@ def main():
     print()
     print("Comparing optimized serializers (with orjson) vs original (stdlib)")
     print()
-    
     # Run benchmarks
     parser_results = benchmark_parser_comparison()
     print()
-    
     serializer_results = benchmark_jsonlines_serializer()
     print()
-    
     # Summary
     print("=" * 70)
     print("SUMMARY")
     print("=" * 70)
     print()
-    
     if parser_results:
         print("Parser Performance:")
         print(f"  stdlib json: {parser_results['stdlib']:,.0f} records/s")
@@ -238,7 +210,6 @@ def main():
             print(f"  orjson improvement: {parser_results['orjson']/parser_results['stdlib']:.2f}x")
         print(f"  best parser ({parser_results['best_parser']}): {parser_results['best']:,.0f} records/s")
         print()
-    
     if serializer_results:
         print("JsonLinesSerializer Performance:")
         print(f"  standard parser: {serializer_results['standard']:,.0f} records/s")
@@ -247,7 +218,6 @@ def main():
             print(f"  orjson improvement: {serializer_results['orjson']/serializer_results['standard']:.2f}x")
         print(f"  best parser ({serializer_results['best_parser']}): {serializer_results['best']:,.0f} records/s")
         print()
-    
     print("=" * 70)
     print("CONCLUSION")
     print("=" * 70)
@@ -260,7 +230,5 @@ def main():
         print("[WARN] orjson not available. Install with: pip install orjson")
         print("[OK] System falls back gracefully to stdlib json")
     print()
-
-
 if __name__ == "__main__":
     main()

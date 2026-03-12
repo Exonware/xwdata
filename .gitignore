@@ -270,7 +270,7 @@ tests/*/*/runner_out.md
 
 # Log files
 *.log
-logs/
+/logs/
 
 # Database files
 *.sqlite
@@ -281,6 +281,7 @@ logs/
 config.ini
 secrets.json
 .secrets
+.archieve/
 credentials.json
 
 # Local environment files
@@ -288,3 +289,7 @@ credentials.json
 .env.development.local
 .env.test.local
 .env.production.local
+
+# xwlazy generated files (should be in ~/.xwlazy/ but ignore in case of old behavior)
+xwlazy.lock.toml
+xwlazy_sbom.toml

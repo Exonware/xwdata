@@ -1,13 +1,10 @@
 """Build a persistent Type:id -> byte_offset index for chatdb.jsonl.
-
 Run (from repo root):
   python xwdata/examples/chatdb_bigfile/operations/build_index.py
-
 The index is written under operations/.cache/ and validated against file mtime/size.
 """
 
 from __future__ import annotations
-
 import argparse
 import json
 import os
@@ -16,16 +13,13 @@ import time
 import sys
 from pathlib import Path
 from typing import Any
-
 _OPS_DIR = Path(__file__).resolve().parent
 if str(_OPS_DIR) not in sys.path:
     sys.path.insert(0, str(_OPS_DIR))
-
 # Add xwsystem to path for parser access
 _xwsystem_src = Path(__file__).resolve().parents[4] / "xwsystem" / "src"
 if str(_xwsystem_src) not in sys.path:
     sys.path.insert(0, str(_xwsystem_src))
-
 # Import optimized parser
 try:
     from exonware.xwsystem.io.serialization.parsers.registry import get_best_available_parser
@@ -83,23 +77,19 @@ def build_index(
 ) -> dict[str, Any]:
     """
     Build index for JSONL file.
-    
     Args:
         db_path: Path to JSONL file
         use_parallel: If True, use parallel processing; if None, auto-detect based on file size
         num_workers: Number of worker processes (only used if use_parallel=True)
-    
     Returns:
         Index document
     """
     if not db_path.exists():
         raise FileNotFoundError(f"DB file not found: {db_path}")
-    
     # Auto-detect: use parallel for files >500MB
     if use_parallel is None:
         file_size_mb = db_path.stat().st_size / (1024 * 1024)
         use_parallel = file_size_mb > 500
-    
     # Use parallel if requested and available
     if use_parallel:
         try:
@@ -111,25 +101,20 @@ def build_index(
         except Exception as e:
             print(f"Parallel index building failed, falling back to single-threaded: {e}")
             # Fall through to single-threaded
-    
     # Single-threaded implementation (original)
     by_key: dict[str, int] = {}
-
     started = time.perf_counter()
     seen = 0
-
     with db_path.open("rb") as f:
         offset = 0
         while True:
             line = f.readline()
             if not line:
                 break
-
             raw = line.strip()
             if not raw:
                 offset += len(line)
                 continue
-
             try:
                 # Use optimized parser if available
                 if USE_OPTIMIZED_PARSER:
@@ -140,21 +125,17 @@ def build_index(
                 # Skip invalid lines (shouldn't happen in our generator)
                 offset += len(line)
                 continue
-
             if isinstance(rec, dict):
                 t = rec.get("@type")
                 rid = rec.get("id")
                 if t and rid:
                     by_key[f"{t}:{rid}"] = offset
-
             seen += 1
             offset += len(line)
-
             if seen % 1_000_000 == 0:
                 elapsed = max(time.perf_counter() - started, 1e-9)
                 rate = seen / elapsed
                 print(f"... scanned {seen:,} lines ({rate:,.0f} lines/s), keys={len(by_key):,}")
-
     doc = {
         "meta": {
             **_file_meta(db_path),
@@ -169,12 +150,10 @@ def build_index(
 
 def spot_check(db_path: Path, index_doc: dict[str, Any], samples: int) -> None:
     import db_io
-
     keys = list(index_doc.get("by_key", {}).keys())
     if not keys:
         print("Index is empty; skipping spot-check")
         return
-
     rng = random.Random(123)
     for _ in range(min(samples, len(keys))):
         key = rng.choice(keys)
@@ -201,11 +180,9 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = _parse_args()
-
     db_path = Path(args.db)
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-
     if out_path.exists() and not args.force:
         try:
             existing = load_index(out_path)
@@ -218,9 +195,7 @@ def main() -> int:
         except Exception:
             # proceed with rebuild
             pass
-
     print(f"Building index for: {db_path}")
-    
     # Determine parallel mode
     use_parallel = None
     if args.parallel:
@@ -228,26 +203,19 @@ def main() -> int:
     elif args.no_parallel:
         use_parallel = False
     # else: auto-detect based on file size
-    
     started = time.perf_counter()
     doc = build_index(db_path, use_parallel=use_parallel, num_workers=args.workers)
     elapsed = max(time.perf_counter() - started, 1e-9)
-
     # Write compact (can be large)
     out_path.write_text(json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-
     size = os.path.getsize(out_path)
     print(
         f"Wrote index: {out_path} ({size:,} bytes) in {elapsed:.2f}s; "
         f"keys={len(doc.get('by_key', {})):,}"
     )
-
     if args.spot_check:
         spot_check(db_path, doc, args.spot_check)
         print("Spot-check OK")
-
     return 0
-
-
 if __name__ == "__main__":
     raise SystemExit(main())

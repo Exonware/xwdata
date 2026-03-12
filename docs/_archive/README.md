@@ -1,58 +1,12 @@
-# xwdata Historical Documentation Archive
+# xwdata — Archive (value moved)
 
-**Library:** exonware-xwdata  
-**Last Updated:** 06-Nov-2025
+**Date:** 07-Feb-2026
 
----
+Content previously in this directory has been moved to the best locations per GUIDE_41_DOCS:
 
-## 📋 Overview
+- **REF_*:** API, architecture, project phases, etc. — see [../INDEX.md](../INDEX.md).
+- **GUIDE_01_USAGE:** Quick start, troubleshooting — see [../GUIDE_01_USAGE.md](../GUIDE_01_USAGE.md).
+- **changes/:** Implementation and fix notes (e.g. CHANGE_20251026_XWDATA_XWQUERY_INTEGRATION, CHANGE_20250126_BCRYPT_WORKAROUND).
+- **logs/:** Reviews, tests, benchmarks, and a full destination map — see [../logs/ARCHIVE_VALUE_CAPTURE_XWDATA.md](../logs/ARCHIVE_VALUE_CAPTURE_XWDATA.md).
 
-This directory contains historical documentation for xwdata library, including integration reports with xwquery and xwnode.
-
-**All documents are historical** - Preserved for reference and audit purposes.
-
----
-
-## 📊 Archived Documents by Date
-
-### October 27, 2025 - xwdata/xwquery Integration
-
-| File | Description | Topics |
-|------|-------------|--------|
-| [XWDATA_XWQUERY_INTEGRATION_COMPLETE.md](XWDATA_XWQUERY_INTEGRATION_COMPLETE.md) | Integration complete report | Query integration, auto-detection |
-| [PHASE_6_XWDATA_ANALYSIS.md](PHASE_6_XWDATA_ANALYSIS.md) | Phase 6 analysis for codec registry | Universal codec registry integration |
-
----
-
-## 🎯 Key Topics
-
-### xwquery Integration
-- Query method added to XWData
-- Format auto-detection
-- Confidence scoring
-- Detection metadata exposure
-
-### Features Implemented
-- `query()` method with format parameter
-- `get_detected_format()` method
-- `get_detection_confidence()` method
-- `get_detection_info()` method
-
-### Integration Points
-- xwnode COW (Copy-on-Write) integration
-- xwquery execution engine
-- Auto-format detection
-- Multi-format support
-
----
-
-## 🔗 Related Documentation
-
-- [Current Documentation](../README.md) - Current xwdata documentation
-- [xwquery Archive](../../xwquery/docs/_archive/README.md) - Related xwquery docs
-- [xwnode Archive](../../xwnode/docs/_archive/README.md) - Related xwnode docs
-
----
-
-*All documents preserved for historical reference and audit trail*
-
+This directory can be removed when no longer needed; INDEX and REFs do not depend on it.
