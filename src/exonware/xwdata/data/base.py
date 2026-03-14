@@ -7,7 +7,7 @@ These extend the main library abstract classes with data-specific logic.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.3
+Version: 0.9.0.4
 Generation Date: 26-Oct-2025
 """
 # Import parent abstract classes

@@ -6,7 +6,7 @@ Provides batch operations for storage backends.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.3
+Version: 0.9.0.4
 Generation Date: 26-Jan-2025
 """
 
