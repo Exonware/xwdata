@@ -7,7 +7,7 @@ This is an xwdata-exclusive format optimized for streaming.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.2
+Version: 0.9.0.3
 Generation Date: 26-Oct-2025
 """
 

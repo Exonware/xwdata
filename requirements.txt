@@ -17,7 +17,7 @@
 # =============================================================================
 # CORE DEPENDENCIES
 # =============================================================================
-# Source size (src/*): ~500.1 KB
+# Source size (src/*): ~500.5 KB
 pip                     # Package installer (CI and lazy install)
 
 # eXonware ecosystem dependencies (xwdata cannot work without these)

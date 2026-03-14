@@ -4,7 +4,7 @@
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.2
+Version: 0.9.0.3
 Generation Date: October 27, 2025
 Builder pattern for XWData construction.
 Provides fluent API for building complex data structures.

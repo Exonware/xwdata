@@ -6,7 +6,7 @@ Provides integration interfaces for xwstorage multi-backend storage.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.2
+Version: 0.9.0.3
 Generation Date: 26-Jan-2025
 """
 # Optional imports - these will be None if xwstorage is not available
