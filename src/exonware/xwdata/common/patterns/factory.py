@@ -6,11 +6,12 @@ Factory helpers for creating objects.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 
 def create_factory(creator: Callable[..., Any], **default_kwargs) -> Callable[..., Any]:

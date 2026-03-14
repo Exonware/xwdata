@@ -12,12 +12,11 @@ This module defines all the enums and types for the XWData system:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 from enum import Enum, Flag, auto as _auto
-from typing import Any, Optional
 # ==============================================================================
 # DATA FORMATS
 # ==============================================================================

@@ -7,12 +7,13 @@ GUIDELINES_DEV.md standards. All interfaces use 'I' prefix.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 from __future__ import annotations
-from typing import Any, Optional, AsyncIterator, Protocol, runtime_checkable
+from collections.abc import AsyncIterator
+from typing import Any, Protocol, runtime_checkable
 from pathlib import Path
 # Import enums from defs
 from .defs import DataFormat, MergeStrategy, SerializationMode, COWMode
@@ -57,11 +58,11 @@ class IData(Protocol):
         """Synchronously serialize to specified format."""
         ...
 
-    async def save(self, path: str | Path, format: Optional[str | DataFormat] = None, **opts) -> IData:
+    async def save(self, path: str | Path, format: str | DataFormat | None = None, **opts) -> IData:
         """Save to file (returns self for chaining)."""
         ...
 
-    def to_file(self, path: str | Path, format: Optional[str | DataFormat] = None, **opts) -> IData:
+    def to_file(self, path: str | Path, format: str | DataFormat | None = None, **opts) -> IData:
         """Synchronously save to file (returns self for chaining)."""
         ...
 
@@ -77,7 +78,7 @@ class IData(Protocol):
         """Get metadata dictionary."""
         ...
 
-    def get_format(self) -> Optional[str]:
+    def get_format(self) -> str | None:
         """Get format information."""
         ...
 # ==============================================================================
@@ -100,7 +101,7 @@ class IDataEngine(Protocol):
     async def load(
         self,
         path: str | Path,
-        format_hint: Optional[str | DataFormat] = None,
+        format_hint: str | DataFormat | None = None,
         **opts
     ) -> IDataNode:
         """Load data from file."""
@@ -110,7 +111,7 @@ class IDataEngine(Protocol):
         self,
         node: IDataNode,
         path: str | Path,
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> None:
         """Save node to file."""
@@ -128,7 +129,7 @@ class IDataEngine(Protocol):
     async def create_node_from_native(
         self,
         data: Any,
-        metadata: Optional[dict] = None,
+        metadata: dict | None = None,
         **opts
     ) -> IDataNode:
         """Create node from native Python data."""
@@ -294,7 +295,7 @@ class IReferenceResolver(Protocol):
         self,
         data: Any,
         strategy: IFormatStrategy,
-        base_path: Optional[Path] = None,
+        base_path: Path | None = None,
         **opts
     ) -> Any:
         """Resolve all references in data."""
@@ -303,7 +304,7 @@ class IReferenceResolver(Protocol):
     async def resolve_reference(
         self,
         reference: dict[str, Any],
-        base_path: Optional[Path] = None,
+        base_path: Path | None = None,
         **opts
     ) -> Any:
         """Resolve single reference."""
@@ -316,11 +317,11 @@ class IReferenceResolver(Protocol):
 class ICacheManager(Protocol):
     """Interface for cache management."""
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get cached value."""
         ...
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set cached value."""
         ...
 
@@ -346,8 +347,8 @@ class INodeFactory(Protocol):
     async def create_node(
         self,
         data: Any,
-        metadata: Optional[dict] = None,
-        format_info: Optional[dict] = None,
+        metadata: dict | None = None,
+        format_info: dict | None = None,
         **opts
     ) -> IDataNode:
         """Create data node."""
@@ -423,7 +424,7 @@ class IFormatConverter(Protocol):
         self,
         source_path: str | Path,
         target_path: str | Path,
-        target_format: Optional[str | DataFormat] = None,
+        target_format: str | DataFormat | None = None,
         **opts
     ) -> Path:
         """
@@ -497,7 +498,7 @@ class IConversionPipeline(Protocol):
         self,
         source_path: str | Path,
         steps: list[tuple[str | DataFormat, dict[str, Any]]],
-        target_path: Optional[str | Path] = None,
+        target_path: str | Path | None = None,
         **opts
     ) -> Path:
         """
@@ -540,7 +541,7 @@ class IFormatValidator(Protocol):
     async def validate_file(
         self,
         path: str | Path,
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> dict[str, Any]:
         """

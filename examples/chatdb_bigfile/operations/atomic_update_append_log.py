@@ -8,7 +8,8 @@ import json
 import threading
 import time
 from pathlib import Path
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 # Import original atomic update as fallback
 from db_io import atomic_update_record_by_key as atomic_update_full_rewrite
 

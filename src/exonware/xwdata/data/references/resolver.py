@@ -6,11 +6,11 @@ Resolves cross-references by loading external files.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from pathlib import Path
 import asyncio
 import urllib.parse
@@ -33,7 +33,7 @@ class ReferenceResolver(AReferenceResolver):
     - Respects security constraints
     """
 
-    def __init__(self, config: Optional[XWDataConfig] = None):
+    def __init__(self, config: XWDataConfig | None = None):
         """
         Initialize reference resolver.
         Args:
@@ -47,7 +47,7 @@ class ReferenceResolver(AReferenceResolver):
         self,
         data: Any,
         strategy: IFormatStrategy,
-        base_path: Optional[Path] = None,
+        base_path: Path | None = None,
         **opts
     ) -> Any:
         """
@@ -88,7 +88,7 @@ class ReferenceResolver(AReferenceResolver):
     async def resolve_reference(
         self,
         reference: dict[str, Any],
-        base_path: Optional[Path] = None,
+        base_path: Path | None = None,
         **opts
     ) -> Any:
         """
@@ -175,7 +175,7 @@ class ReferenceResolver(AReferenceResolver):
         self,
         data: Any,
         strategy: IFormatStrategy,
-        base_path: Optional[Path],
+        base_path: Path | None,
         resolution_stack: list[str],
         depth: int,
         **opts
@@ -240,7 +240,7 @@ class ReferenceResolver(AReferenceResolver):
     async def _load_external_file(
         self,
         uri: str,
-        base_path: Optional[Path] = None,
+        base_path: Path | None = None,
         **opts
     ) -> Any:
         """
@@ -365,7 +365,7 @@ class ReferenceResolver(AReferenceResolver):
         self,
         uri: str,
         fragment: str,
-        base_path: Optional[Path] = None,
+        base_path: Path | None = None,
         **opts
     ) -> Any:
         """

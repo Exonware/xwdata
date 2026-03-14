@@ -9,7 +9,6 @@ Generation Date: 2025-01-XX
 import sys
 import threading
 import time
-from typing import Optional
 # Disable buffering for stderr to ensure real-time updates
 if hasattr(sys.stderr, 'reconfigure'):
     try:
@@ -30,7 +29,7 @@ class ProgressIndicator:
     """
     SPINNER_FRAMES = ['|', '/', '-', '\\']
 
-    def __init__(self, message: str = "Processing...", total: Optional[int] = None):
+    def __init__(self, message: str = "Processing...", total: int | None = None):
         """
         Initialize progress indicator.
         Args:
@@ -41,7 +40,7 @@ class ProgressIndicator:
         self.total = total
         self.current = 0
         self._running = False
-        self._thread: Optional[threading.Thread] = None
+        self._thread: threading.Thread | None = None
         self._frame_index = 0
         self._lock = threading.Lock()
         self._last_update = time.time()
@@ -78,7 +77,7 @@ class ProgressIndicator:
                         except:
                             pass
 
-    def update(self, current: int, total: Optional[int] = None):
+    def update(self, current: int, total: int | None = None):
         """
         Update progress.
         Args:
@@ -145,7 +144,7 @@ class ProgressIndicator:
         return False
 
 
-def show_progress(message: str, total: Optional[int] = None):
+def show_progress(message: str, total: int | None = None):
     """
     Context manager for progress indicator.
     Usage:

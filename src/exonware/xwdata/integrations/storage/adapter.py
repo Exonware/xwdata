@@ -7,11 +7,11 @@ This is an optional feature - xwstorage integration is optional.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger
 from .contracts import IStorageAdapter
@@ -49,7 +49,7 @@ class StorageAdapter(IStorageAdapter):
         data: IData,
         backend: str,
         location: str,
-        format_hint: Optional[str | DataFormat] = None,
+        format_hint: str | DataFormat | None = None,
         **opts
     ) -> None:
         """
@@ -83,7 +83,7 @@ class StorageAdapter(IStorageAdapter):
         self,
         backend: str,
         location: str,
-        format_hint: Optional[str | DataFormat] = None,
+        format_hint: str | DataFormat | None = None,
         **opts
     ) -> IData:
         """

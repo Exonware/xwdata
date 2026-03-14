@@ -9,7 +9,7 @@ from __future__ import annotations
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from urllib.parse import urlparse
 _OPS_DIR = Path(__file__).resolve().parent
 if str(_OPS_DIR) not in sys.path:
@@ -69,7 +69,7 @@ class InternalRefResolver:
         *,
         max_depth: int = 3,
         _depth: int = 0,
-        _seen: Optional[set[str]] = None,
+        _seen: set[str] | None = None,
     ) -> Any:
         """Recursively resolve internal $ref objects up to max_depth."""
         if _seen is None:

@@ -10,11 +10,11 @@ is used (xwdata is already loaded).
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger
 from .contracts import ISchemaValidator
@@ -50,7 +50,7 @@ class SchemaValidator(ISchemaValidator):
         self,
         data: IData,
         schema: Any,  # xwschema schema object
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> dict[str, Any]:
         """
@@ -103,7 +103,7 @@ class SchemaValidator(ISchemaValidator):
         self,
         data_path: str | Path | IData,
         schema: Any,  # xwschema schema object
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> dict[str, Any]:
         """

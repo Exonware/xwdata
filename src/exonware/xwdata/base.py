@@ -7,12 +7,13 @@ Following GUIDELINES_DEV.md: All abstract classes start with 'A' and extend 'I' 
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 from pathlib import Path
 import sys
 import site
@@ -38,15 +39,15 @@ class AData(IData):
 
     def __init__(self):
         """Initialize abstract data."""
-        self._node: Optional[IDataNode] = None
-        self._engine: Optional[IDataEngine] = None
+        self._node: IDataNode | None = None
+        self._engine: IDataEngine | None = None
         self._metadata: dict[str, Any] = {}
 
     def get_metadata(self) -> dict[str, Any]:
         """Get metadata dictionary."""
         return self._metadata.copy()
 
-    def get_format(self) -> Optional[str]:
+    def get_format(self) -> str | None:
         """Get format information."""
         return self._metadata.get('format')
 
@@ -106,13 +107,13 @@ class ADataEngine(IDataEngine):
 
     def __init__(self):
         """Initialize abstract engine."""
-        self._serializer: Optional[Any] = None
-        self._strategies: Optional[Any] = None
-        self._metadata_processor: Optional[IMetadataProcessor] = None
-        self._reference_resolver: Optional[IReferenceResolver] = None
-        self._cache_manager: Optional[ICacheManager] = None
-        self._node_factory: Optional[INodeFactory] = None
-        self._config: Optional[Any] = None
+        self._serializer: Any | None = None
+        self._strategies: Any | None = None
+        self._metadata_processor: IMetadataProcessor | None = None
+        self._reference_resolver: IReferenceResolver | None = None
+        self._cache_manager: ICacheManager | None = None
+        self._node_factory: INodeFactory | None = None
+        self._config: Any | None = None
 
     async def _validate_path(self, path: str | Path, for_writing: bool = False) -> Path:
         """
@@ -201,14 +202,14 @@ class ADataNode(IDataNode):
     Extends IDataNode interface.
     """
 
-    def __init__(self, data: Any = None, metadata: Optional[dict] = None):
+    def __init__(self, data: Any = None, metadata: dict | None = None):
         """Initialize abstract node."""
         self._data = data
         self._metadata = metadata or {}
         self._format_info: dict[str, Any] = {}
         self._references: list[Any] = []
         self._frozen = False
-        self._hash_cache: Optional[int] = None
+        self._hash_cache: int | None = None
 
     def to_native(self) -> Any:
         """Convert node to native Python object."""
@@ -371,7 +372,7 @@ class ACacheManager(ICacheManager):
         self._cache: dict[str, Any] = {}
         self._stats = {'hits': 0, 'misses': 0, 'sets': 0}
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get from cache (basic implementation)."""
         if key in self._cache:
             self._stats['hits'] += 1
@@ -379,7 +380,7 @@ class ACacheManager(ICacheManager):
         self._stats['misses'] += 1
         return None
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set in cache (basic implementation)."""
         self._cache[key] = value
         self._stats['sets'] += 1
@@ -418,7 +419,7 @@ class ANodeFactory(INodeFactory):
     def __init__(self):
         """Initialize abstract factory."""
         self._pool: list[Any] = []
-        self._config: Optional[Any] = None
+        self._config: Any | None = None
 # ==============================================================================
 # ABSTRACT XWDATA SERIALIZER
 # ==============================================================================
@@ -435,7 +436,7 @@ class AXWDataSerializer(IXWDataSerializer):
         """Initialize abstract serializer."""
         self._name: str = ''
         self._extensions: list[str] = []
-        self._base_serializer: Optional[Any] = None
+        self._base_serializer: Any | None = None
     @property
 
     def name(self) -> str:

@@ -7,7 +7,7 @@ Extends parent IFormatStrategy with additional contracts.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 # Strategies use parent IFormatStrategy interface

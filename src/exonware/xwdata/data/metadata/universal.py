@@ -6,13 +6,13 @@ Preserves format-specific semantics for perfect roundtrips between formats.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 @dataclass
 
 class UniversalMetadata:
@@ -29,7 +29,7 @@ class UniversalMetadata:
     reserved_chars: list[str] = field(default_factory=list)
     reserved_keys: list[str] = field(default_factory=list)
     has_schema: bool = False
-    schema_uri: Optional[str] = None
+    schema_uri: str | None = None
     has_attributes: bool = False
     attributes: list[str] = field(default_factory=list)
     has_text: bool = False

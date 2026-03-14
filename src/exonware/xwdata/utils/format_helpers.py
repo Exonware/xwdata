@@ -9,12 +9,11 @@ Performance-first design:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 29-Oct-2025
 """
 
 from pathlib import Path
-from typing import Optional
 from exonware.xwsystem import get_logger
 logger = get_logger(__name__)
 # ==============================================================================
@@ -32,7 +31,7 @@ _CORE_FORMAT_EXTENSIONS = {
 }
 
 
-def detect_format_fast(path: str | Path) -> Optional[str]:
+def detect_format_fast(path: str | Path) -> str | None:
     """
     Fast format detection for core formats (V8).
     Uses O(1) dictionary lookup for maximum performance.

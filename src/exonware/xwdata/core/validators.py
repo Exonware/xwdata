@@ -9,13 +9,13 @@ REUSES xwsystem security features:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
 import re
 from pathlib import Path
-from typing import Any, Optional, List, Set
+from typing import Any
 from exonware.xwsystem.security import PathValidator as XWSystemPathValidator, PathSecurityError
 from exonware.xwsystem.security.validator import SecurityValidator as XWSystemSecurityValidator
 from exonware.xwdata.errors import (
@@ -32,7 +32,7 @@ class PathValidator:
     production-grade path validation with caching and comprehensive checks.
     """
 
-    def __init__(self, allowed_directories: Optional[List[str]] = None):
+    def __init__(self, allowed_directories: list[str] | None = None):
         """
         Initialize path validator using xwsystem.
         Args:
@@ -120,7 +120,7 @@ class PathValidator:
 class FormatValidator:
     """Validates format strings and format names."""
     # Valid format names (extensible)
-    VALID_FORMATS: Set[str] = {
+    VALID_FORMATS: set[str] = {
         'json', 'yaml', 'xml', 'toml', 'csv', 'ini', 'properties',
         'xwjson', 'native', 'pickle', 'msgpack', 'parquet', 'avro',
         'protobuf', 'bson', 'ubjson', 'cbor', 'hdf5', 'feather'
@@ -311,10 +311,10 @@ class DataValidator:
         import sys
         return sys.getsizeof(data)
 # Global validators
-_path_validator: Optional[PathValidator] = None
-_format_validator: Optional[FormatValidator] = None
-_input_sanitizer: Optional[InputSanitizer] = None
-_data_validator: Optional[DataValidator] = None
+_path_validator: PathValidator | None = None
+_format_validator: FormatValidator | None = None
+_input_sanitizer: InputSanitizer | None = None
+_data_validator: DataValidator | None = None
 
 
 def get_path_validator() -> PathValidator:

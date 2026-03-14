@@ -9,13 +9,17 @@ Version: 0.0.1.3
 Generation Date: 26-Oct-2025
 """
 
+import importlib.util
 import pytest
-@pytest.mark.xwdata_integration
 
+_has_xwjson = importlib.util.find_spec('exonware.xwjson') is not None
+_has_xwsyntax = importlib.util.find_spec('exonware.xwsyntax') is not None
+
+@pytest.mark.xwdata_integration
 class TestFormatConversion:
     """Integration tests for cross-format operations."""
     @pytest.mark.asyncio
-
+    @pytest.mark.skipif(not _has_xwjson or not _has_xwsyntax, reason='exonware.xwjson and exonware.xwsyntax required for save/load pipeline')
     async def test_json_to_native_roundtrip(self, tmp_path):
         """Test JSON save and load roundtrip."""
         from exonware.xwdata import XWData

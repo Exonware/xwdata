@@ -5,11 +5,11 @@ CSV Format Strategy
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 15-Nov-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from pathlib import Path
 import csv
 import io
@@ -44,7 +44,7 @@ class CSVFormatStrategy(AFormatStrategy):
         """Supported MIME types."""
         return ["text/csv", "application/csv"]
 
-    def can_handle(self, path: Optional[Path] = None, mime_type: Optional[str] = None) -> bool:
+    def can_handle(self, path: Path | None = None, mime_type: str | None = None) -> bool:
         """Check if this strategy can handle the given path or MIME type."""
         if path:
             return path.suffix.lower() == ".csv"

@@ -6,11 +6,12 @@ Provides batch operations for storage backends.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Any, Optional, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger
 from .adapter import StorageAdapter
@@ -26,7 +27,7 @@ class StorageBatchOperations:
     This is an optional BaaS feature.
     """
 
-    def __init__(self, adapter: Optional[StorageAdapter] = None):
+    def __init__(self, adapter: StorageAdapter | None = None):
         """
         Initialize batch operations.
         Args:
@@ -37,7 +38,7 @@ class StorageBatchOperations:
     async def batch_store(
         self,
         items: list[tuple[IData, str, str]],  # (data, backend, location)
-        format_hint: Optional[str | DataFormat] = None,
+        format_hint: str | DataFormat | None = None,
         **opts
     ) -> list[bool]:
         """
@@ -62,9 +63,9 @@ class StorageBatchOperations:
     async def batch_load(
         self,
         items: list[tuple[str, str]],  # (backend, location)
-        format_hint: Optional[str | DataFormat] = None,
+        format_hint: str | DataFormat | None = None,
         **opts
-    ) -> list[Optional[IData]]:
+    ) -> list[IData | None]:
         """
         Batch load multiple data items.
         Args:

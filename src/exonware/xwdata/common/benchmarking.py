@@ -5,13 +5,14 @@ Performance Benchmarking Utilities for XWData
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 15-Nov-2025
 """
 
 import time
 import statistics
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 from dataclasses import dataclass
 from pathlib import Path
 from exonware.xwsystem import get_logger
@@ -30,7 +31,7 @@ class DataOperationResult:
     median_time: float
     std_dev: float
     throughput: float  # operations per second
-    memory_usage: Optional[float] = None
+    memory_usage: float | None = None
 
 
 class XWDataBenchmark:
@@ -39,7 +40,7 @@ class XWDataBenchmark:
 
     def benchmark_load(
         file_path: Path,
-        format_hint: Optional[str] = None,
+        format_hint: str | None = None,
         iterations: int = 100,
         warmup: int = 10
     ) -> DataOperationResult:
@@ -96,7 +97,7 @@ class XWDataBenchmark:
     def benchmark_save(
         data: Any,
         file_path: Path,
-        format_hint: Optional[str] = None,
+        format_hint: str | None = None,
         iterations: int = 100,
         warmup: int = 10
     ) -> DataOperationResult:

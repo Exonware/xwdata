@@ -11,7 +11,8 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 from exonware.xwsystem.io.serialization.formats.text.jsonlines import JsonLinesSerializer
 
 
@@ -163,7 +164,7 @@ def atomic_update_record_by_key(
     return stream_update_record(db_path, _match, updater, atomic=True, backup=backup)
 
 
-def try_get_record_by_id_linear(db_path: Path, id_value: str, id_field: str = "id") -> Optional[dict[str, Any]]:
+def try_get_record_by_id_linear(db_path: Path, id_value: str, id_field: str = "id") -> dict[str, Any] | None:
     """Slow fallback: linear scan by id field."""
     serializer = JsonLinesSerializer()
     try:

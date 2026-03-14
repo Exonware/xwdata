@@ -7,12 +7,11 @@ This module provides xwdata-specific error types that wrap xwsystem FileSecurity
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
 from pathlib import Path
-from typing import Optional, List
 from exonware.xwdata.errors import (
     XWDataPathSecurityError,
     XWDataSizeLimitError,
@@ -36,7 +35,7 @@ class FileSecurity:
     def __init__(
         self,
         max_file_size: int = 100 * 1024 * 1024,  # 100MB default
-        allowed_directories: Optional[List[str]] = None,
+        allowed_directories: list[str] | None = None,
         allow_absolute_paths: bool = False
     ):
         """
@@ -228,7 +227,7 @@ class FileSecurity:
         except (XWDataPathSecurityError, XWDataIOError):
             return False
 # Global file security instance
-_file_security: Optional[FileSecurity] = None
+_file_security: FileSecurity | None = None
 
 
 def get_file_security() -> FileSecurity:

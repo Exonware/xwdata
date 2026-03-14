@@ -17,7 +17,7 @@
 # =============================================================================
 # CORE DEPENDENCIES
 # =============================================================================
-# Source size (src/*): ~501.3 KB
+# Source size (src/*): ~500.1 KB
 pip                     # Package installer (CI and lazy install)
 
 # eXonware ecosystem dependencies (xwdata cannot work without these)
@@ -117,3 +117,16 @@ brotli
 zstandard
 rich
 attrs
+tomli
+numpy
+scikit-learn
+cython
+charset-normalizer
+lz4
+uarray
+pyarrow
+pandas
+cloudpickle
+pytz
+numexpr
+bottleneck

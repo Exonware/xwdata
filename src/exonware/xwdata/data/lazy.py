@@ -6,11 +6,12 @@ Implements Virtual Proxy pattern for deferred file I/O and serialization.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 28-Oct-2025
 """
 
-from typing import Any, Optional, Callable
+from collections.abc import Callable
+from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger
 logger = get_logger(__name__)
@@ -82,7 +83,7 @@ class LazySerializationProxy:
     Priority #4: Performance - Deferred parsing for unused data
     """
 
-    def __init__(self, content: str, parser_func: Callable, format_hint: Optional[str] = None):
+    def __init__(self, content: str, parser_func: Callable, format_hint: str | None = None):
         """
         Initialize lazy serialization proxy.
         Args:

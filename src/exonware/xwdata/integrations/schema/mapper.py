@@ -6,11 +6,11 @@ Maps xwdata formats to schema formats.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from exonware.xwsystem import get_logger
 from .contracts import ISchemaMapper
 from ...defs import DataFormat
@@ -61,7 +61,7 @@ class SchemaMapper(ISchemaMapper):
     def get_schema_format(
         self,
         schema: Any  # xwschema schema object
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Get schema format from schema object.
         Args:

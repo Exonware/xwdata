@@ -7,13 +7,12 @@ and sensible defaults for different use cases.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Optional, Any
 from pathlib import Path
 from enum import Enum
 from .defs import (
@@ -90,7 +89,7 @@ class PerformanceConfig:
     enable_caching: bool = True
     enable_streaming: bool = True
     enable_disk_cache: bool = False
-    disk_cache_dir: Optional[Path] = None
+    disk_cache_dir: Path | None = None
     enable_pooling: bool = True
     enable_structural_hashing: bool = True
     pool_size: int = 100

@@ -4,7 +4,7 @@
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: October 27, 2025
 Builder pattern for XWData construction.
 Provides fluent API for building complex data structures.
@@ -17,7 +17,8 @@ Priority Alignment:
 """
 
 from __future__ import annotations
-from typing import Any, Optional, Callable
+from collections.abc import Callable
+from typing import Any
 from pathlib import Path
 from .config import XWDataConfig
 # Import XWData here to avoid circular import
@@ -45,7 +46,7 @@ class XWDataBuilder:
         ...     .build())
     """
 
-    def __init__(self, initial_data: Optional[dict[str, Any]] = None):
+    def __init__(self, initial_data: dict[str, Any] | None = None):
         """
         Initialize builder.
         Args:

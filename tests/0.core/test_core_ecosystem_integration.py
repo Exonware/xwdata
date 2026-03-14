@@ -8,16 +8,20 @@ Comprehensive integration tests for all three enhancement plans:
 Tests the complete workflow: load → detect → query → transform → save
 """
 
+import importlib.util
 import pytest
 from pathlib import Path
 from exonware.xwdata import XWData
+
+_has_xwquery = importlib.util.find_spec('exonware.xwquery') is not None
+_has_xwjson = importlib.util.find_spec('exonware.xwjson') is not None
+_has_xwsyntax = importlib.util.find_spec('exonware.xwsyntax') is not None
+
 @pytest.mark.xwdata_core
-
-
+@pytest.mark.skipif(not _has_xwquery or not _has_xwjson, reason='exonware.xwquery and exonware.xwjson required')
 class TestCompleteWorkflow:
-    """Test complete data processing workflow."""
+    """Test complete data processing workflow (requires xwquery + xwjson)."""
     @pytest.mark.asyncio
-
     async def test_load_detect_query_save_workflow(self, tmp_path):
         """Test: Load JSON → Detect format → Query → Save YAML."""
         # Step 1: Create source JSON file
@@ -140,10 +144,10 @@ class TestCompleteWorkflow:
 @pytest.mark.xwdata_core
 
 
+@pytest.mark.skipif(not _has_xwquery, reason='exonware.xwquery required')
 class TestCrossPackageIntegration:
     """Test integration between XWData, XWQuery, XWNode, and XWSystem."""
     @pytest.mark.asyncio
-
     async def test_xwdata_to_xwnode_to_xwquery(self, tmp_path):
         """Test data flow: XWData → XWNode → XWQuery."""
         # Create data
@@ -189,6 +193,7 @@ settings:
 @pytest.mark.xwdata_core
 
 
+@pytest.mark.skipif(not _has_xwsyntax, reason='exonware.xwsyntax required for save pipeline')
 class TestRealWorldScenarios:
     """Real-world usage scenarios."""
     @pytest.mark.asyncio
@@ -297,6 +302,7 @@ settings:
 @pytest.mark.xwdata_core
 
 
+@pytest.mark.skipif(not _has_xwsyntax, reason='exonware.xwsyntax required for load with format_hint')
 class TestErrorHandlingIntegration:
     """Test error handling across the ecosystem."""
     @pytest.mark.asyncio
@@ -332,6 +338,7 @@ class TestErrorHandlingIntegration:
 @pytest.mark.xwdata_core
 
 
+@pytest.mark.skipif(not _has_xwquery, reason='exonware.xwquery required')
 class TestPerformanceIntegration:
     """Test performance aspects of integration."""
     @pytest.mark.asyncio
@@ -367,6 +374,7 @@ class TestPerformanceIntegration:
 @pytest.mark.xwdata_core
 
 
+@pytest.mark.skipif(not _has_xwquery or not _has_xwsyntax, reason='exonware.xwquery and exonware.xwsyntax required')
 class TestDocumentationExamples:
     """Test examples from documentation."""
     @pytest.mark.asyncio

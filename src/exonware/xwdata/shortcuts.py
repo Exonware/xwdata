@@ -4,7 +4,7 @@
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: October 27, 2025
 Shortcuts API for quick data operations.
 Provides convenient one-liner functions for common data tasks.
@@ -17,7 +17,7 @@ Priority Alignment:
 """
 
 from __future__ import annotations
-from typing import Any, Optional
+from typing import Any
 from pathlib import Path
 from .facade import XWData
 # =============================================================================
@@ -25,7 +25,7 @@ from .facade import XWData
 # =============================================================================
 
 
-def quick_load(source: str | Path | dict, format: Optional[str] = None) -> XWData:
+def quick_load(source: str | Path | dict, format: str | None = None) -> XWData:
     """
     Quick load from file or dict.
     Args:
@@ -44,7 +44,7 @@ def quick_load(source: str | Path | dict, format: Optional[str] = None) -> XWDat
         return XWData.from_native(source)
 
 
-def quick_save(data: Any, target: str | Path, format: Optional[str] = None) -> None:
+def quick_save(data: Any, target: str | Path, format: str | None = None) -> None:
     """
     Quick save to file.
     Args:
@@ -67,8 +67,8 @@ def quick_save(data: Any, target: str | Path, format: Optional[str] = None) -> N
 def quick_convert(
     source: str | Path | Any,
     target: str | Path,
-    source_format: Optional[str] = None,
-    target_format: Optional[str] = None
+    source_format: str | None = None,
+    target_format: str | None = None
 ) -> None:
     """
     Quick convert from one format to another.

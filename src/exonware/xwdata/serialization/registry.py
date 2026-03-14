@@ -8,11 +8,10 @@ Unified registry combining:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
-from typing import Optional
 import threading
 from exonware.xwsystem import get_logger
 from exonware.xwsystem.serialization import XWSerializer
@@ -64,7 +63,7 @@ class XWDataSerializerRegistry:
             self._extended_serializers[serializer.name] = serializer
             logger.debug(f"Registered extended serializer: {serializer.name}")
 
-    def get_serializer(self, format_name: str) -> Optional[Any]:
+    def get_serializer(self, format_name: str) -> Any | None:
         """
         Get serializer for format.
         Priority: xwdata extensions first, then xwsystem base.

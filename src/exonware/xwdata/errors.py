@@ -7,11 +7,11 @@ providing rich error context and actionable error messages.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 # ==============================================================================
 # BASE ERROR
 # ==============================================================================
@@ -27,11 +27,11 @@ class XWDataError(Exception):
         self,
         message: str,
         *,
-        operation: Optional[str] = None,
-        path: Optional[str] = None,
-        format: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
-        suggestion: Optional[str] = None
+        operation: str | None = None,
+        path: str | None = None,
+        format: str | None = None,
+        context: dict[str, Any] | None = None,
+        suggestion: str | None = None
     ):
         """
         Initialize xwdata error with rich context.
@@ -111,10 +111,10 @@ class XWDataParseError(XWDataError):
     def __init__(
         self,
         message: str,
-        format: Optional[str] = None,
-        line: Optional[int] = None,
-        column: Optional[int] = None,
-        snippet: Optional[str] = None,
+        format: str | None = None,
+        line: int | None = None,
+        column: int | None = None,
+        snippet: str | None = None,
         **kwargs
     ):
         context = kwargs.get('context', {})
@@ -135,8 +135,8 @@ class XWDataSerializeError(XWDataError):
     def __init__(
         self,
         message: str,
-        format: Optional[str] = None,
-        data_type: Optional[str] = None,
+        format: str | None = None,
+        data_type: str | None = None,
         **kwargs
     ):
         if data_type:
@@ -152,7 +152,7 @@ class XWDataSerializeError(XWDataError):
 class XWDataIOError(XWDataError):
     """Raised for I/O operation failures."""
 
-    def __init__(self, message: str, path: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, path: str | None = None, **kwargs):
         kwargs['suggestion'] = "Check file permissions and ensure path exists"
         super().__init__(message, operation='io', path=path, **kwargs)
 
@@ -185,7 +185,7 @@ class XWDataEngineError(XWDataError):
 class XWDataStrategyError(XWDataEngineError):
     """Raised for format strategy errors."""
 
-    def __init__(self, message: str, strategy: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, strategy: str | None = None, **kwargs):
         if strategy:
             kwargs['context'] = kwargs.get('context', {})
             kwargs['context']['strategy'] = strategy
@@ -210,7 +210,7 @@ class XWDataMetadataError(XWDataError):
 class XWDataReferenceError(XWDataError):
     """Raised for reference resolution failures."""
 
-    def __init__(self, message: str, reference: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, reference: str | None = None, **kwargs):
         if reference:
             kwargs['context'] = kwargs.get('context', {})
             kwargs['context']['reference'] = reference
@@ -221,7 +221,7 @@ class XWDataReferenceError(XWDataError):
 class XWDataCircularReferenceError(XWDataReferenceError):
     """Raised when circular references are detected."""
 
-    def __init__(self, message: str, cycle: Optional[list[str]] = None, **kwargs):
+    def __init__(self, message: str, cycle: list[str] | None = None, **kwargs):
         if cycle:
             kwargs['context'] = kwargs.get('context', {})
             kwargs['context']['cycle'] = ' → '.join(cycle)
@@ -253,7 +253,7 @@ class XWDataNodeError(XWDataError):
 class XWDataPathError(XWDataNodeError):
     """Raised for invalid path operations."""
 
-    def __init__(self, message: str, path: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, path: str | None = None, **kwargs):
         kwargs['suggestion'] = "Check path syntax (dot-separated or bracket notation)"
         super().__init__(message, path=path, **kwargs)
 
@@ -261,7 +261,7 @@ class XWDataPathError(XWDataNodeError):
 class XWDataTypeError(XWDataNodeError):
     """Raised for type-related errors."""
 
-    def __init__(self, message: str, expected_type: Optional[str] = None, actual_type: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, expected_type: str | None = None, actual_type: str | None = None, **kwargs):
         if expected_type or actual_type:
             kwargs['context'] = kwargs.get('context', {})
             if expected_type:
@@ -278,7 +278,7 @@ class XWDataTypeError(XWDataNodeError):
 class XWDataValidationError(XWDataError):
     """Raised for validation failures."""
 
-    def __init__(self, message: str, field: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, field: str | None = None, **kwargs):
         if field:
             kwargs['context'] = kwargs.get('context', {})
             kwargs['context']['field'] = field
@@ -292,7 +292,7 @@ class XWDataValidationError(XWDataError):
 class XWDataConfigError(XWDataError):
     """Raised for configuration errors."""
 
-    def __init__(self, message: str, config_key: Optional[str] = None, **kwargs):
+    def __init__(self, message: str, config_key: str | None = None, **kwargs):
         if config_key:
             kwargs['context'] = kwargs.get('context', {})
             kwargs['context']['config_key'] = config_key

@@ -11,8 +11,15 @@ Generation Date: 26-Jan-2025
 
 import pytest
 from pathlib import Path
-@pytest.mark.xwdata_core
 
+try:
+    import exonware.xwjson  # noqa: F401
+    import exonware.xwsyntax  # noqa: F401
+except ImportError:
+    pytest.skip("exonware.xwjson and exonware.xwsyntax required for BaaS format conversion", allow_module_level=True)
+
+
+@pytest.mark.xwdata_core
 class TestCoreBaaSFacade:
     """Core BaaS facade functionality tests."""
     @pytest.fixture

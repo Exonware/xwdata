@@ -4,13 +4,13 @@
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: October 27, 2025
 Data-aware merge operations using xwsystem.operations.
 Provides XWData-specific merge functionality with metadata preservation.
 """
 
-from typing import Any, Optional
+from typing import Any
 from exonware.xwsystem.operations import deep_merge, MergeStrategy, MergeError
 
 

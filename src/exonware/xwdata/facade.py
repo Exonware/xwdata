@@ -11,13 +11,14 @@ This module provides the primary user-facing API with:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 from __future__ import annotations
 import asyncio
-from typing import Any, Optional, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger, async_safe_read_text, async_safe_write_text
 from .base import AData
@@ -37,7 +38,7 @@ def _is_uri(path_or_url: str) -> bool:
     return get_scheme(path_or_url) != 'file'
 
 
-def _normalize_format_hint(format_hint: Optional[str | DataFormat]) -> Optional[str]:
+def _normalize_format_hint(format_hint: str | DataFormat | None) -> str | None:
     """Return format string for engine (lowercase name or None)."""
     if format_hint is None:
         return None
@@ -96,8 +97,8 @@ class XWData(AData):
     def __init__(
         self,
         data: XWDataNode | dict | list | str | Path | XWData | list[dict | str | Path | XWData],
-        metadata: Optional[dict] = None,
-        config: Optional[XWDataConfig] = None,
+        metadata: dict | None = None,
+        config: XWDataConfig | None = None,
         merge_strategy: str | MergeStrategy = 'deep',
         **opts
     ):
@@ -192,7 +193,7 @@ class XWData(AData):
         """Sync wrapper for loading URI in __init__ (xwsystem handles scheme + security)."""
         return self._run_sync_async(self._engine.load(uri))
 
-    def _sync_create_from_native(self, data: Any, metadata: Optional[dict] = None) -> XWDataNode:
+    def _sync_create_from_native(self, data: Any, metadata: dict | None = None) -> XWDataNode:
         """Sync wrapper for creating from native data in __init__."""
         return self._run_sync_async(self._engine.create_node_from_native(data, metadata))
 
@@ -239,8 +240,8 @@ class XWData(AData):
     async def load(
         cls,
         path: str | Path,
-        format_hint: Optional[str | DataFormat] = None,
-        config: Optional[XWDataConfig] = None,
+        format_hint: str | DataFormat | None = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> XWData:
         """
@@ -296,7 +297,7 @@ class XWData(AData):
         cls,
         path: str | Path,
         json_path: str,
-        config: Optional[XWDataConfig] = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> Any:
         """
@@ -337,7 +338,7 @@ class XWData(AData):
         path: str | Path,
         json_path: str,
         value: Any,
-        config: Optional[XWDataConfig] = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> None:
         """
@@ -381,7 +382,7 @@ class XWData(AData):
         cls,
         path: str | Path,
         type_: type,
-        config: Optional[XWDataConfig] = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> Any:
         """
@@ -468,8 +469,8 @@ class XWData(AData):
     def from_native(
         cls,
         data: dict | list,
-        metadata: Optional[dict] = None,
-        config: Optional[XWDataConfig] = None,
+        metadata: dict | None = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> XWData:
         """
@@ -500,8 +501,8 @@ class XWData(AData):
     def from_string(
         cls,
         s: str,
-        metadata: Optional[dict] = None,
-        config: Optional[XWDataConfig] = None,
+        metadata: dict | None = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> XWData:
         """
@@ -516,7 +517,7 @@ class XWData(AData):
         cls,
         content: str | bytes,
         format: str | DataFormat,
-        config: Optional[XWDataConfig] = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> XWData:
         """
@@ -713,7 +714,7 @@ class XWData(AData):
 
     async def serialize(
         self,
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> str | bytes:
         """
@@ -740,7 +741,7 @@ class XWData(AData):
         # Serialize via xwsystem (this is sync, no need for executor)
         return serializer.detect_and_serialize(native_data, format_hint=format_str)
 
-    def to_format(self, format: Optional[str | DataFormat] = None, **opts) -> str | bytes:
+    def to_format(self, format: str | DataFormat | None = None, **opts) -> str | bytes:
         """
         Synchronously serialize to specified format.
         Convenient wrapper around serialize() for synchronous use cases.
@@ -767,7 +768,7 @@ class XWData(AData):
     async def save(
         self,
         destinations: str | Path | list[str | Path] | list[tuple] | dict[str, str],
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         overwrite: bool = True,
         **opts
     ) -> XWData:
@@ -879,7 +880,7 @@ class XWData(AData):
         cls,
         path: str | Path,
         chunk_size: int = 8192,
-        config: Optional[XWDataConfig] = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> AsyncIterator[XWData]:
         """
@@ -905,7 +906,7 @@ class XWData(AData):
     async def stream_save(
         self,
         path: str | Path,
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         chunk_size: int = 8192,
         **opts
     ) -> XWData:
@@ -938,7 +939,7 @@ class XWData(AData):
     def to_file(
         self,
         path: str | Path,
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         overwrite: bool = True,
         **opts
     ) -> XWData:
@@ -967,8 +968,8 @@ class XWData(AData):
     async def from_file_async(
         cls,
         path: str | Path,
-        format: Optional[str | DataFormat] = None,
-        config: Optional[XWDataConfig] = None,
+        format: str | DataFormat | None = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> XWData:
         """
@@ -987,8 +988,8 @@ class XWData(AData):
     def from_file(
         cls,
         path: str | Path,
-        format: Optional[str | DataFormat] = None,
-        config: Optional[XWDataConfig] = None,
+        format: str | DataFormat | None = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> XWData:
         """
@@ -1018,7 +1019,7 @@ class XWData(AData):
         cls,
         content: str | bytes,
         format: str | DataFormat,
-        config: Optional[XWDataConfig] = None,
+        config: XWDataConfig | None = None,
         **opts
     ) -> XWData:
         """
@@ -1514,7 +1515,7 @@ class XWData(AData):
     # DETECTION METADATA (Plan 3, Option A)
     # ==========================================================================
 
-    def get_detected_format(self) -> Optional[str]:
+    def get_detected_format(self) -> str | None:
         """
         Get the auto-detected format for this data.
         Returns:
@@ -1526,7 +1527,7 @@ class XWData(AData):
         """
         return self._metadata.get('detected_format')
 
-    def get_detection_confidence(self) -> Optional[float]:
+    def get_detection_confidence(self) -> float | None:
         """
         Get the confidence score for format detection.
         Returns:

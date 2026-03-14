@@ -6,12 +6,12 @@ Performance monitoring with context managers for operation tracking.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 import time
-from typing import Any, Optional
+from typing import Any
 from contextlib import asynccontextmanager
 from exonware.xwsystem import get_logger
 logger = get_logger(__name__)

@@ -6,11 +6,11 @@ Manages parse and serialize caches for performance optimization.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from collections import OrderedDict
 import threading
 from exonware.xwsystem import get_logger
@@ -30,7 +30,7 @@ class CacheManager(ACacheManager):
     - Statistics tracking
     """
 
-    def __init__(self, config: Optional[XWDataConfig] = None):
+    def __init__(self, config: XWDataConfig | None = None):
         """
         Initialize cache manager.
         Args:
@@ -44,7 +44,7 @@ class CacheManager(ACacheManager):
         self._enabled = self._config.performance.enable_caching
         logger.debug(f"CacheManager initialized (enabled={self._enabled})")
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get from appropriate cache based on key prefix."""
         if not self._enabled:
             return None
@@ -56,7 +56,7 @@ class CacheManager(ACacheManager):
             # Use default cache
             return await super().get(key)
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set in appropriate cache based on key prefix."""
         if not self._enabled:
             return

@@ -7,12 +7,11 @@ thread-safe registration.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 import threading
-from typing import Optional
 from pathlib import Path
 from exonware.xwsystem import get_logger
 from ...contracts import IFormatStrategy
@@ -58,7 +57,7 @@ class FormatStrategyRegistry:
                 self._extensions[clean_ext] = strategy
             logger.debug(f"Registered strategy: {strategy.name}")
 
-    def get(self, format_or_ext: str) -> Optional[IFormatStrategy]:
+    def get(self, format_or_ext: str) -> IFormatStrategy | None:
         """
         Get strategy by format name or extension.
         Args:

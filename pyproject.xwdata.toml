@@ -1,4 +1,4 @@
-# Source size (src/*): ~501.3 KB
+# Source size (src/*): ~500.1 KB
 [build-system]
 requires = [
     "hatchling",
@@ -21,7 +21,15 @@ keywords = [
     "analysis",
     "exonware",
 ]
-classifiers = []
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
     "exonware-xwdata",
 ]
@@ -45,8 +53,8 @@ full = [
 
 [project.urls]
 Homepage = "https://exonware.com"
-Repository = "https://github.com/exonware/xdata"
-Documentation = "https://github.com/exonware/xdata#readme"
+Repository = "https://github.com/exonware/xwdata"
+Documentation = "https://github.com/exonware/xwdata#readme"
 
 [tool.black]
 line-length = 88
@@ -90,7 +98,11 @@ python_functions = [
 ]
 asyncio_mode = "auto"
 addopts = "-v --tb=short -x --strict-markers"
-markers = []
+markers = [
+    "xwdata_core: Core functionality tests",
+    "xwdata_integration: Integration tests",
+    "xwdata_performance: Performance tests",
+]
 
 [tool.hatch.version]
 path = "src/exonware/xwdata/version.py"

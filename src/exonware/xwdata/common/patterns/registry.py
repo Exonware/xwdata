@@ -6,12 +6,12 @@ Thread-safe registry for managing components.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 import threading
-from typing import Any, Optional
+from typing import Any
 from exonware.xwsystem import get_logger
 logger = get_logger(__name__)
 
@@ -40,7 +40,7 @@ class Registry:
             self._items[key] = item
             logger.debug(f"{self._name}: Registered '{key}'")
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """Get registered item."""
         with self._lock:
             return self._items.get(key)

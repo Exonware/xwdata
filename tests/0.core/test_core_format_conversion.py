@@ -12,6 +12,13 @@ Generation Date: 26-Jan-2025
 
 import pytest
 from pathlib import Path
+
+try:
+    import exonware.xwsyntax  # noqa: F401
+    _has_xwsyntax = True
+except Exception:
+    _has_xwsyntax = False
+
 @pytest.mark.xwdata_core
 
 class TestCoreFormatConversion:
@@ -27,7 +34,7 @@ class TestCoreFormatConversion:
             'tags': ['developer', 'python']
         }
     @pytest.mark.asyncio
-
+    @pytest.mark.skipif(not _has_xwsyntax, reason="exonware.xwsyntax required for serialize")
     async def test_convert_json_to_yaml(self, sample_data, tmp_path):
         """Test converting JSON to YAML using xwjson converter."""
         from exonware.xwdata import XWData
@@ -48,7 +55,7 @@ class TestCoreFormatConversion:
         assert 'Alice' in yaml_data or '"Alice"' in yaml_data
         assert 'age' in yaml_data.lower() or '30' in yaml_data
     @pytest.mark.asyncio
-
+    @pytest.mark.skipif(not _has_xwsyntax, reason="exonware.xwsyntax required for save/load")
     async def test_convert_file_json_to_yaml(self, sample_data, tmp_path):
         """Test converting file from JSON to YAML."""
         from exonware.xwdata import XWData
@@ -66,7 +73,7 @@ class TestCoreFormatConversion:
         loaded = await XWData.load(yaml_file, format_hint='yaml')
         assert await loaded.get('name') == 'Alice'
     @pytest.mark.asyncio
-
+    @pytest.mark.skipif(not _has_xwsyntax, reason="exonware.xwsyntax required for serialize")
     async def test_conversion_pipeline(self, sample_data):
         """Test multi-step conversion pipeline."""
         from exonware.xwdata import XWData
@@ -85,7 +92,7 @@ class TestCoreFormatConversion:
         assert isinstance(result, str)
         assert 'name' in result.lower() or 'Alice' in result
     @pytest.mark.asyncio
-
+    @pytest.mark.skipif(not _has_xwsyntax, reason="exonware.xwsyntax required for serialize")
     async def test_format_validator(self, sample_data):
         """Test format validation."""
         from exonware.xwdata import XWData

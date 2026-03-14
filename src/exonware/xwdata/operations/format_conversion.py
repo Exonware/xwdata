@@ -7,12 +7,12 @@ REUSES xwjson's XWJSONConverter for format conversion (single version of truth).
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
 import hashlib
-from typing import Any, Optional
+from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger
 from exonware.xwjson.formats.binary.xwjson.converter import XWJSONConverter
@@ -133,7 +133,7 @@ class FormatConverter(IFormatConverter):
         self,
         source_path: str | Path,
         target_path: str | Path,
-        target_format: Optional[str | DataFormat] = None,
+        target_format: str | DataFormat | None = None,
         **opts
     ) -> Path:
         """

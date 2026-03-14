@@ -6,11 +6,12 @@ Defines interfaces for xwschema validation integration.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+
+from typing import Any, Protocol, runtime_checkable
 from ...contracts import IData
 from ...defs import DataFormat
 @runtime_checkable
@@ -26,7 +27,7 @@ class ISchemaValidator(Protocol):
         self,
         data: IData,
         schema: Any,  # xwschema schema object
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> dict[str, Any]:
         """
@@ -45,7 +46,7 @@ class ISchemaValidator(Protocol):
         self,
         data_path: str | Any,  # Path or IData
         schema: Any,  # xwschema schema object
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> dict[str, Any]:
         """
@@ -86,7 +87,7 @@ class ISchemaMapper(Protocol):
     def get_schema_format(
         self,
         schema: Any  # xwschema schema object
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Get schema format from schema object.
         Args:

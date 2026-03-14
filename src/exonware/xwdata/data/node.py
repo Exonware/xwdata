@@ -7,13 +7,13 @@ with data-specific features: COW semantics, format metadata, and references.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 from __future__ import annotations
 import copy
-from typing import Any, Optional
+from typing import Any
 from exonware.xwnode import XWNode
 from exonware.xwsystem import get_logger
 from ..base import ADataNode
@@ -40,11 +40,11 @@ class XWDataNode(ADataNode):
     def __init__(
         self,
         data: Any = None,
-        metadata: Optional[dict] = None,
-        format_info: Optional[dict] = None,
-        references: Optional[list] = None,
-        parent: Optional[XWDataNode] = None,
-        config: Optional[Any] = None
+        metadata: dict | None = None,
+        format_info: dict | None = None,
+        references: list | None = None,
+        parent: XWDataNode | None = None,
+        config: Any | None = None
     ):
         """
         Initialize XWDataNode with COW semantics.
@@ -65,7 +65,7 @@ class XWDataNode(ADataNode):
         self._data = data
         # Wrap data in XWNode with COW (immutable=True)
         # XWNode now handles COW internally with HAMT structural sharing
-        self._xwnode: Optional[XWNode] = None
+        self._xwnode: XWNode | None = None
         if data is not None:
             try:
                 # Use XWNode's native COW - immutable=True enables HAMT
@@ -75,7 +75,7 @@ class XWDataNode(ADataNode):
         self._format_info = format_info or {}
         self._references = references or []
         self._frozen = False
-        self._hash_cache: Optional[int] = None
+        self._hash_cache: int | None = None
         self._parent = parent
     # ==========================================================================
     # NAVIGATION (Delegate to XWNode)

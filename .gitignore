@@ -293,3 +293,11 @@ credentials.json
 # xwlazy generated files (should be in ~/.xwlazy/ but ignore in case of old behavior)
 xwlazy.lock.toml
 xwlazy_sbom.toml
+
+# ========================================
+# Large example/benchmark data (exceed GitHub 100MB limit; generate locally or use LFS)
+# ========================================
+examples/chatdb_bigfile/data/*.jsonl
+examples/chatdb_bigfile/data/*.jsonl.backup.*
+examples/chatdb_bigfile/data/*.xwjson
+examples/chatdb_bigfile/data/*.xwjson.*

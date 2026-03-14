@@ -6,11 +6,11 @@ Orchestrates metadata extraction using format strategies.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from exonware.xwsystem import get_logger
 from ...base import AMetadataProcessor
 from ...config import XWDataConfig
@@ -29,7 +29,7 @@ class MetadataProcessor(AMetadataProcessor):
     - Metadata application for target formats
     """
 
-    def __init__(self, config: Optional[XWDataConfig] = None):
+    def __init__(self, config: XWDataConfig | None = None):
         """
         Initialize metadata processor.
         Args:

@@ -12,13 +12,14 @@ This module provides the core orchestration engine that coordinates:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 import asyncio
 import hashlib
-from typing import Any, Optional, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger, get_serializer, JsonSerializer
 from exonware.xwsystem.io.serialization.auto_serializer import AutoSerializer
@@ -98,7 +99,7 @@ class XWDataEngine(ADataEngine):
     components and doesn't implement low-level logic itself.
     """
 
-    def __init__(self, config: Optional[XWDataConfig] = None):
+    def __init__(self, config: XWDataConfig | None = None):
         """
         Initialize data engine with configuration.
         Args:
@@ -107,12 +108,12 @@ class XWDataEngine(ADataEngine):
         super().__init__()
         self._config = config or XWDataConfig.default()
         # Core components (lazy initialization)
-        self._serializer: Optional[AutoSerializer] = None
-        self._xwsyntax: Optional[Any] = None  # Optional xwsyntax integration (lazy)
-        self._strategies: Optional[Any] = None  # FormatStrategyRegistry (lazy)
-        self._metadata_processor: Optional[Any] = None  # MetadataProcessor (lazy)
-        self._reference_resolver: Optional[Any] = None  # ReferenceResolver (lazy)
-        self._cache_manager: Optional[Any] = None  # CacheManager (lazy)
+        self._serializer: AutoSerializer | None = None
+        self._xwsyntax: Any | None = None  # Optional xwsyntax integration (lazy)
+        self._strategies: Any | None = None  # FormatStrategyRegistry (lazy)
+        self._metadata_processor: Any | None = None  # MetadataProcessor (lazy)
+        self._reference_resolver: Any | None = None  # ReferenceResolver (lazy)
+        self._cache_manager: Any | None = None  # CacheManager (lazy)
         self._node_factory = NodeFactory(self._config)
         # Atomic helpers are provided by xwsystem.serializer module functions
         logger.debug("XWDataEngine initialized")
@@ -123,7 +124,7 @@ class XWDataEngine(ADataEngine):
     def _get_cache_key(
         self, 
         path_obj: Path, 
-        format_hint: Optional[str] = None,
+        format_hint: str | None = None,
         use_content_hash: bool = True
     ) -> str:
         """
@@ -160,7 +161,7 @@ class XWDataEngine(ADataEngine):
             logger.debug(f"Cache key generation failed, using simple key: {e}")
             return f"load:{str(path_obj)}"
 
-    def _detect_format_fast(self, path_obj: Path, format_hint: Optional[str]) -> str:
+    def _detect_format_fast(self, path_obj: Path, format_hint: str | None) -> str:
         """
         Fast format detection using module-level extension cache.
         This is O(1) lookup with zero overhead, using the persistent
@@ -248,7 +249,7 @@ class XWDataEngine(ADataEngine):
             logger.debug("Initialized CacheManager")
         return self._cache_manager
 
-    def _get_serializer_for_format(self, format_name: str) -> Optional[Any]:
+    def _get_serializer_for_format(self, format_name: str) -> Any | None:
         """
         Get serializer for format name, auto-discovering from SerializationRegistry.
         This method enables xwdata to use ANY serializer registered in xwsystem/xwformats,
@@ -306,7 +307,7 @@ class XWDataEngine(ADataEngine):
     async def load(
         self,
         path: str | Path,
-        format_hint: Optional[str] = None,
+        format_hint: str | None = None,
         **opts
     ) -> XWDataNode:
         """
@@ -446,7 +447,7 @@ class XWDataEngine(ADataEngine):
     async def load_from_source(
         self,
         uri_or_path: str,
-        format_hint: Optional[str] = None,
+        format_hint: str | None = None,
         **opts
     ) -> XWDataNode:
         """
@@ -492,7 +493,7 @@ class XWDataEngine(ADataEngine):
         self,
         node: XWDataNode,
         path: str | Path,
-        format: Optional[str] = None,
+        format: str | None = None,
         **opts
     ) -> None:
         """
@@ -605,7 +606,7 @@ class XWDataEngine(ADataEngine):
     async def create_node_from_native(
         self,
         data: Any,
-        metadata: Optional[dict] = None,
+        metadata: dict | None = None,
         **opts
     ) -> XWDataNode:
         """
@@ -1084,7 +1085,7 @@ class XWDataEngine(ADataEngine):
     async def _ultra_fast_load(
         self, 
         path_obj: Path, 
-        format_hint: Optional[str] = None
+        format_hint: str | None = None
     ) -> XWDataNode:
         """
         Ultra-fast path for very small files (< 1KB) - minimal overhead.
@@ -1186,7 +1187,7 @@ class XWDataEngine(ADataEngine):
     async def _fast_load_small(
         self, 
         path_obj: Path, 
-        format_hint: Optional[str] = None
+        format_hint: str | None = None
     ) -> XWDataNode:
         """
         Fast path for small files - bypass full pipeline.
@@ -1238,7 +1239,7 @@ class XWDataEngine(ADataEngine):
     async def _full_pipeline_load(
         self, 
         path_obj: Path, 
-        format_hint: Optional[str] = None
+        format_hint: str | None = None
     ) -> XWDataNode:
         """
         Full pipeline load - the original load method logic.
@@ -1312,7 +1313,7 @@ class XWDataEngine(ADataEngine):
         self, 
         path_obj: Path, 
         content: str, 
-        format_hint: Optional[str] = None
+        format_hint: str | None = None
     ) -> dict[str, Any]:
         """
         Detect format with confidence scores.

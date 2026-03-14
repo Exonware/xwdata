@@ -3,7 +3,7 @@
 from __future__ import annotations
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import Generic, Optional, TypeVar
+from typing import Generic, TypeVar
 K = TypeVar("K")
 V = TypeVar("V")
 @dataclass
@@ -20,10 +20,10 @@ class LRUCache(Generic[K, V]):
         if capacity <= 0:
             raise ValueError("capacity must be > 0")
         self._cap = capacity
-        self._data: "OrderedDict[K, V]" = OrderedDict()
+        self._data: OrderedDict[K, V] = OrderedDict()
         self.stats = CacheStats()
 
-    def get(self, key: K) -> Optional[V]:
+    def get(self, key: K) -> V | None:
         if key in self._data:
             self._data.move_to_end(key)
             self.stats.hits += 1

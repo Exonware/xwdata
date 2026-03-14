@@ -6,11 +6,12 @@ Defines interfaces for xwstorage backend integration.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+
+from typing import Any, Protocol, runtime_checkable
 from pathlib import Path
 from ...contracts import IData
 from ...defs import DataFormat
@@ -28,7 +29,7 @@ class IStorageAdapter(Protocol):
         data: IData,
         backend: str,
         location: str,
-        format_hint: Optional[str | DataFormat] = None,
+        format_hint: str | DataFormat | None = None,
         **opts
     ) -> None:
         """
@@ -46,7 +47,7 @@ class IStorageAdapter(Protocol):
         self,
         backend: str,
         location: str,
-        format_hint: Optional[str | DataFormat] = None,
+        format_hint: str | DataFormat | None = None,
         **opts
     ) -> IData:
         """
@@ -122,7 +123,7 @@ class IStorageMapper(Protocol):
         self,
         backend: str,
         location: str
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Get storage format from backend and location.
         Args:

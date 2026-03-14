@@ -6,11 +6,12 @@ Defines interfaces for xwentity integration.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Any, Optional, Protocol, runtime_checkable
+
+from typing import Any, Protocol, runtime_checkable
 from ...contracts import IData
 from ...defs import DataFormat
 @runtime_checkable
@@ -43,7 +44,7 @@ class IEntitySerializer(Protocol):
         self,
         entity: Any,  # xwentity entity object
         path: str | Any,  # Path
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> IData:
         """
@@ -87,7 +88,7 @@ class IEntityDeserializer(Protocol):
         self,
         path: str | Any,  # Path
         entity_type: type,
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> Any:
         """

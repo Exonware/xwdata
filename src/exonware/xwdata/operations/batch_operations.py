@@ -4,14 +4,14 @@
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: October 27, 2025
 Batch operations for efficient data processing.
 """
 
 import asyncio
-from typing import Any, Callable, Optional
-from concurrent.futures import ThreadPoolExecutor
+from collections.abc import Callable
+from typing import Any
 
 
 class BatchOperations:

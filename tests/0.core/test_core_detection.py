@@ -8,9 +8,13 @@ Tests the format detection metadata exposure:
 - Detection metadata in various scenarios
 """
 
+import importlib.util
 import pytest
 from pathlib import Path
 from exonware.xwdata import XWData
+
+_has_xwjson = importlib.util.find_spec('exonware.xwjson') is not None
+_has_xwsyntax = importlib.util.find_spec('exonware.xwsyntax') is not None
 @pytest.mark.xwdata_core
 
 
@@ -89,7 +93,7 @@ age = 30
         assert confidence is not None
         assert confidence >= 0.8
     @pytest.mark.asyncio
-
+    @pytest.mark.skipif(not _has_xwjson or not _has_xwsyntax, reason='exonware.xwjson and exonware.xwsyntax required for load pipeline')
     async def test_get_detection_confidence_explicit_hint(self, tmp_path):
         """Test confidence with explicit format hint."""
         # Create file with ambiguous extension
@@ -130,7 +134,7 @@ age = 30
         # Extension-based detection
         assert info['detection_method'] in ['extension', 'content']
     @pytest.mark.asyncio
-
+    @pytest.mark.skipif(not _has_xwjson or not _has_xwsyntax, reason='exonware.xwjson and exonware.xwsyntax required for load pipeline')
     async def test_detection_method_hint(self, tmp_path):
         """Test detection method via format hint."""
         file = tmp_path / "data.txt"
@@ -260,9 +264,9 @@ class TestDetectionTransparency:
 
 
 class TestFormatConversionTracking:
-    """Test tracking format conversions."""
+    """Test tracking format conversions (requires xwjson for save pipeline)."""
     @pytest.mark.asyncio
-
+    @pytest.mark.skipif(not _has_xwjson or not _has_xwsyntax, reason='exonware.xwjson and exonware.xwsyntax required for save pipeline')
     async def test_track_json_to_yaml_conversion(self, tmp_path):
         """Test tracking format conversion from JSON to YAML."""
         # Load JSON
@@ -282,7 +286,7 @@ class TestFormatConversionTracking:
         assert await yaml_data.get('name') == 'Alice'
         assert await yaml_data.get('age') == 30
     @pytest.mark.asyncio
-
+    @pytest.mark.skipif(not _has_xwjson or not _has_xwsyntax, reason='exonware.xwjson and exonware.xwsyntax required for save pipeline')
     async def test_track_multiple_conversions(self, tmp_path):
         """Test tracking through multiple format conversions."""
         # JSON → YAML → TOML

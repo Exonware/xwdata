@@ -6,11 +6,11 @@ Provides convenience methods for BaaS multi-format storage operations.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger
 from ..contracts import IData
@@ -65,13 +65,13 @@ class XWDataBaaSFacade:
         self._pipeline = ConversionPipeline(self._converter)
         self._validator = FormatValidator()
         # Optional integrations (lazy initialization)
-        self._storage_adapter: Optional[StorageAdapter] = None
-        self._storage_mapper: Optional[StorageFormatMapper] = None
-        self._storage_batch: Optional[StorageBatchOperations] = None
-        self._schema_validator: Optional[SchemaValidator] = None
-        self._schema_mapper: Optional[SchemaMapper] = None
-        self._entity_serializer: Optional[EntitySerializer] = None
-        self._entity_deserializer: Optional[EntityDeserializer] = None
+        self._storage_adapter: StorageAdapter | None = None
+        self._storage_mapper: StorageFormatMapper | None = None
+        self._storage_batch: StorageBatchOperations | None = None
+        self._schema_validator: SchemaValidator | None = None
+        self._schema_mapper: SchemaMapper | None = None
+        self._entity_serializer: EntitySerializer | None = None
+        self._entity_deserializer: EntityDeserializer | None = None
     # ============================================================================
     # FORMAT CONVERSION (Always Available - Uses xwjson)
     # ============================================================================
@@ -113,7 +113,7 @@ class XWDataBaaSFacade:
         self,
         source_path: str | Path,
         target_path: str | Path,
-        target_format: Optional[str | DataFormat] = None,
+        target_format: str | DataFormat | None = None,
         **opts
     ) -> IData:
         """
@@ -178,7 +178,7 @@ class XWDataBaaSFacade:
     # STORAGE INTEGRATION (Optional - Requires xwstorage)
     # ============================================================================
 
-    def get_storage_adapter(self) -> Optional[StorageAdapter]:
+    def get_storage_adapter(self) -> StorageAdapter | None:
         """Get storage adapter (optional - requires xwstorage)."""
         if not STORAGE_AVAILABLE:
             logger.warning("Storage integration requires xwstorage library")
@@ -192,7 +192,7 @@ class XWDataBaaSFacade:
         data: IData,
         backend: str,
         location: str,
-        format_hint: Optional[str | DataFormat] = None,
+        format_hint: str | DataFormat | None = None,
         **opts
     ) -> None:
         """
@@ -214,7 +214,7 @@ class XWDataBaaSFacade:
         self,
         backend: str,
         location: str,
-        format_hint: Optional[str | DataFormat] = None,
+        format_hint: str | DataFormat | None = None,
         **opts
     ) -> IData:
         """
@@ -236,7 +236,7 @@ class XWDataBaaSFacade:
     # SCHEMA INTEGRATION (Optional - Requires xwschema)
     # ============================================================================
 
-    def get_schema_validator(self) -> Optional[SchemaValidator]:
+    def get_schema_validator(self) -> SchemaValidator | None:
         """Get schema validator (optional - requires xwschema)."""
         if not SCHEMA_AVAILABLE:
             logger.warning("Schema integration requires xwschema library")
@@ -249,7 +249,7 @@ class XWDataBaaSFacade:
         self,
         data: IData,
         schema: Any,  # xwschema schema object
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> dict[str, Any]:
         """
@@ -271,7 +271,7 @@ class XWDataBaaSFacade:
     # ENTITY INTEGRATION (Optional - Requires xwentity)
     # ============================================================================
 
-    def get_entity_serializer(self) -> Optional[EntitySerializer]:
+    def get_entity_serializer(self) -> EntitySerializer | None:
         """Get entity serializer (optional - requires xwentity)."""
         if not ENTITY_AVAILABLE:
             logger.warning("Entity integration requires xwentity library")
@@ -280,7 +280,7 @@ class XWDataBaaSFacade:
             self._entity_serializer = EntitySerializer()
         return self._entity_serializer
 
-    def get_entity_deserializer(self) -> Optional[EntityDeserializer]:
+    def get_entity_deserializer(self) -> EntityDeserializer | None:
         """Get entity deserializer (optional - requires xwentity)."""
         if not ENTITY_AVAILABLE:
             logger.warning("Entity integration requires xwentity library")

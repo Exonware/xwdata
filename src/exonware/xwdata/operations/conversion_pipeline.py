@@ -6,11 +6,11 @@ Provides multi-step conversion pipelines for complex conversion workflows.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger
 from ..contracts import IConversionPipeline, IFormatConverter
@@ -27,7 +27,7 @@ class ConversionPipeline(IConversionPipeline):
     This is an optional BaaS feature.
     """
 
-    def __init__(self, converter: Optional[IFormatConverter] = None):
+    def __init__(self, converter: IFormatConverter | None = None):
         """
         Initialize conversion pipeline.
         Args:
@@ -92,7 +92,7 @@ class ConversionPipeline(IConversionPipeline):
         self,
         source_path: str | Path,
         steps: list[tuple[str | DataFormat, dict[str, Any]]],
-        target_path: Optional[str | Path] = None,
+        target_path: str | Path | None = None,
         **opts
     ) -> Path:
         """

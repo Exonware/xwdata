@@ -10,7 +10,7 @@ from __future__ import annotations
 import sys
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 # Add paths
 _OPS_DIR = Path(__file__).resolve().parent
 if str(_OPS_DIR) not in sys.path:

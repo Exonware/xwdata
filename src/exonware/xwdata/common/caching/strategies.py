@@ -6,11 +6,11 @@ Specialized caches for parse and serialize operations.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from collections import OrderedDict
 import threading
 from exonware.xwsystem import get_logger
@@ -31,7 +31,7 @@ class LRUCache:
         self._lock = threading.RLock()
         self._stats = {'hits': 0, 'misses': 0, 'sets': 0, 'evictions': 0}
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get from cache with LRU update."""
         with self._lock:
             if key in self._cache:
@@ -42,7 +42,7 @@ class LRUCache:
             self._stats['misses'] += 1
             return None
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set in cache with LRU eviction."""
         with self._lock:
             # Remove if exists (will re-add)

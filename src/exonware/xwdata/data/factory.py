@@ -7,12 +7,12 @@ with optional object pooling and configuration.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Oct-2025
 """
 
 import copy
-from typing import Any, Optional
+from typing import Any
 from exonware.xwsystem import get_logger
 from ..base import ANodeFactory
 from ..config import XWDataConfig
@@ -29,7 +29,7 @@ class NodeFactory(ANodeFactory):
     - Metadata and format info injection
     """
 
-    def __init__(self, config: Optional[XWDataConfig] = None):
+    def __init__(self, config: XWDataConfig | None = None):
         """
         Initialize node factory.
         Args:
@@ -55,9 +55,9 @@ class NodeFactory(ANodeFactory):
     async def create_node(
         self,
         data: Any,
-        metadata: Optional[dict] = None,
-        format_info: Optional[dict] = None,
-        references: Optional[list] = None,
+        metadata: dict | None = None,
+        format_info: dict | None = None,
+        references: list | None = None,
         **opts
     ) -> XWDataNode:
         """

@@ -6,11 +6,11 @@ Provides entity serialization/deserialization for xwentity integration.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Any, Optional
+from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger
 from .contracts import IEntitySerializer, IEntityDeserializer
@@ -82,7 +82,7 @@ class EntitySerializer(IEntitySerializer):
         self,
         entity: Any,  # xwentity entity object
         path: str | Path,
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> IData:
         """
@@ -155,7 +155,7 @@ class EntityDeserializer(IEntityDeserializer):
         self,
         path: str | Path,
         entity_type: type,
-        format: Optional[str | DataFormat] = None,
+        format: str | DataFormat | None = None,
         **opts
     ) -> Any:
         """

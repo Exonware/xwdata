@@ -6,11 +6,10 @@ Maps xwdata formats to storage backend formats.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.1
+Version: 0.9.0.2
 Generation Date: 26-Jan-2025
 """
 
-from typing import Optional
 from exonware.xwsystem import get_logger
 from .contracts import IStorageMapper
 from ...defs import DataFormat
@@ -86,7 +85,7 @@ class StorageFormatMapper(IStorageMapper):
         self,
         backend: str,
         location: str
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Get storage format from backend and location.
         Args:
