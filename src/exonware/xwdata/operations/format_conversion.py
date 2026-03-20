@@ -7,7 +7,7 @@ REUSES xwjson's XWJSONConverter for format conversion (single version of truth).
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.5
+Version: 0.9.0.6
 Generation Date: 26-Jan-2025
 """
 
@@ -94,7 +94,9 @@ class FormatConverter(IFormatConverter):
         else:
             target_fmt = format_validator.validate_format_name(target_format)
         # Security: Sanitize string inputs if applicable
-        if isinstance(data, str) and opts.get('sanitize_input', True):
+        # Keep conversion lossless by default for structured formats.
+        # Callers can still opt in via sanitize_input=True.
+        if isinstance(data, str) and opts.get('sanitize_input', False):
             sanitizer = get_input_sanitizer()
             try:
                 data = sanitizer.sanitize_string(data, allow_html=False)

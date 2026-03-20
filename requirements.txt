@@ -6,7 +6,7 @@
 # Generation Date: 26-Oct-2025
 #
 # This file contains all dependencies needed for xwdata
-# Compatible with Python 3.8+ for maximum compatibility
+# Requires Python 3.12+
 #
 # Usage:
 #   pip install -r requirements.txt
@@ -17,7 +17,7 @@
 # =============================================================================
 # CORE DEPENDENCIES
 # =============================================================================
-# Source size (src/*): ~500.5 KB
+# Source size (src/*): ~500.6 KB
 pip                     # Package installer (CI and lazy install)
 
 # eXonware ecosystem dependencies (xwdata cannot work without these)
@@ -66,9 +66,8 @@ bcrypt>=4.0.0                          # Password hashing (required by xwsystem.
 # =============================================================================
 #
 # Python Version Compatibility:
-# - Minimum: Python 3.8 (for maximum compatibility)
-# - Recommended: Python 3.8+ for best compatibility
-# - Tested: Python 3.8, 3.9, 3.10, 3.11, 3.12
+# - Minimum: Python 3.12
+# - Tested: Python 3.12+
 #
 # Platform Compatibility:
 # - Windows: Full support
@@ -130,3 +129,7 @@ cloudpickle
 pytz
 numexpr
 bottleneck
+jsonpointer
+regex
+atomicwrites
+interegular

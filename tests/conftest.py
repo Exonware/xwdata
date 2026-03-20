@@ -17,6 +17,13 @@ import sys
 src_path = Path(__file__).parent.parent / "src"
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
+
+# Cross-package integration tests need sibling library sources importable.
+workspace_root = Path(__file__).parent.parent.parent
+for sibling in ("xwquery", "xwsyntax"):
+    sibling_src = workspace_root / sibling / "src"
+    if sibling_src.exists() and str(sibling_src) not in sys.path:
+        sys.path.insert(0, str(sibling_src))
 @pytest.fixture
 
 def simple_dict_data():

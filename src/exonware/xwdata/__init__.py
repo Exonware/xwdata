@@ -14,7 +14,7 @@ The xwdata library provides universal data manipulation with:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.5
+Version: 0.9.0.6
 Generation Date: 26-Oct-2025
 Main Classes:
     XWData: Primary facade for data operations

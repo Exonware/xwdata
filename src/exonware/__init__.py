@@ -5,7 +5,7 @@ eXonware namespace package.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.5
+Version: 0.9.0.6
 Generation Date: 26-Oct-2025
 """
 # Namespace package (allows multiple exonware.* packages)
