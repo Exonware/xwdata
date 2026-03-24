@@ -12,7 +12,7 @@ This module provides the core orchestration engine that coordinates:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: 26-Oct-2025
 """
 
@@ -82,6 +82,27 @@ _FORMAT_EXTENSION_CACHE = {
     '.h5': 'HDF5',
     '.feather': 'Feather',
     '.arrow': 'Arrow'
+}
+
+# Normalize common format aliases to names accepted by AutoSerializer.
+_FORMAT_ALIASES = {
+    'YML': 'YAML',
+    'MSGPACK': 'MessagePack',
+    'MESSAGEPACK': 'MessagePack',
+    'PICKLE': 'Pickle',
+    'PLIST': 'Plistlib',
+    # Current serializer stack may not expose dedicated XWJSON/UBJSON serializers.
+    # Use JSON-compatible payloads as a safe fallback for roundtrip behavior.
+    'XWJSON': 'JSON',
+    'UBJSON': 'JSON',
+}
+
+_BINARY_FORMATS = {
+    'BSON',
+    'CBOR',
+    'MessagePack',
+    'Pickle',
+    'Marshal',
 }
 
 
@@ -168,10 +189,22 @@ class XWDataEngine(ADataEngine):
         _FORMAT_EXTENSION_CACHE defined at module level.
         """
         if format_hint:
-            return format_hint.upper()
+            return self._normalize_format_name(format_hint)
         # O(1) lookup in extension cache (instant!)
         ext = path_obj.suffix.lower()
-        return _FORMAT_EXTENSION_CACHE.get(ext, 'JSON')
+        return self._normalize_format_name(_FORMAT_EXTENSION_CACHE.get(ext, 'JSON'))
+
+    def _normalize_format_name(self, format_name: str | None) -> str:
+        """Normalize format names and aliases to canonical AutoSerializer names."""
+        if not format_name:
+            return 'JSON'
+        normalized = str(format_name).strip()
+        upper_name = normalized.upper()
+        return _FORMAT_ALIASES.get(upper_name, upper_name)
+
+    def _is_binary_format(self, format_name: str | None) -> bool:
+        """Return True when the format should be read/written as bytes."""
+        return self._normalize_format_name(format_name) in _BINARY_FORMATS
     # ==========================================================================
     # LAZY INITIALIZATION
     # ==========================================================================
@@ -514,7 +547,7 @@ class XWDataEngine(ADataEngine):
             # 1. Validate path (for writing)
             path_obj = await self._validate_path(path, for_writing=True)
             # 2. Determine format
-            target_format = format or path_obj.suffix.lstrip('.').lower()
+            target_format = self._normalize_format_name(format or path_obj.suffix.lstrip('.').lower())
             if not target_format:
                 raise XWDataSerializeError(
                     "Cannot determine format - specify format or use file extension",
@@ -575,6 +608,9 @@ class XWDataEngine(ADataEngine):
             # 1. Deserialize via xwsystem (this is sync, no need for executor)
             serializer = self._ensure_serializer()
             native_data = serializer.detect_and_deserialize(content, format_hint=format)
+            # XML in-memory parse should recover scalar types for round-trip parity.
+            if isinstance(format, str) and format.lower() == 'xml':
+                native_data = self._infer_xml_scalars(native_data)
             # 2. Get strategy
             strategies = self._ensure_strategies()
             strategy = strategies.get(format)
@@ -602,6 +638,40 @@ class XWDataEngine(ADataEngine):
                 f"Failed to parse {format.upper()} content: {e}",
                 format=format
             ) from e
+
+    def _infer_xml_scalars(self, data: Any) -> Any:
+        """Recursively infer primitive scalar types from XML-decoded strings."""
+        if isinstance(data, dict):
+            return {k: self._infer_xml_scalars(v) for k, v in data.items()}
+        if isinstance(data, list):
+            return [self._infer_xml_scalars(item) for item in data]
+        if isinstance(data, str):
+            value = data.strip()
+            lowered = value.lower()
+            if lowered in ('true', 'false'):
+                return lowered == 'true'
+            if value.isdigit() or (value.startswith('-') and value[1:].isdigit()):
+                try:
+                    return int(value)
+                except ValueError:
+                    return value
+            try:
+                return float(value)
+            except ValueError:
+                return value
+        return data
+
+    def _normalize_xml_string_booleans(self, data: Any) -> Any:
+        """Normalize XML textual booleans to lowercase strings for consistency."""
+        if isinstance(data, dict):
+            return {k: self._normalize_xml_string_booleans(v) for k, v in data.items()}
+        if isinstance(data, list):
+            return [self._normalize_xml_string_booleans(item) for item in data]
+        if data == 'True':
+            return 'true'
+        if data == 'False':
+            return 'false'
+        return data
 
     async def create_node_from_native(
         self,
@@ -733,6 +803,19 @@ class XWDataEngine(ADataEngine):
         else:
             # Fallback: load entire file and yield once
             node = await self.load(path_obj, **opts)
+            # YAML multi-document compatibility: when decode returns a list of
+            # documents in fallback mode, stream them as individual nodes.
+            if format_name == 'YAML':
+                native = node.to_native()
+                if isinstance(native, list) and native and all(isinstance(doc, dict) for doc in native):
+                    for document in native:
+                        split_node = await self._node_factory.create_node(
+                            data=document,
+                            metadata={'source_path': str(path_obj), 'format': format_name},
+                            config=self._config
+                        )
+                        yield split_node
+                    return
             yield node
     # ==========================================================================
     # UTILITY METHODS
@@ -1057,6 +1140,15 @@ class XWDataEngine(ADataEngine):
         content = path_obj.read_text(encoding='utf-8')
         # 2. xwsystem JsonSerializer (flyweight)
         data = _JSON_SERIALIZER.decode(content)
+        # Keep fast-path correctness: resolve references when enabled.
+        if self._config.reference.resolution_mode.name not in ('DISABLED', 'DETECT_ONLY'):
+            resolver = self._ensure_reference_resolver()
+            strategy = self._ensure_strategies().get('JSON')
+            data = await resolver.resolve(
+                data=data,
+                strategy=strategy,
+                base_path=path_obj.parent
+            )
         # 3. Absolute minimal metadata (4 fields only - less than V7)
         metadata = {
             'source_path': str(path_obj),
@@ -1099,9 +1191,13 @@ class XWDataEngine(ADataEngine):
         """
         try:
             # 1. Direct file read (synchronous for tiny files)
-            content = path_obj.read_text(encoding='utf-8')
-            # 2. Detect format quickly (O(1) lookup)
             format_name = self._detect_format_fast(path_obj, format_hint)
+            if self._is_binary_format(format_name):
+                content = path_obj.read_bytes()
+            else:
+                content = path_obj.read_text(encoding='utf-8')
+            # 2. Detect format quickly (O(1) lookup)
+            format_name = self._normalize_format_name(format_name)
             # 3. Direct format parsing (bypass serializer for maximum speed)
             data = None
             parse_success = False
@@ -1113,7 +1209,8 @@ class XWDataEngine(ADataEngine):
                     data = YamlSerializer().decode(content)
                     parse_success = True
                 elif format_name == 'XML':
-                    data = XmlSerializer().decode(content)
+                    data = XmlSerializer().decode(content, options={'infer_types': False})
+                    data = self._normalize_xml_string_booleans(data)
                     parse_success = True
                 elif format_name == 'TOML':
                     data = TomlSerializer().decode(content)
@@ -1132,16 +1229,28 @@ class XWDataEngine(ADataEngine):
             if not parse_success:
                 serializer = self._ensure_serializer()
                 data = serializer.detect_and_deserialize(content, format_hint=format_name)
+                if format_name == 'XML':
+                    data = self._normalize_xml_string_booleans(data)
             # 4. Minimal metadata (only essential fields)
             metadata = {
                 'source_path': str(path_obj),
                 'format': format_name,
                 'detected_format': format_name,
-                'size_bytes': len(content),
+                'size_bytes': len(content) if isinstance(content, (bytes, bytearray)) else len(content.encode('utf-8')),
                 'ultra_fast_path': True,
                 'direct_parse': parse_success,
-                '_raw_text': content,
             }
+            if isinstance(content, str):
+                metadata['_raw_text'] = content
+            # Keep fast-path correctness: resolve references when enabled.
+            if self._config.reference.resolution_mode.name not in ('DISABLED', 'DETECT_ONLY'):
+                resolver = self._ensure_reference_resolver()
+                strategy = self._ensure_strategies().get(format_name)
+                data = await resolver.resolve(
+                    data=data,
+                    strategy=strategy,
+                    base_path=path_obj.parent
+                )
             # 5. Minimal node creation (ultra-minimal overhead)
             from .node import XWDataNode
             node = XWDataNode(
@@ -1202,13 +1311,19 @@ class XWDataEngine(ADataEngine):
         """
         try:
             # 1. Direct file read (synchronous for small files)
-            content = path_obj.read_text(encoding='utf-8')
-            # 2. Fast format detection (use module-level cache - O(1))
             format_name = self._detect_format_fast(path_obj, format_hint)
+            if self._is_binary_format(format_name):
+                content = path_obj.read_bytes()
+            else:
+                content = path_obj.read_text(encoding='utf-8')
+            # 2. Fast format detection (use module-level cache - O(1))
+            format_name = self._normalize_format_name(format_name)
             # 3. Direct deserialization (no strategy overhead)
             serializer = self._ensure_serializer()
             try:
                 data = serializer.detect_and_deserialize(content, format_hint=format_name)
+                if format_name == 'XML':
+                    data = self._normalize_xml_string_booleans(data)
             except Exception as e:
                 # Fallback to JSON if format detection failed
                 logger.debug(f"Format {format_name} failed, falling back to JSON: {e}")
@@ -1218,11 +1333,21 @@ class XWDataEngine(ADataEngine):
                 'source_path': str(path_obj),
                 'format': format_name,
                 'detected_format': format_name,  # For get_detected_format()
-                'size_bytes': len(content),
+                'size_bytes': len(content) if isinstance(content, (bytes, bytearray)) else len(content.encode('utf-8')),
                 'fast_path': True,
-                '_raw_text': content,
             }
-            # 5. Direct node creation (no reference resolution)
+            if isinstance(content, str):
+                metadata['_raw_text'] = content
+            # Keep fast-path correctness: resolve references when enabled.
+            if self._config.reference.resolution_mode.name not in ('DISABLED', 'DETECT_ONLY'):
+                resolver = self._ensure_reference_resolver()
+                strategy = self._ensure_strategies().get(format_name)
+                data = await resolver.resolve(
+                    data=data,
+                    strategy=strategy,
+                    base_path=path_obj.parent
+                )
+            # 5. Direct node creation
             node = await self._node_factory.create_node(
                 data=data,
                 metadata=metadata,
@@ -1249,13 +1374,19 @@ class XWDataEngine(ADataEngine):
         # (the rest of the current load method)
         serializer = self._ensure_serializer()
         # Read file content (async)
-        content = await async_safe_read_text(str(path_obj))
+        hinted_format = self._normalize_format_name(format_hint)
+        if self._is_binary_format(hinted_format):
+            content = path_obj.read_bytes()
+        else:
+            content = await async_safe_read_text(str(path_obj))
         # Detect format with confidence scores (before deserialization)
         format_info = await self._detect_format(path_obj, content, format_hint)
-        format_name = format_info['format']
+        format_name = self._normalize_format_name(format_info['format'])
         # Deserialize via xwsystem (reuse!)
         try:
             data = serializer.detect_and_deserialize(content, format_hint=format_name)
+            if format_name == 'XML':
+                data = self._normalize_xml_string_booleans(data)
         except Exception as e:
             raise XWDataParseError(f"Failed to deserialize {path_obj}: {e}") from e
         # Resolve references if enabled (V7 optimization: skip if disabled)
@@ -1283,11 +1414,12 @@ class XWDataEngine(ADataEngine):
             'source_path': str(path_obj),
             'format': format_name,
             'detected_format': format_name,  # For get_detected_format()
-            'size_bytes': len(content),
+            'size_bytes': len(content) if isinstance(content, (bytes, bytearray)) else len(content.encode('utf-8')),
             'fast_path': False,
             'references_resolved': self._config.reference.resolution_mode.name != 'DISABLED',
-            '_raw_text': content,
         }
+        if isinstance(content, str):
+            metadata['_raw_text'] = content
         # Add format detection info from detector
         metadata.update(format_info)
         # Normalize detection metadata keys so that XWData facade helpers
@@ -1312,7 +1444,7 @@ class XWDataEngine(ADataEngine):
     async def _detect_format(
         self, 
         path_obj: Path, 
-        content: str, 
+        content: str | bytes,
         format_hint: str | None = None
     ) -> dict[str, Any]:
         """
@@ -1326,7 +1458,7 @@ class XWDataEngine(ADataEngine):
         """
         if format_hint:
             return {
-                'format': format_hint.upper(),
+                'format': self._normalize_format_name(format_hint),
                 'confidence': 1.0,
                 'method': 'hint'
             }
@@ -1335,7 +1467,7 @@ class XWDataEngine(ADataEngine):
         detector = FormatDetector()
         format_scores = detector.detect_format(
             file_path=path_obj,
-            content=content
+            content=content if isinstance(content, str) else None
         )
         if format_scores:
             detected_format = max(format_scores, key=format_scores.get)

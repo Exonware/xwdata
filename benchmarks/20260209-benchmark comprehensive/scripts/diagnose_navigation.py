@@ -5,8 +5,7 @@ import sys
 import time
 from pathlib import Path
 # Add paths
-benchmarks_dir = Path(__file__).parent
-xwdata_root = benchmarks_dir.parent
+xwdata_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(xwdata_root / "src"))
 from exonware.xwdata import XWData
 

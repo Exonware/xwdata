@@ -33,8 +33,7 @@ if sys.platform == 'win32':
     except:
         pass
 # Add paths
-benchmarks_dir = Path(__file__).parent
-xwdata_root = benchmarks_dir.parent
+xwdata_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(xwdata_root / "src"))
 # Test file paths (using standard test files)
 FIXTURES_DIR = xwdata_root / "tests" / "fixtures"
@@ -692,7 +691,7 @@ async def main():
     await benchmark.run_all_benchmarks()
     benchmark.print_comparison_table()
     # Save results
-    output_file = Path(__file__).parent / "STANDARDIZED_BENCHMARKS.md"
+    output_file = Path(__file__).resolve().parent.parent / "benchmarks" / "STANDARDIZED_BENCHMARKS.md"
     benchmark.save_results(output_file)
     print("\n" + "=" * 100)
     print("🎉 Benchmarks complete!")

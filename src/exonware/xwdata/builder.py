@@ -4,7 +4,7 @@
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: October 27, 2025
 Builder pattern for XWData construction.
 Provides fluent API for building complex data structures.
@@ -181,6 +181,8 @@ class XWDataBuilder:
         """
         # Create XWData from native with metadata and config
         # XWData constructor accepts metadata and config parameters
+        # Lazy import avoids circular import at module import time.
+        from .facade import XWData
         result = XWData.from_native(
             self._data,
             metadata=self._metadata if self._metadata else None,

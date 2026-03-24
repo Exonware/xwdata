@@ -6,7 +6,7 @@ Orchestrates metadata extraction using format strategies.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: 26-Oct-2025
 """
 
@@ -61,7 +61,9 @@ class MetadataProcessor(AMetadataProcessor):
         # Convert to universal metadata if configured
         if self._config.metadata.mode.name == 'UNIVERSAL':
             universal = await self._extractor.extract_universal(data, format_metadata)
-            return universal.to_dict()
+            metadata = universal.to_dict()
+            metadata.setdefault("format", strategy.name.lower())
+            return metadata
         return format_metadata
 
     async def apply(

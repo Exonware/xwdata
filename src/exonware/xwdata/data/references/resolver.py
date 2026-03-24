@@ -6,7 +6,7 @@ Resolves cross-references by loading external files.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: 26-Oct-2025
 """
 
@@ -15,6 +15,7 @@ from pathlib import Path
 import asyncio
 import urllib.parse
 from exonware.xwsystem import get_logger
+from exonware.xwsystem.io.serialization import JsonSerializer, YamlSerializer, TomlSerializer, XmlSerializer
 from ...base import AReferenceResolver
 from ...config import XWDataConfig
 from ...contracts import IFormatStrategy
@@ -42,6 +43,11 @@ class ReferenceResolver(AReferenceResolver):
         super().__init__()
         self._config = config or XWDataConfig.default()
         self._detector = ReferenceDetector()
+        # Reuse serializer instances for fast local file reference loads.
+        self._json = JsonSerializer()
+        self._yaml = YamlSerializer()
+        self._toml = TomlSerializer()
+        self._xml = XmlSerializer()
 
     async def resolve(
         self,
@@ -225,13 +231,15 @@ class ReferenceResolver(AReferenceResolver):
             # Recursively process dict values
             resolved_dict = {}
             for key, value in data.items():
-                resolved_dict[key] = await self._resolve_recursive(value, strategy, base_path, resolution_stack, depth + 1, **opts)
+                # Keep depth for structural traversal; only increment for reference hops.
+                resolved_dict[key] = await self._resolve_recursive(value, strategy, base_path, resolution_stack, depth, **opts)
             return resolved_dict
         # Handle list
         elif isinstance(data, list):
             resolved_list = []
             for item in data:
-                resolved_list.append(await self._resolve_recursive(item, strategy, base_path, resolution_stack, depth + 1, **opts))
+                # Keep depth for structural traversal; only increment for reference hops.
+                resolved_list.append(await self._resolve_recursive(item, strategy, base_path, resolution_stack, depth, **opts))
             return resolved_list
         # Primitive types - return as-is
         else:
@@ -292,12 +300,21 @@ class ReferenceResolver(AReferenceResolver):
                 )
             # Load file using XWData engine
             try:
-                # Import here to avoid circular dependency
+                # Fast-path local file decode to avoid full engine startup for each reference.
+                ext = file_path.suffix.lower()
+                raw = file_path.read_bytes()
+                if ext == '.json':
+                    return self._json.decode(raw)
+                if ext in ('.yaml', '.yml'):
+                    return self._yaml.decode(raw)
+                if ext == '.toml':
+                    return self._toml.decode(raw)
+                if ext == '.xml':
+                    return self._xml.decode(raw)
+                # Fallback: use XWData engine for less common formats.
                 from ...data.engine import XWDataEngine
                 engine = XWDataEngine(config=self._config)
-                # Load file
                 result = await engine.load(file_path, **opts)
-                # XWDataNode - get native data
                 return result.to_native()
             except Exception as e:
                 raise XWDataReferenceError(

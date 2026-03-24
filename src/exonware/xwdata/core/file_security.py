@@ -7,7 +7,7 @@ This module provides xwdata-specific error types that wrap xwsystem FileSecurity
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: 26-Jan-2025
 """
 
@@ -24,6 +24,7 @@ from exonware.xwsystem.security.file_security import (
     FileSizeLimitError,
     FileIOError
 )
+from exonware.xwsystem.security.path_validator import PathSecurityError
 
 
 class FileSecurity:
@@ -51,6 +52,7 @@ class FileSecurity:
             allowed_directories=allowed_directories,
             allow_absolute_paths=allow_absolute_paths
         )
+        self._max_file_size = max_file_size
 
     def validate_file_path(
         self,
@@ -74,7 +76,7 @@ class FileSecurity:
         try:
             # REUSE xwsystem FileSecurity
             return self._xwsystem_file_security.validate_file_path(path, operation, check_exists)
-        except FileSecurityError as e:
+        except (FileSecurityError, PathSecurityError) as e:
             # Convert to xwdata-specific errors
             if isinstance(e, FileSizeLimitError):
                 raise XWDataSizeLimitError(
@@ -91,8 +93,8 @@ class FileSecurity:
             else:
                 raise XWDataPathSecurityError(
                     str(e),
-                    path=e.path,
-                    context=e.context
+                    path=getattr(e, "path", str(path)),
+                    context=getattr(e, "context", {})
                 )
 
     def check_file_size(self, path: str | Path) -> int:

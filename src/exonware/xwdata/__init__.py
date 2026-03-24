@@ -14,7 +14,7 @@ The xwdata library provides universal data manipulation with:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: 26-Oct-2025
 Main Classes:
     XWData: Primary facade for data operations
@@ -105,7 +105,7 @@ from .defs import (
     EngineMode,
     CacheStrategy,
     ReferenceResolutionMode,
-    MergeStrategy,
+    MergeStrategy as DataMergeStrategy,
     SerializationMode,
     COWMode,
     MetadataMode,
@@ -187,6 +187,7 @@ __all__ = [
     'CacheStrategy',
     'ReferenceResolutionMode',
     'MergeStrategy',
+    'DataMergeStrategy',
     'SerializationMode',
     'COWMode',
     'MetadataMode',

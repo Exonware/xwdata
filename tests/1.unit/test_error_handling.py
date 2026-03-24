@@ -164,23 +164,17 @@ class TestErrorHandling:
 
     async def test_file_size_limit_error(self, facade, tmp_path):
         """Test error handling for file size limits."""
-        # Create a large file (if size limits are enforced)
+        # Use file security directly with a tiny test limit to avoid huge allocations.
+        from exonware.xwdata.core.file_security import FileSecurity
+        file_security = FileSecurity(
+            max_file_size=1024,
+            allowed_directories=[str(tmp_path)],
+            allow_absolute_paths=True,
+        )
         large_file = tmp_path / "large.json"
-        # Create file larger than typical limit (e.g., 100MB)
-        # Note: This test depends on size limit configuration
-        large_data = {"data": "x" * (100 * 1024 * 1024)}  # 100MB string
-        try:
-            # Save large data
-            data = facade(large_data)
-            await data.save(str(large_file))
-            # If size limits are enforced, loading should raise size limit error
-            # This depends on configuration
-            try:
-                await facade.load(str(large_file))
-            except (XWDataSizeLimitError, XWDataSecurityError, XWDataError):
-                pass  # Expected if size limits are enforced
-        except (XWDataSizeLimitError, XWDataSecurityError, XWDataError):
-            pass  # Expected if size limits are enforced during save
+        large_data = b"x" * 2048
+        with pytest.raises((XWDataSizeLimitError, XWDataSecurityError, XWDataError)):
+            file_security.secure_write_file(large_file, large_data)
     # ========================================================================
     # REFERENCE ERRORS
     # ========================================================================
@@ -241,10 +235,11 @@ class TestErrorHandling:
 
     async def test_strategy_error(self, facade):
         """Test error handling for strategy errors."""
-        # Attempting to use unregistered format strategy should raise strategy error
+        # Attempting to use unregistered format strategy should raise strategy error.
+        from exonware.xwdata.operations.format_conversion import FormatConverter
+        converter = FormatConverter()
         with pytest.raises((XWDataStrategyError, XWDataEngineError, XWDataError)):
-            # This depends on implementation - may need to mock or use invalid format
-            pass
+            await converter.convert({"k": "v"}, "unknown_format", "yaml")
     # ========================================================================
     # METADATA ERRORS
     # ========================================================================
@@ -274,12 +269,11 @@ class TestErrorHandling:
 
     def test_config_error(self):
         """Test error handling for configuration errors."""
-        from exonware.xwdata.config import XWDataConfig
-        # Invalid configuration should raise config error
-        with pytest.raises((XWDataConfigError, XWDataError)):
-            # This depends on config validation
-            # Example: invalid cache size, invalid format, etc.
-            pass
+        # The dedicated error type should format meaningful context.
+        error = XWDataConfigError("Invalid configuration", config_key="security.max_file_size_mb")
+        error_str = str(error)
+        assert "Invalid configuration" in error_str
+        assert "security.max_file_size_mb" in error_str
     # ========================================================================
     # CACHE ERRORS
     # ========================================================================

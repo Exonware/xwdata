@@ -301,3 +301,5 @@ examples/chatdb_bigfile/data/*.jsonl
 examples/chatdb_bigfile/data/*.jsonl.backup.*
 examples/chatdb_bigfile/data/*.xwjson
 examples/chatdb_bigfile/data/*.xwjson.*
+
+.examples/

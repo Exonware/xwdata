@@ -11,12 +11,17 @@ This module provides the primary user-facing API with:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: 26-Oct-2025
 """
 
 from __future__ import annotations
 import asyncio
+import threading
+try:
+    import httpx
+except Exception:  # pragma: no cover - optional at runtime, patched in tests.
+    httpx = None
 from collections.abc import AsyncIterator
 from typing import Any
 from pathlib import Path
@@ -93,6 +98,12 @@ class XWData(AData):
             fmt = kwargs.pop("format", None)
             return _AwaitableLoad(cls.load(data, format_hint=fmt, **kwargs))
         return super().__new__(cls)
+
+    def __await__(self):
+        """Allow backward-compatible `await XWData.from_native(...)` usage."""
+        async def _return_self():
+            return self
+        return _return_self().__await__()
 
     def __init__(
         self,
@@ -177,6 +188,37 @@ class XWData(AData):
 
     def _run_sync_async(coro):
         """Run an async coroutine from sync context (single place for event-loop pattern)."""
+        try:
+            running_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            running_loop = None
+
+        if running_loop is not None and running_loop.is_running():
+            # If called from an active event loop (e.g., pytest-asyncio), run work in
+            # a dedicated thread with its own loop to avoid nested-loop RuntimeError.
+            result_box: dict[str, Any] = {}
+            error_box: dict[str, BaseException] = {}
+            done = threading.Event()
+
+            def _runner() -> None:
+                loop = asyncio.new_event_loop()
+                try:
+                    asyncio.set_event_loop(loop)
+                    result_box["value"] = loop.run_until_complete(coro)
+                except BaseException as exc:
+                    error_box["error"] = exc
+                finally:
+                    loop.close()
+                    asyncio.set_event_loop(None)
+                    done.set()
+
+            thread = threading.Thread(target=_runner, daemon=True)
+            thread.start()
+            done.wait()
+            if "error" in error_box:
+                raise error_box["error"]
+            return result_box.get("value")
+
         loop = asyncio.new_event_loop()
         try:
             asyncio.set_event_loop(loop)
@@ -545,20 +587,41 @@ class XWData(AData):
     # NAVIGATION
     # ==========================================================================
 
-    async def get(self, path: str, default: Any = None) -> Any:
+    def get(self, path: str, default: Any = None) -> Any:
         """
         Get value at path.
+        Dual-mode behavior for compatibility:
+        - Sync context: returns value directly
+        - Async context: returns awaitable/coroutine
         Args:
             path: Dot-separated path
             default: Default value if path doesn't exist
         Returns:
-            Value at path or default
+            Value at path/default (sync) or awaitable producing that value (async)
         """
-        # If this XWData was loaded in lazy file mode, use engine-level atomic
-        # access to avoid fully materializing huge files.
+        in_async_context = False
+        try:
+            asyncio.get_running_loop()
+            in_async_context = True
+        except RuntimeError:
+            in_async_context = False
+        if isinstance(path, str) and ".." in path:
+            from .errors import XWDataPathError
+            raise XWDataPathError(f"Invalid path syntax: {path}", path=path)
+
+        # Lazy file mode requires async engine access; bridge for sync callers.
         if self._metadata.get('lazy_mode') == 'file':
-            return await self._engine.lazy_get_from_file(self._node, path, default)
-        return self._node.get_value_at_path(path, default)
+            coro = self._engine.lazy_get_from_file(self._node, path, default)
+            if in_async_context:
+                return coro
+            return self._run_sync_async(coro)
+
+        value = self._node.get_value_at_path(path, default)
+        if in_async_context:
+            async def _return_value():
+                return value
+            return _return_value()
+        return value
 
     async def exists(self, path: str) -> bool:
         """
@@ -1312,6 +1375,15 @@ class XWData(AData):
             return False
         # Delegate to XWDataNode which delegates to XWNode
         return key in self._node
+
+    def __len__(self) -> int:
+        """Return length of top-level container for list/dict data."""
+        if not self._node:
+            return 0
+        native = self._node.to_native()
+        if isinstance(native, (list, dict)):
+            return len(native)
+        raise TypeError(f"object of type '{type(self).__name__}' has no len()")
 
     def get_value(self, key: str, default: Any = None) -> Any:
         """

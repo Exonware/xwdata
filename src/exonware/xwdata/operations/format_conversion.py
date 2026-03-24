@@ -7,7 +7,7 @@ REUSES xwjson's XWJSONConverter for format conversion (single version of truth).
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: 26-Jan-2025
 """
 
@@ -15,10 +15,11 @@ import hashlib
 from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger
+from exonware.xwsystem.io.serialization.auto_serializer import AutoSerializer
 from exonware.xwjson.formats.binary.xwjson.converter import XWJSONConverter
 from ..contracts import IFormatConverter
 from ..defs import DataFormat
-from ..errors import XWDataError
+from ..errors import XWDataError, XWDataParseError, XWDataStrategyError
 from ..core.validators import get_format_validator, get_input_sanitizer
 from ..core.file_security import get_file_security
 logger = get_logger(__name__)
@@ -93,6 +94,21 @@ class FormatConverter(IFormatConverter):
             target_fmt = target_format.name.lower()
         else:
             target_fmt = format_validator.validate_format_name(target_format)
+        if not self.supports_conversion(source_fmt, target_fmt):
+            raise XWDataStrategyError(
+                f"Unsupported conversion strategy: {source_fmt} -> {target_fmt}",
+                strategy=f"{source_fmt}->{target_fmt}"
+            )
+        # For explicit JSON input, enforce JSON syntax validation.
+        if source_fmt == "json" and isinstance(data, str):
+            import json
+            try:
+                json.loads(data)
+            except Exception as e:
+                raise XWDataParseError(
+                    f"Invalid JSON input for conversion: {e}",
+                    format="json"
+                ) from e
         # Security: Sanitize string inputs if applicable
         # Keep conversion lossless by default for structured formats.
         # Callers can still opt in via sanitize_input=True.
@@ -119,6 +135,10 @@ class FormatConverter(IFormatConverter):
                 source_format=source_fmt,
                 target_format=target_fmt
             )
+            # Ensure text formats return text payloads for API consistency.
+            if target_fmt in {"json", "yaml", "yml", "xml", "toml", "csv", "ini"} and not isinstance(result, str):
+                serializer = AutoSerializer()
+                result = serializer.detect_and_serialize(result, format_hint=target_fmt)
             # Cache result
             if self._enable_caching:
                 cache_key = self._get_cache_key(data, source_fmt, target_fmt)

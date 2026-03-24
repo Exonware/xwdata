@@ -9,11 +9,12 @@ REUSES xwsystem security features:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: 26-Jan-2025
 """
 
 import re
+from urllib.parse import unquote
 from pathlib import Path
 from typing import Any
 from exonware.xwsystem.security import PathValidator as XWSystemPathValidator, PathSecurityError
@@ -43,6 +44,7 @@ class PathValidator:
         self._xwsystem_validator = XWSystemPathValidator(
             base_path=base_path,
             allow_absolute=True,  # Allow absolute paths so load(path, format=...) works from any dir
+            check_existence=False,  # Existence is operation-specific; do not block safe path validation.
             enable_cache=True  # Use xwsystem's LRU cache for performance
         )
         self._allowed_directories = allowed_directories
@@ -59,6 +61,16 @@ class PathValidator:
             XWDataPathSecurityError: If path is invalid or contains traversal patterns
         """
         try:
+            path_str = str(path)
+            decoded_path = unquote(path_str)
+            normalized = decoded_path.replace("\\", "/").lower()
+            # Block common traversal/protected-path probes before filesystem checks.
+            if ".." in normalized or normalized.startswith("/etc/") or normalized.startswith("c:/windows"):
+                raise XWDataPathSecurityError(
+                    "Potential path traversal or protected path access detected",
+                    path=path_str,
+                    context={"operation": operation}
+                )
             # REUSE xwsystem's comprehensive path validation
             validated = self._xwsystem_validator.validate_path(
                 path,
@@ -88,6 +100,12 @@ class PathValidator:
             return validated
         except PathSecurityError as e:
             # Convert xwsystem error to xwdata error
+            raise XWDataPathSecurityError(
+                str(e),
+                path=str(path),
+                context={'operation': operation}
+            ) from e
+        except (PermissionError, FileNotFoundError, OSError, ValueError) as e:
             raise XWDataPathSecurityError(
                 str(e),
                 path=str(path),
@@ -206,6 +224,13 @@ class InputSanitizer:
                 "Potential SQL injection detected in input",
                 context={'input_preview': value[:50]}
             )
+        if self._strict_mode:
+            suspicious_shell = (';', '|', '&', '`', '$(')
+            if any(token in value for token in suspicious_shell):
+                raise XWDataSecurityError(
+                    "Potential command injection detected in input",
+                    context={'input_preview': value[:50]}
+                )
         if not allow_html and self._xwsystem_validator.detect_xss(value):
             raise XWDataSecurityError(
                 "Potential XSS attack detected in input",

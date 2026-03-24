@@ -27,8 +27,7 @@ if sys.platform == 'win32':
     except:
         pass
 # Add paths
-benchmarks_dir = Path(__file__).parent
-xwdata_root = benchmarks_dir.parent
+xwdata_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(xwdata_root / "src"))
 sys.path.insert(0, str(xwdata_root / "MIGRAT"))
 @dataclass
@@ -461,7 +460,7 @@ async def main():
     await benchmark.run_all_benchmarks()
     benchmark.print_results()
     # Save results
-    output_file = Path(__file__).parent / "PERFORMANCE_RESULTS.md"
+    output_file = Path(__file__).resolve().parent.parent / "benchmarks" / "PERFORMANCE_RESULTS.md"
     benchmark.save_results(output_file)
     print("\n" + "=" * 80)
     print("Benchmark complete!")

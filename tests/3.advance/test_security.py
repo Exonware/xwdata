@@ -20,10 +20,13 @@ import pytest
 from pathlib import Path
 from unittest.mock import Mock, patch
 from exonware.xwdata.errors import (
+    XWDataError,
     XWDataPathSecurityError,
     XWDataSecurityError,
     XWDataSizeLimitError,
-    XWDataValidationError
+    XWDataValidationError,
+    XWDataIOError,
+    XWDataParseError,
 )
 from exonware.xwdata.core.validators import (
     PathValidator,
@@ -331,8 +334,7 @@ class TestOWASPTop10:
         ]
         for path in malicious_paths:
             with pytest.raises((XWDataPathSecurityError, XWDataIOError)):
-                # Should prevent accessing files outside allowed directories
-                pass  # Integration test would load file here
+                facade(path)
     # A02:2021 – Cryptographic Failures
 
     def test_cryptographic_failures(self):
@@ -393,6 +395,7 @@ class TestOWASPTop10:
 
     def test_ssrf(self, facade):
         """Test SSRF prevention (if applicable)."""
+        import asyncio
         # xwdata may load from URLs, should validate URLs
         malicious_urls = [
             "file:///etc/passwd",
@@ -401,9 +404,8 @@ class TestOWASPTop10:
         ]
         # Should prevent loading from local/internal URLs
         for url in malicious_urls:
-            with pytest.raises((XWDataSecurityError, XWDataIOError)):
-                # Integration test would attempt to load from URL
-                pass
+            with pytest.raises((XWDataSecurityError, XWDataIOError, XWDataError)):
+                asyncio.run(facade.load(url))
 @pytest.mark.xwdata_advance
 @pytest.mark.xwdata_security
 

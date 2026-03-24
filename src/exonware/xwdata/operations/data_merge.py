@@ -4,7 +4,7 @@
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: October 27, 2025
 Data-aware merge operations using xwsystem.operations.
 Provides XWData-specific merge functionality with metadata preservation.
@@ -64,6 +64,15 @@ class DataMerger:
         from ..facade import XWData
         target_native = target.to_native() if isinstance(target, XWData) else target
         source_native = source.to_native() if isinstance(source, XWData) else source
+        # Normalize cross-package strategy enums by value/name.
+        if not isinstance(strategy, MergeStrategy):
+            if hasattr(strategy, "value"):
+                strategy_value = str(strategy.value).lower()
+                strategy = MergeStrategy(strategy_value)
+            elif hasattr(strategy, "name"):
+                strategy = MergeStrategy[str(strategy.name).upper()]
+            else:
+                strategy = MergeStrategy(str(strategy).lower())
         # Use xwsystem.operations for the merge
         result = deep_merge(target_native, source_native, strategy=strategy)
         # If target was XWData and we want to preserve types, return XWData

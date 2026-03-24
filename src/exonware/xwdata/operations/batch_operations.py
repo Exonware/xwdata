@@ -4,7 +4,7 @@
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.6
+Version: 0.9.0.7
 Generation Date: October 27, 2025
 Batch operations for efficient data processing.
 """
@@ -53,7 +53,7 @@ class BatchOperations:
             if not isinstance(item, XWData):
                 item = XWData.from_native(item)
             # Return serialized data in target format
-            return await item.serialize_async(target_format, **kwargs)
+            return await item.serialize(target_format, **kwargs)
         tasks = [convert_one(item) for item in items]
         return await asyncio.gather(*tasks)
 
@@ -77,7 +77,7 @@ class BatchOperations:
         for item in items:
             if not isinstance(item, XWData):
                 item = XWData.from_native(item)
-            results.append(item.serialize(target_format, **kwargs))
+            results.append(item.to_format(target_format, **kwargs))
         return results
 
     async def batch_validate_async(
