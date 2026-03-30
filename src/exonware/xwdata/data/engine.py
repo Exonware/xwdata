@@ -12,7 +12,7 @@ This module provides the core orchestration engine that coordinates:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.7
+Version: 0.9.0.8
 Generation Date: 26-Oct-2025
 """
 
@@ -245,9 +245,13 @@ class XWDataEngine(ADataEngine):
             available_formats = registry.list_formats()
             logger.debug(f"xwdata: Auto-discovered {len(available_formats)} serializers: {available_formats}")
             # Optionally integrate xwsyntax for grammar-based parsing (optional dependency)
-            from exonware.xwsyntax import XWSyntax
-            self._xwsyntax = XWSyntax()
-            logger.debug("xwdata: xwsyntax integration available (extends XWSystem)")
+            try:
+                from exonware.xwsyntax import XWSyntax
+
+                self._xwsyntax = XWSyntax()
+                logger.debug("xwdata: xwsyntax integration available (extends XWSystem)")
+            except ImportError:
+                logger.debug("xwdata: xwsyntax not available (optional dependency)")
         return self._serializer
 
     def _ensure_strategies(self) -> Any:

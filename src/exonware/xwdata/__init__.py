@@ -14,7 +14,7 @@ The xwdata library provides universal data manipulation with:
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.7
+Version: 0.9.0.8
 Generation Date: 26-Oct-2025
 Main Classes:
     XWData: Primary facade for data operations
@@ -38,16 +38,18 @@ Example:
     >>> name = await data.get('name')  # 'Alice'
 """
 # =============================================================================
-# XWLAZY INTEGRATION - Auto-install missing dependencies silently (EARLY)
+# XWLAZY — GUIDE_00_MASTER: config_package_lazy_install_enabled (EARLY)
 # =============================================================================
-# Activate xwlazy BEFORE other imports to enable auto-installation of missing dependencies
-# This enables silent auto-installation of missing libraries when they are imported
-
 try:
-    from exonware.xwlazy import auto_enable_lazy
-    auto_enable_lazy(__package__ or "exonware.xwdata", mode="smart")
+    from exonware.xwlazy import config_package_lazy_install_enabled
+
+    config_package_lazy_install_enabled(
+        __package__ or "exonware.xwdata",
+        enabled=True,
+        mode="smart",
+    )
 except ImportError:
-    # xwlazy not installed - lazy mode simply stays disabled (normal behavior)
+    # xwlazy not installed — omit [lazy] extra or install exonware-xwlazy for lazy mode.
     pass
 # =============================================================================
 # CORE IMPORTS
@@ -72,24 +74,10 @@ from .operations import (
     batch_convert, batch_validate, batch_transform
 )
 # Format conversion (BaaS features - uses xwjson)
-try:
-    from .operations.format_conversion import FormatConverter, convert_format
-    from .operations.conversion_pipeline import ConversionPipeline
-    from .operations.format_validator import FormatValidator
-    FORMAT_CONVERSION_AVAILABLE = True
-except ImportError:
-    FORMAT_CONVERSION_AVAILABLE = False
-    FormatConverter = None
-    convert_format = None
-    ConversionPipeline = None
-    FormatValidator = None
-# BaaS facade (optional features)
-try:
-    from .facades.baas import XWDataBaaSFacade
-    BAAS_FACADE_AVAILABLE = True
-except ImportError:
-    BAAS_FACADE_AVAILABLE = False
-    XWDataBaaSFacade = None
+from .operations.format_conversion import FormatConverter, convert_format
+from .operations.conversion_pipeline import ConversionPipeline
+from .operations.format_validator import FormatValidator
+from .facades.baas import XWDataBaaSFacade
 # Configuration
 from .config import (
     XWDataConfig,
@@ -169,11 +157,11 @@ __all__ = [
     'DataMerger', 'DataDiffer', 'DataPatcher', 'BatchOperations',
     'merge_data', 'diff_data', 'patch_data',
     'batch_convert', 'batch_validate', 'batch_transform',
-    # Format conversion (BaaS features - uses xwjson)
-    # FormatConverter, convert_format, ConversionPipeline, FormatValidator
-    # (added conditionally if available)
-    # BaaS facade (optional features)
-    # XWDataBaaSFacade (added conditionally if available)
+    'FormatConverter',
+    'convert_format',
+    'ConversionPipeline',
+    'FormatValidator',
+    'XWDataBaaSFacade',
     # Configuration
     'XWDataConfig',
     'SecurityConfig',
@@ -243,14 +231,3 @@ def get_info() -> dict:
         'email': __email__
     }
 __all__.append('get_info')
-# Add format conversion exports if available
-if FORMAT_CONVERSION_AVAILABLE:
-    __all__.extend([
-        'FormatConverter',
-        'convert_format',
-        'ConversionPipeline',
-        'FormatValidator',
-    ])
-# Add BaaS facade if available
-if BAAS_FACADE_AVAILABLE:
-    __all__.append('XWDataBaaSFacade')

@@ -1,5 +1,5 @@
 
-# Source size (src/*): ~510.3 KB
+# Source size (src/*): ~514.1 KB
 [build-system]
   requires = ["hatchling"]
   build-backend = "hatchling.build"
@@ -12,16 +12,50 @@
   requires-python = ">=3.12"
   keywords = ["data", "manipulation", "processing", "transformation", "analysis", "exonware"]
   classifiers = []
-  dependencies = []
+  dependencies = [
+    "exonware-xwsystem",
+    "exonware-xwnode",
+    "exonware-xwquery",
+    "exonware-xwjson",
+  ]
   authors = [{name = "eXonware Backend Team", email = "connect@exonware.com"}]
 
   [project.license]
     text = "MIT"
 
   [project.optional-dependencies]
-    dev = ["black>=23.0.0", "isort>=5.12.0", "mypy>=1.0.0", "pytest>=7.0.0", "pytest-asyncio>=0.21.0", "pytest-cov>=4.0.0"]
-    lazy = ["exonware-xwlazy", "exonware-xwsystem[lazy]"]
-    full = ["jsonpointer", "bcrypt>=4.0.0", "regex", "atomicwrites", "interegular"]
+    lazy = [
+      "exonware-xwlazy",
+      "exonware-xwsystem[lazy]",
+      "exonware-xwjson[lazy]",
+      "exonware-xwnode[lazy]",
+      "exonware-xwquery[lazy]",
+    ]
+    dev = [
+      "exonware-xwlazy",
+      "exonware-xwsystem[dev]",
+      "exonware-xwjson[dev]",
+      "exonware-xwnode[dev]",
+      "exonware-xwquery[dev]",
+      "black>=23.0.0",
+      "isort>=5.12.0",
+      "mypy>=1.0.0",
+      "pytest>=7.0.0",
+      "pytest-asyncio>=0.21.0",
+      "pytest-cov>=4.0.0",
+    ]
+    full = [
+      "exonware-xwsystem[full]",
+      "exonware-xwformats[full]",
+      "exonware-xwjson[full]",
+      "exonware-xwnode[full]",
+      "exonware-xwquery[full]",
+      "jsonpointer",
+      "bcrypt>=4.0.0",
+      "regex",
+      "atomicwrites",
+      "interegular",
+    ]
 
   [project.urls]
     Homepage = "https://exonware.com"

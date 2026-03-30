@@ -4,7 +4,7 @@
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.7
+Version: 0.9.0.8
 Generation Date: October 27, 2025
 Data operations module integrating xwsystem.operations.
 This module provides data-specific operations built on top of xwsystem's
@@ -30,18 +30,9 @@ from .data_merge import DataMerger, merge_data
 from .data_diff import DataDiffer, diff_data  
 from .data_patch import DataPatcher, patch_data
 from .batch_operations import BatchOperations, batch_convert, batch_validate, batch_transform
-# Format conversion (optional BaaS features)
-try:
-    from .format_conversion import FormatConverter, convert_format
-    from .conversion_pipeline import ConversionPipeline
-    from .format_validator import FormatValidator
-    FORMAT_CONVERSION_AVAILABLE = True
-except ImportError:
-    FORMAT_CONVERSION_AVAILABLE = False
-    FormatConverter = None
-    convert_format = None
-    ConversionPipeline = None
-    FormatValidator = None
+from .format_conversion import FormatConverter, convert_format
+from .conversion_pipeline import ConversionPipeline
+from .format_validator import FormatValidator
 __all__ = [
     # xwsystem operations (re-exported)
     "MergeStrategy",
@@ -65,12 +56,8 @@ __all__ = [
     "batch_convert",
     "batch_validate",
     "batch_transform",
+    "FormatConverter",
+    "convert_format",
+    "ConversionPipeline",
+    "FormatValidator",
 ]
-# Add format conversion exports if available
-if FORMAT_CONVERSION_AVAILABLE:
-    __all__.extend([
-        "FormatConverter",
-        "convert_format",
-        "ConversionPipeline",
-        "FormatValidator",
-    ])

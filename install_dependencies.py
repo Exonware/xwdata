@@ -14,19 +14,19 @@ import sys
 from pathlib import Path
 # Required dependencies (xwdata cannot work without these)
 REQUIRED_DEPS = [
-    "exonware-xwsystem>=0.0.1",
-    "exonware-xwnode>=0.0.1",
-    "exonware-xwquery>=0.0.1",
-    "exonware-xwjson>=0.0.1",  # Required for format conversion
+    "exonware-xwsystem",
+    "exonware-xwnode",
+    "exonware-xwquery",
+    "exonware-xwjson",  # Required for format conversion
     "bcrypt>=4.0.0",  # Required by xwsystem.security (must be compatible with Python version)
 ]
 # Optional dependencies (for extended features)
 OPTIONAL_DEPS = [
-    "exonware-xwformats>=0.0.1",  # Extended format support
-    "exonware-xwschema>=0.0.1",   # Schema validation (optional integration)
-    "exonware-xwentity>=0.0.1",   # Entity serialization (optional integration)
-    "exonware-xwstorage>=0.0.1",   # Storage integration (optional)
-    "exonware-xwsyntax>=0.0.1",    # Grammar-based parsing (optional)
+    "exonware-xwformats",  # Extended format support
+    "exonware-xwschema",   # Schema validation (optional integration)
+    "exonware-xwentity",   # Entity serialization (optional integration)
+    "exonware-xwstorage",   # Storage integration (optional)
+    "exonware-xwsyntax",    # Grammar-based parsing (optional)
 ]
 # Development dependencies
 DEV_DEPS = [
@@ -88,19 +88,19 @@ def update_requirements_txt():
 # CORE DEPENDENCIES (REQUIRED)
 # =============================================================================
 # eXonware ecosystem dependencies (xwdata cannot work without these)
-exonware-xwsystem>=0.0.1        # Core utilities, serialization, security
-exonware-xwnode>=0.0.1           # Node structures and navigation
-exonware-xwquery>=0.0.1          # Query engine for data navigation
-exonware-xwjson>=0.0.1           # Universal JSON format (required for format conversion)
+exonware-xwsystem        # Core utilities, serialization, security
+exonware-xwnode           # Node structures and navigation
+exonware-xwquery          # Query engine for data navigation
+exonware-xwjson           # Universal JSON format (required for format conversion)
 # =============================================================================
 # OPTIONAL DEPENDENCIES (For Extended Features)
 # =============================================================================
 # Uncomment to enable optional features:
-# exonware-xwformats>=0.0.1      # Extended format support (50+ formats)
-# exonware-xwschema>=0.0.1        # Schema validation integration
-# exonware-xwentity>=0.0.1        # Entity serialization integration
-# exonware-xwstorage>=0.0.1       # Storage backend integration
-# exonware-xwsyntax>=0.0.1       # Grammar-based parsing (SQL, GraphQL, etc.)
+# exonware-xwformats      # Extended format support (50+ formats)
+# exonware-xwschema        # Schema validation integration
+# exonware-xwentity        # Entity serialization integration
+# exonware-xwstorage       # Storage backend integration
+# exonware-xwsyntax       # Grammar-based parsing (SQL, GraphQL, etc.)
 # =============================================================================
 # DEVELOPMENT AND TESTING DEPENDENCIES
 # =============================================================================
@@ -187,11 +187,11 @@ def update_pyproject_toml():
         "exonware-xwquery[full]",
         "exonware-xwjson[full]",
         # Optional format and integration support
-        "exonware-xwformats>=0.0.1",
-        "exonware-xwschema>=0.0.1",
-        "exonware-xwentity>=0.0.1",
-        "exonware-xwstorage>=0.0.1",
-        "exonware-xwsyntax>=0.0.1",
+        "exonware-xwformats",
+        "exonware-xwschema",
+        "exonware-xwentity",
+        "exonware-xwstorage",
+        "exonware-xwsyntax",
         # xwdata-specific dependencies
         "json5>=0.9.0",
         "pyyaml>=6.0.0",

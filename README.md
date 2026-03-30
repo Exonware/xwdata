@@ -1,9 +1,8 @@
 # xwdata
 
-**Format-agnostic data engine with XWNode.** Load from any format, manipulate with copy-on-write semantics, save to any format; xwsystem serialization (30+ formats); path navigation and graph operations via XWNode. Async-first. Per project docs.
+**Format-agnostic data engine with XWNode.** Load and save across many formats (via xwsystem), navigate paths and graphs on `XWNode`, copy-on-write semantics, async-first. Docs in `docs/`.
 
 **Company:** eXonware.com · **Author:** eXonware Backend Team · **Email:** connect@exonware.com  
-**Version:** See [version.py](src/exonware/xwdata/version.py) or PyPI. · **Updated:** See [version.py](src/exonware/xwdata/version.py) (`__date__`)
 
 [![Status](https://img.shields.io/badge/status-beta-blue.svg)](https://exonware.com)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org)
@@ -15,9 +14,9 @@
 
 | Install | What you get | When to use |
 |---------|--------------|-------------|
-| `pip install exonware-xwdata` | **Lite** — core only | Minimal footprint. |
-| `pip install exonware-xwdata[lazy]` | **Lazy** — formats on first use | Development. |
-| `pip install exonware-xwdata[full]` | **Full** — common formats pre-installed | Production or CI. |
+| `pip install exonware-xwdata` | **Lite** - core only | Minimal footprint. |
+| `pip install exonware-xwdata[lazy]` | **Lazy** - formats on first use | Development. |
+| `pip install exonware-xwdata[full]` | **Full** - common formats pre-installed | Production or CI. |
 
 ---
 
@@ -32,7 +31,7 @@ data["key"] = "value"
 save_data(data, "output.yaml")
 ```
 
-XWNode integration for path navigation and graph operations; async operations; reference resolution. See [docs/](docs/) and [docs/GUIDE_01_USAGE.md](docs/GUIDE_01_USAGE.md) when present.
+XWNode for path navigation and graph work; async APIs; reference resolution. See [docs/](docs/) and [docs/GUIDE_01_USAGE.md](docs/GUIDE_01_USAGE.md) when present.
 
 ---
 
@@ -40,9 +39,9 @@ XWNode integration for path navigation and graph operations; async operations; r
 
 | Area | What's in it |
 |------|----------------|
-| **Formats** | One API for 30+ formats via xwsystem; partial access, typed loading. |
-| **XWNode** | Path navigation and graph operations on loaded data. |
-| **Semantics** | Copy-on-write; universal metadata; reference resolution. |
+| **Formats** | One API over 30+ formats via xwsystem; partial reads, typed loads. |
+| **XWNode** | Path and graph operations on in-memory data. |
+| **Semantics** | Copy-on-write, universal metadata, reference resolution. |
 | **Async** | Async-first operations. |
 
 ---
@@ -50,14 +49,13 @@ XWNode integration for path navigation and graph operations; async operations; r
 ## Docs and tests
 
 - **Start:** [docs/INDEX.md](docs/INDEX.md) or [docs/](docs/).
-- **Tests:** Run from project root per project layout.
+- **Tests:** From repo root, follow the project's test layout.
 
 ---
 
 ## License and links
 
-MIT — see [LICENSE](LICENSE). **Homepage:** https://exonware.com · **Repository:** https://github.com/exonware/xwdata  
-
-Contributing → CONTRIBUTING.md · Security → SECURITY.md (when present).
+MIT - see [LICENSE](LICENSE). **Homepage:** https://exonware.com · **Repository:** https://github.com/exonware/xwdata  
+Version: 0.9.0.8 | Updated: 30-Mar-2026
 
 *Built with ❤️ by eXonware.com - Revolutionizing Python Development Since 2025*

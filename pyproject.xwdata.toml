@@ -1,4 +1,4 @@
-# Source size (src/*): ~510.3 KB
+# Source size (src/*): ~514.1 KB
 [build-system]
 requires = [
     "hatchling",
@@ -33,11 +33,11 @@ authors = [
 text = "MIT"
 
 [project.optional-dependencies]
-dev = [
-    "exonware-xwdata[dev]",
-]
 lazy = [
     "exonware-xwdata[lazy]",
+]
+dev = [
+    "exonware-xwdata[dev]",
 ]
 full = [
     "exonware-xwdata[full]",

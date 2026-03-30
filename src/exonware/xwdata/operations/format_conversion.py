@@ -7,7 +7,7 @@ REUSES xwjson's XWJSONConverter for format conversion (single version of truth).
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.7
+Version: 0.9.0.8
 Generation Date: 26-Jan-2025
 """
 
@@ -15,7 +15,9 @@ import hashlib
 from typing import Any
 from pathlib import Path
 from exonware.xwsystem import get_logger
+from exonware.xwsystem.io.errors import SerializationError
 from exonware.xwsystem.io.serialization.auto_serializer import AutoSerializer
+from exonware.xwsystem.io.serialization.formats.text.json import JsonSerializer
 from exonware.xwjson.formats.binary.xwjson.converter import XWJSONConverter
 from ..contracts import IFormatConverter
 from ..defs import DataFormat
@@ -53,6 +55,7 @@ class FormatConverter(IFormatConverter):
         self._cache_size = cache_size
         # xwjson is required - always use XWJSONConverter
         self._xwjson_converter = XWJSONConverter()
+        self._json_text = JsonSerializer()
         logger.debug("xwdata: Using xwjson XWJSONConverter for format conversion")
 
     def _get_cache_key(
@@ -99,12 +102,11 @@ class FormatConverter(IFormatConverter):
                 f"Unsupported conversion strategy: {source_fmt} -> {target_fmt}",
                 strategy=f"{source_fmt}->{target_fmt}"
             )
-        # For explicit JSON input, enforce JSON syntax validation.
-        if source_fmt == "json" and isinstance(data, str):
-            import json
+        # For explicit JSON input, enforce JSON syntax validation (non-empty only).
+        if source_fmt == "json" and isinstance(data, str) and data.strip():
             try:
-                json.loads(data)
-            except Exception as e:
+                self._json_text.loads(data)
+            except SerializationError as e:
                 raise XWDataParseError(
                     f"Invalid JSON input for conversion: {e}",
                     format="json"
@@ -136,9 +138,41 @@ class FormatConverter(IFormatConverter):
                 target_format=target_fmt
             )
             # Ensure text formats return text payloads for API consistency.
-            if target_fmt in {"json", "yaml", "yml", "xml", "toml", "csv", "ini"} and not isinstance(result, str):
+            _text_targets = {"json", "yaml", "yml", "xml", "toml", "csv", "ini"}
+            if target_fmt in _text_targets:
                 serializer = AutoSerializer()
-                result = serializer.detect_and_serialize(result, format_hint=target_fmt)
+                if not isinstance(result, str):
+                    result = serializer.detect_and_serialize(result, format_hint=target_fmt)
+                else:
+                    if not result.strip():
+                        parsed = serializer.detect_and_deserialize(
+                            data, format_hint=source_fmt
+                        )
+                        result = serializer.detect_and_serialize(
+                            parsed, format_hint=target_fmt
+                        )
+                    elif target_fmt == "json":
+                        try:
+                            self._json_text.loads(result)
+                        except SerializationError:
+                            parsed = serializer.detect_and_deserialize(
+                                data, format_hint=source_fmt
+                            )
+                            result = serializer.detect_and_serialize(
+                                parsed, format_hint="json"
+                            )
+                    elif target_fmt == "toml" and source_fmt == "json":
+                        try:
+                            serializer.detect_and_deserialize(
+                                result, format_hint="toml"
+                            )
+                        except Exception:
+                            parsed = serializer.detect_and_deserialize(
+                                data, format_hint=source_fmt
+                            )
+                            result = serializer.detect_and_serialize(
+                                parsed, format_hint="toml"
+                            )
             # Cache result
             if self._enable_caching:
                 cache_key = self._get_cache_key(data, source_fmt, target_fmt)
