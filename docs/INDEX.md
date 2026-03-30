@@ -4,6 +4,16 @@
 
 Navigation hub for xwdata docs. Per GUIDE_41_DOCS and GUIDE_00_MASTER.
 
+## Why xwdata matters
+
+`xwdata` is built for teams that need one data pipeline across many formats and data shapes.
+
+- Load from one format and save to another with one API.
+- Build multiple structures (maps, trees, graph-like models) from the same source input.
+- Keep the same developer workflow for runtime memory use and persisted storage flows.
+
+For practical usage patterns, start with [GUIDE_01_USAGE.md](GUIDE_01_USAGE.md) and [REF_15_API.md](REF_15_API.md).
+
 ## Requirements (source of truth)
 
 | Document | Purpose | Producing guide |

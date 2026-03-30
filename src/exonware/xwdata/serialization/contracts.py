@@ -5,7 +5,7 @@ Serialization Module Interfaces
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.9
+Version: 0.9.0.10
 Generation Date: 26-Oct-2025
 """
 # Uses parent IXWDataSerializer interface
