@@ -69,6 +69,14 @@ XWNode for path navigation and graph work; async APIs; reference resolution. See
 ## License and links
 
 MIT - see [LICENSE](LICENSE). **Homepage:** https://exonware.com · **Repository:** https://github.com/exonware/xwdata  
-Version: 0.9.0.10 | Updated: 31-Mar-2026
+
+## Async Support
+
+<!-- async-support:start -->
+- xwdata includes asynchronous execution paths in production code.
+- Source validation: 181 async def definitions and 216 await usages under src/.
+- Use async APIs for I/O-heavy or concurrent workloads to improve throughput and responsiveness.
+<!-- async-support:end -->
+Version: 0.9.0.11 | Updated: 31-Mar-2026
 
 *Built with ❤️ by eXonware.com - Revolutionizing Python Development Since 2025*

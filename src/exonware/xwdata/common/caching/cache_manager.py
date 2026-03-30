@@ -6,7 +6,7 @@ Manages parse and serialize caches for performance optimization.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.10
+Version: 0.9.0.11
 Generation Date: 26-Oct-2025
 """
 
