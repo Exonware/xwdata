@@ -7,7 +7,7 @@ thread-safe registration.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.8
+Version: 0.9.0.9
 Generation Date: 26-Oct-2025
 """
 

@@ -6,7 +6,7 @@ Provides integration interfaces for xwschema validation.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.8
+Version: 0.9.0.9
 Generation Date: 26-Jan-2025
 """
 # Optional imports - these will be None if xwschema is not available

@@ -56,6 +56,6 @@ XWNode for path navigation and graph work; async APIs; reference resolution. See
 ## License and links
 
 MIT - see [LICENSE](LICENSE). **Homepage:** https://exonware.com · **Repository:** https://github.com/exonware/xwdata  
-Version: 0.9.0.8 | Updated: 30-Mar-2026
+Version: 0.9.0.9 | Updated: 30-Mar-2026
 
 *Built with ❤️ by eXonware.com - Revolutionizing Python Development Since 2025*
