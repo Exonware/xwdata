@@ -59,6 +59,25 @@ XWNode for path navigation and graph work; async APIs; reference resolution. See
 
 ---
 
+## Ecosystem functional contributions
+
+`xwdata` is the data interchange layer; other XW libraries provide structure, querying, validation, and persistence around those data flows.
+You can use `xwdata` standalone for multi-format load/transform/save workflows.
+Adding more XW libraries is optional and mostly beneficial for enterprise and mission-critical data infrastructure where you need full control of validation, query, and persistence layers.
+
+| Supporting XW lib | What it provides to xwdata | Functional requirement it satisfies |
+|------|----------------|----------------|
+| **XWSystem** | Core serializer/runtime infrastructure used for format handling and shared utilities. | One stable data I/O foundation across formats and environments. |
+| **XWNode** | Path navigation, graph/tree-aware operations, and structure manipulation. | Complex in-memory structure workflows beyond flat dictionaries. |
+| **XWSchema** | Validation contracts applied to loaded/transformed payloads. | Data quality enforcement during ingest/transform/export stages. |
+| **XWQuery** | Query and projection over in-memory structured datasets. | Declarative filtering/transformation without custom traversal code. |
+| **XWEntity** | Domain model integration when raw data becomes typed entities. | Bridge from flexible data payloads to domain-driven objects. |
+| **XWStorage** | Durable persistence destination/source for transformed datasets. | End-to-end pipelines from format conversion to persistent storage. |
+
+This gives `xwdata` a practical edge over format-only libraries: it connects parsing, structure, validation, query, and persistence in one workflow path.
+
+---
+
 ## Docs and tests
 
 - **Start:** [docs/INDEX.md](docs/INDEX.md) or [docs/](docs/).
@@ -77,6 +96,6 @@ MIT - see [LICENSE](LICENSE). **Homepage:** https://exonware.com · **Repository
 - Source validation: 181 async def definitions and 216 await usages under src/.
 - Use async APIs for I/O-heavy or concurrent workloads to improve throughput and responsiveness.
 <!-- async-support:end -->
-Version: 0.9.0.12 | Updated: 31-Mar-2026
+Version: 0.9.0.13 | Updated: 05-Apr-2026
 
 *Built with ❤️ by eXonware.com - Revolutionizing Python Development Since 2025*

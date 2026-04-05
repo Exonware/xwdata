@@ -7,7 +7,7 @@ Serialization is handled by xwsystem.serialization.JsonSerializer.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.12
+Version: 0.9.0.13
 Generation Date: 26-Oct-2025
 """
 

@@ -303,3 +303,10 @@ examples/chatdb_bigfile/data/*.xwjson
 examples/chatdb_bigfile/data/*.xwjson.*
 
 .examples/
+
+# Local private folders
+.secrets
+.references
+.venv
+.archive
+
