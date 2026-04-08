@@ -21,7 +21,15 @@ keywords = [
     "analysis",
     "exonware",
 ]
-classifiers = []
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
     "exonware-xwdata",
 ]
@@ -30,17 +38,21 @@ authors = [
 ]
 
 [project.license]
-text = "MIT"
+text = "Apache-2.0"
 
 [project.optional-dependencies]
+# First-party XW libs composed by this package (excludes exonware-xwsystem; see lazy/full).
+xw = [
+    "exonware-xwdata[xw]",
+]
 lazy = [
     "exonware-xwdata[lazy]",
 ]
-dev = [
-    "exonware-xwdata[dev]",
-]
 full = [
     "exonware-xwdata[full]",
+]
+dev = [
+    "exonware-xwdata[dev]",
 ]
 
 [project.urls]
@@ -75,23 +87,6 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
-
-[tool.pytest.ini_options]
-testpaths = [
-    "tests",
-]
-python_files = [
-    "test_*.py",
-]
-python_classes = [
-    "Test*",
-]
-python_functions = [
-    "test_*",
-]
-asyncio_mode = "auto"
-addopts = "-v --tb=short -x --strict-markers"
-markers = []
 
 [tool.hatch.version]
 path = "src/exonware/xwdata/version.py"

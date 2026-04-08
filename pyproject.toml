@@ -1,117 +1,110 @@
-
 # Source size (src/*): ~514.5 KB
 [build-system]
-  requires = ["hatchling"]
-  build-backend = "hatchling.build"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
-  name = "exonware-xwdata"
-  dynamic = ["version"]
-  description = "Advanced data manipulation with XWNode integration, async operations, and universal format conversion"
-  readme = "README.md"
-  requires-python = ">=3.12"
-  keywords = ["data", "manipulation", "processing", "transformation", "analysis", "exonware"]
-  classifiers = []
-  dependencies = [
-    "exonware-xwsystem",
-    "exonware-xwnode",
-    "exonware-xwquery",
-    "exonware-xwjson",
-  ]
-  authors = [{name = "eXonware Backend Team", email = "connect@exonware.com"}]
+name = "exonware-xwdata"
+dynamic = ["version"]
+description = "Advanced data manipulation with XWNode integration, async operations, and universal format conversion"
+readme = "README.md"
+requires-python = ">=3.12"
+keywords = ["data", "manipulation", "processing", "transformation", "analysis", "exonware"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+  "exonware-xwsystem",
+  "exonware-xwnode",
+  "exonware-xwquery",
+  "exonware-xwjson",
+]
+authors = [
+  { name = "eXonware Backend Team", email = "connect@exonware.com" },
+]
 
-  [project.license]
-    text = "MIT"
+[project.license]
+text = "Apache-2.0"
 
-  [project.optional-dependencies]
-    lazy = [
-      "exonware-xwlazy",
-      "exonware-xwsystem[lazy]",
-      "exonware-xwjson[lazy]",
-      "exonware-xwnode[lazy]",
-      "exonware-xwquery[lazy]",
-    ]
-    dev = [
-      "exonware-xwlazy",
-      "exonware-xwsystem[dev]",
-      "exonware-xwjson[dev]",
-      "exonware-xwnode[dev]",
-      "exonware-xwquery[dev]",
-      "black>=23.0.0",
-      "isort>=5.12.0",
-      "mypy>=1.0.0",
-      "pytest>=7.0.0",
-      "pytest-asyncio>=0.21.0",
-      "pytest-cov>=4.0.0",
-    ]
-    full = [
-      "exonware-xwsystem[full]",
-      "exonware-xwformats[full]",
-      "exonware-xwjson[full]",
-      "exonware-xwnode[full]",
-      "exonware-xwquery[full]",
-      "jsonpointer",
-      "bcrypt>=4.0.0",
-      "regex",
-      "atomicwrites",
-      "interegular",
-    ]
+[project.optional-dependencies]
+# First-party XW libs composed by this package (excludes exonware-xwsystem; see lazy/full).
+xw = [
+  "exonware-xwjson",
+  "exonware-xwnode",
+  "exonware-xwquery",
+]
+lazy = [
+  "exonware-xwdata[xw]",
+  "exonware-xwlazy",
+  "exonware-xwsystem[lazy]",
+  "exonware-xwjson[xw]",
+  "exonware-xwnode[xw]",
+  "exonware-xwquery[xw]",
+]
+full = [
+  "exonware-xwdata[xw]",
+  "exonware-xwsystem[full]",
+  "exonware-xwformats[full]",
+  "exonware-xwjson[xw]",
+  "exonware-xwnode[xw]",
+  "exonware-xwquery[xw]",
+  "json5>=0.9.0",
+  "PyYAML>=6.0",
+  "toml>=0.10.2",
+]
+dev = [
+  "exonware-xwdata[full]",
+  "black>=23.0.0",
+  "isort>=5.12.0",
+  "mypy>=1.0.0",
+  "pytest>=7.0.0",
+  "pytest-asyncio>=0.21.0",
+  "pytest-cov>=4.0.0",
+]
 
-  [project.urls]
-    Homepage = "https://exonware.com"
-    Repository = "https://github.com/exonware/xwdata"
-    Documentation = "https://github.com/exonware/xwdata#readme"
-    Subtree = "https://github.com/exonware/xwdata.git"
+[project.urls]
+Homepage = "https://exonware.com"
+Repository = "https://github.com/exonware/xwdata"
+Documentation = "https://github.com/exonware/xwdata#readme"
+Subtree = "https://github.com/exonware/xwdata.git"
 
-[tool]
+[tool.black]
+line-length = 88
+target-version = ["py312"]
 
-  [tool.black]
-    line-length = 88
-    target-version = ["py312"]
+[tool.isort]
+profile = "black"
+line_length = 88
 
-  [tool.isort]
-    profile = "black"
-    line_length = 88
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
 
-  [tool.mypy]
-    python_version = "3.12"
-    strict = true
-    warn_return_any = true
-    warn_unused_configs = true
-    disallow_untyped_defs = true
-    disallow_any_generics = true
-    disallow_untyped_calls = true
-    disallow_incomplete_defs = true
-    check_untyped_defs = true
-    disallow_untyped_decorators = true
-    no_implicit_optional = true
-    warn_redundant_casts = true
-    warn_unused_ignores = true
-    warn_no_return = true
-    warn_unreachable = true
+[tool.hatch.version]
+path = "src/exonware/xwdata/version.py"
 
-  [tool.pytest]
+[tool.hatch.build.targets.wheel]
+packages = ["src/exonware"]
+py-modules = ["src/xwdata", "src/xdata"]
 
-    [tool.pytest.ini_options]
-      testpaths = ["tests"]
-      python_files = ["test_*.py"]
-      python_classes = ["Test*"]
-      python_functions = ["test_*"]
-      asyncio_mode = "auto"
-      addopts = "-v --tb=short -x --strict-markers"
-      markers = []
-
-  [tool.hatch]
-
-    [tool.hatch.version]
-      path = "src/exonware/xwdata/version.py"
-
-    [tool.hatch.build]
-
-      [tool.hatch.build.targets]
-
-        [tool.hatch.build.targets.wheel]
-          packages = ["src/exonware"]
-
-        [tool.hatch.build.targets.sdist]
-          include = ["/src", "/tests", "/README.md", "/.github"]
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/tests", "/README.md", "/.github"]

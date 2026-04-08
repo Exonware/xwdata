@@ -9,11 +9,11 @@ Use JSON, YAML, TOML, XML, and more as your input language, then model the resul
 
 [![Status](https://img.shields.io/badge/status-beta-blue.svg)](https://exonware.com)
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
 ---
 
-## Install
+## 📦 Install
 
 | Install | What you get | When to use |
 |---------|--------------|-------------|
@@ -23,7 +23,7 @@ Use JSON, YAML, TOML, XML, and more as your input language, then model the resul
 
 ---
 
-## Quick start
+## 🚀 Quick start
 
 ```python
 from exonware.xwdata import load_data, save_data
@@ -38,7 +38,7 @@ XWNode for path navigation and graph work; async APIs; reference resolution. See
 
 ---
 
-## Why developers use xwdata
+## 🎯 Why developers use xwdata
 
 - **One API, many formats** - stop rewriting loaders and converters for each format.
 - **One model, many outputs** - build once, then serialize where it needs to go.
@@ -47,7 +47,7 @@ XWNode for path navigation and graph work; async APIs; reference resolution. See
 
 ---
 
-## What you get
+## ✨ What you get
 
 | Area | What's in it |
 |------|----------------|
@@ -59,7 +59,7 @@ XWNode for path navigation and graph work; async APIs; reference resolution. See
 
 ---
 
-## Ecosystem functional contributions
+## 🌐 Ecosystem functional contributions
 
 `xwdata` is the data interchange layer; other XW libraries provide structure, querying, validation, and persistence around those data flows.
 You can use `xwdata` standalone for multi-format load/transform/save workflows.
@@ -78,24 +78,24 @@ This gives `xwdata` a practical edge over format-only libraries: it connects par
 
 ---
 
-## Docs and tests
+## 📖 Docs and tests
 
 - **Start:** [docs/INDEX.md](docs/INDEX.md) or [docs/](docs/).
 - **Tests:** From repo root, follow the project's test layout.
 
 ---
 
-## License and links
+## 📜 License and links
 
-MIT - see [LICENSE](LICENSE). **Homepage:** https://exonware.com · **Repository:** https://github.com/exonware/xwdata  
+Apache-2.0 - see [LICENSE](LICENSE). **Homepage:** https://exonware.com · **Repository:** https://github.com/exonware/xwdata  
 
-## Async Support
+## ⏱️ Async Support
 
 <!-- async-support:start -->
 - xwdata includes asynchronous execution paths in production code.
 - Source validation: 181 async def definitions and 216 await usages under src/.
 - Use async APIs for I/O-heavy or concurrent workloads to improve throughput and responsiveness.
 <!-- async-support:end -->
-Version: 0.9.0.13 | Updated: 05-Apr-2026
+Version: 0.9.0.14 | Updated: 08-Apr-2026
 
 *Built with ❤️ by eXonware.com - Revolutionizing Python Development Since 2025*

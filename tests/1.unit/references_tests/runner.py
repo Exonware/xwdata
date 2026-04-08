@@ -12,12 +12,23 @@ Usage:
 """
 
 import sys
+import os
 from pathlib import Path
-# Add src to path
-src_path = Path(__file__).parent.parent.parent.parent / "src"
-sys.path.insert(0, str(src_path))
 # Import reusable test runner utilities
 try:
+
+def _package_root() -> Path:
+    """Folder with pyproject.toml + src/ (any tests/**/runner.py depth)."""
+    p = Path(__file__).resolve().parent
+    while p != p.parent:
+        if (p / "pyproject.toml").is_file() and (p / "src").is_dir():
+            return p
+        p = p.parent
+    raise RuntimeError("Could not locate package root from " + str(Path(__file__)))
+
+
+_PKG_ROOT = _package_root()
+
     from exonware.xwsystem.utils.test_runner import TestRunner
     USE_XWSYSTEM_UTILS = True
 except ImportError:
@@ -34,6 +45,7 @@ def main():
             layer_name="1.unit.references",
             description="Reference Resolution Unit Tests",
             test_dir=test_dir,
+        pytest_cwd=_PKG_ROOT,
             markers=["xwdata_unit"]
         )
         return runner.run()
