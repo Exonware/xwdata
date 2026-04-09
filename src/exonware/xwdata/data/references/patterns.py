@@ -6,7 +6,7 @@ Common reference patterns across formats.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.14
+Version: 0.9.0.15
 Generation Date: 26-Oct-2025
 """
 

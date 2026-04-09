@@ -4,7 +4,7 @@
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.14
+Version: 0.9.0.15
 Generation Date: October 27, 2025
 Data operations module integrating xwsystem.operations.
 This module provides data-specific operations built on top of xwsystem's
