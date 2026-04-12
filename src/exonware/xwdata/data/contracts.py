@@ -7,7 +7,7 @@ These extend the main library interfaces with data-specific contracts.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.16
+Version: 0.9.0.17
 Generation Date: 26-Oct-2025
 """
 # Import parent interfaces

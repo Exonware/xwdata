@@ -20,10 +20,10 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-  "exonware-xwsystem==0.9.0.38",
-  "exonware-xwnode==0.9.0.23",
-  "exonware-xwquery==0.9.0.13",
-  "exonware-xwjson==0.9.0.21",
+  "exonware-xwsystem==0.9.0.39",
+  "exonware-xwnode==0.9.0.25",
+  "exonware-xwquery==0.9.0.15",
+  "exonware-xwjson==0.9.0.23",
 ]
 authors = [
   { name = "eXonware Backend Team", email = "connect@exonware.com" },
@@ -35,31 +35,31 @@ text = "Apache-2.0"
 [project.optional-dependencies]
 # First-party XW libs composed by this package (excludes exonware-xwsystem==0.9.0.37; see lazy/full).
 xw = [
-  "exonware-xwjson==0.9.0.21",
-  "exonware-xwnode==0.9.0.23",
-  "exonware-xwquery==0.9.0.13",
+  "exonware-xwjson==0.9.0.23",
+  "exonware-xwnode==0.9.0.25",
+  "exonware-xwquery==0.9.0.15",
 ]
 lazy = [
-  "exonware-xwdata[xw]==0.9.0.15",
-  "exonware-xwlazy==1.0.1.80",
-  "exonware-xwsystem[lazy]==0.9.0.38",
-  "exonware-xwjson[xw]==0.9.0.21",
-  "exonware-xwnode[xw]==0.9.0.23",
-  "exonware-xwquery[xw]==0.9.0.13",
+  "exonware-xwdata[xw]==0.9.0.16",
+  "exonware-xwlazy==1.0.1.81",
+  "exonware-xwsystem[lazy]==0.9.0.39",
+  "exonware-xwjson[xw]==0.9.0.23",
+  "exonware-xwnode[xw]==0.9.0.25",
+  "exonware-xwquery[xw]==0.9.0.15",
 ]
 full = [
-  "exonware-xwdata[xw]==0.9.0.15",
-  "exonware-xwsystem[full]==0.9.0.38",
-  "exonware-xwformats[full]==0.9.0.32",
-  "exonware-xwjson[xw]==0.9.0.21",
-  "exonware-xwnode[xw]==0.9.0.23",
-  "exonware-xwquery[xw]==0.9.0.13",
+  "exonware-xwdata[xw]==0.9.0.16",
+  "exonware-xwsystem[full]==0.9.0.39",
+  "exonware-xwformats[full]==0.9.0.33",
+  "exonware-xwjson[xw]==0.9.0.23",
+  "exonware-xwnode[xw]==0.9.0.25",
+  "exonware-xwquery[xw]==0.9.0.15",
   "json5>=0.9.0",
   "PyYAML>=6.0",
   "toml>=0.10.2",
 ]
 dev = [
-  "exonware-xwdata[full]==0.9.0.15",
+  "exonware-xwdata[full]==0.9.0.16",
   "black>=23.0.0",
   "isort>=5.12.0",
   "mypy>=1.0.0",
