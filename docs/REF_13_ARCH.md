@@ -28,11 +28,11 @@ xwdata uses a **pure engine pattern**: the XWData facade delegates to XWDataEngi
 
 - **xwsystem:** Serialization (24+ formats), security, utilities.
 - **xwnode:** Graph and node operations via XWDataNode.
-- **xwstorage / xwquery:** Data persistence and query when integrated.
+- **xwstorage.connect / xwquery:** Data persistence and query when integrated.
 
 ## Consumed by
 
-xwdata is used as the base data layer by: [xwschema](../../xwschema/docs/INDEX.md), [xwaction](../../xwaction/docs/REF_22_PROJECT.md), [xwentity](../../xwentity/docs/REF_13_ARCH.md), [xwstorage](../../xwstorage/docs/REF_22_PROJECT.md), [xwquery](../../xwquery/docs/REF_22_PROJECT.md). Their REFs link to xwdata docs.
+xwdata is used as the base data layer by: [xwschema](../../xwschema/docs/INDEX.md), [xwaction](../../xwaction/docs/REF_22_PROJECT.md), [xwentity](../../xwentity/docs/REF_13_ARCH.md), [xwstorage.connect](../../xwstorage.connect/docs/REF_22_PROJECT.md), [xwquery](../../xwquery/docs/REF_22_PROJECT.md). Their REFs link to xwdata docs.
 
 ---
 
@@ -47,7 +47,7 @@ xwdata is used as the base data layer by: [xwschema](../../xwschema/docs/INDEX.m
 
 ## Technology (from REF_01_REQ sec. 7)
 
-- **Required:** Python ≥3.12; xwsystem, xwnode, xwquery, xwjson. Optional: xwlazy, xwformats, xwschema, xwentity, xwstorage (full extra). No reimplementation of serialization handlers — orchestrate xwsystem.
+- **Required:** Python ≥3.12; xwsystem, xwnode, xwquery, xwjson. Optional: xwlazy, xwformats, xwschema, xwentity, xwstorage.connect (full extra). No reimplementation of serialization handlers — orchestrate xwsystem.
 - **Patterns:** Engine pattern; async-first; COW for mutations; format-agnostic API; config presets.
 - **Scale/performance:** Sub-ms for many formats; configurable cache; LoadStrategy (full/lazy/partial/streaming/auto); SecurityConfig limits.
 - **Platform:** Python-only for current version; roadmap v2–v4 (Mars, Rust core/facades) per REF_21_PLAN.

@@ -56,7 +56,7 @@ Single facade API, README and examples, config presets, typed errors (XWDataErro
 
 **Examples:** [examples/](../../examples/) — start with [basic_usage.py](../../examples/basic_usage.py); see [examples/README.md](../../examples/README.md).
 
-**Consumers:** xwschema, xwaction, xwentity, xwstorage, xwquery — see [REF_22_PROJECT](REF_22_PROJECT.md) traceability.
+**Consumers:** xwschema, xwaction, xwentity, xwstorage.connect, xwquery — see [REF_22_PROJECT](REF_22_PROJECT.md) traceability.
 
 ---
 

@@ -8,7 +8,7 @@
 
 ## 1. Context and current status
 
-- **Role:** xwdata is the **format-agnostic data engine**: "xwnode plus serialization." XWData facade, engine, 50+ formats (via xwsystem), XWNode integration (XWDataNode), CoW, references, metadata, async/sync API. **Base data layer** for xwschema, xwaction, xwentity, xwstorage, xwquery.
+- **Role:** xwdata is the **format-agnostic data engine**: "xwnode plus serialization." XWData facade, engine, 50+ formats (via xwsystem), XWNode integration (XWDataNode), CoW, references, metadata, async/sync API. **Base data layer** for xwschema, xwaction, xwentity, xwstorage.connect, xwquery.
 - **Ecosystem review (REVIEW_20260208_112135_654_FULL):** **Alpha high (4/5)**. Deep-dive: **D=5, C=4, T=4**, composite **4.25**. Maturity uses **25% docs, 50% codebase, 25% tests**. Not Beta mainly due to C=4 and T=4 (code depth and test volume vs. e.g. xwnode/xwjson).
 - **Project review (REF_35_REVIEW):** Alpha (medium–high), ~85%; no blocking issues; IDEA/requirements clear; REF_01_REQ 14/14; downstream REFs refreshed from REF_01_REQ (07-Feb-2026). M3 (REF_* and doc placement) done.
 
@@ -51,7 +51,7 @@
 
 - **Guides:** GUIDE_00_MASTER, GUIDE_41_DOCS (only README at root; all other .md under `docs/`), GUIDE_51_TEST (4-layer, REF_51_TEST), GUIDE_35_REVIEW, GUIDE_13_ARCH, GUIDE_54_BENCH.
 - **Naming:** REF_* in docs/; change logs in docs/changes/ (e.g. CHANGE_YYYYMMDD_HHMMSS_mmm_DESCRIPTION); test/review logs under docs/logs/tests/ and docs/logs/reviews/.
-- **Dependencies:** xwdata depends on **xwsystem, xwnode, xwjson** (and optional xwlazy, xwformats, xwschema, xwentity, xwstorage for [full]). No circular dependency with xwschema, xwaction, xwentity, xwstorage (they consume xwdata).
+- **Dependencies:** xwdata depends on **xwsystem, xwnode, xwjson** (and optional xwlazy, xwformats, xwschema, xwentity, xwstorage.connect for [full]). No circular dependency with xwschema, xwaction, xwentity, xwstorage.connect (they consume xwdata).
 - **Traceability:** When changing behavior or scope, update REF_22_PROJECT (and milestones if needed), REF_13_ARCH if architecture changes, REF_51_TEST if test layout/runner changes. REF_01_REQ remains single requirements source.
 
 ---
@@ -63,7 +63,7 @@
 - **Adding .md at repo root:** New project-level doc under `docs/` (or `docs/_archive/`). Only README.md at root.
 - **Skipping 4-layer test structure:** New behavior in the appropriate layer (0.core facade/imports, 1.unit engine/components, 2.integration format/storage/schema, 3.advance security/performance/extensibility).
 - **Drift between REF_15 and code:** When changing public API (facade, `__all__`), update REF_15_API.
-- **Circular dependency with consumers:** xwdata must not depend on xwschema, xwaction, xwentity, xwstorage in a way that creates a cycle.
+- **Circular dependency with consumers:** xwdata must not depend on xwschema, xwaction, xwentity, xwstorage.connect in a way that creates a cycle.
 
 ---
 

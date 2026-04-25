@@ -2,11 +2,11 @@
 """
 #exonware/xwdata/src/exonware/xwdata/integrations/storage/contracts.py
 Storage Integration Contracts (Optional BaaS Feature)
-Defines interfaces for xwstorage backend integration.
+Defines interfaces for xwstorage.connect backend integration.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.17
+Version: 0.9.0.18
 Generation Date: 26-Jan-2025
 """
 
@@ -20,7 +20,7 @@ from ...defs import DataFormat
 class IStorageAdapter(Protocol):
     """
     Interface for storage backend integration.
-    Provides abstraction layer for xwstorage multi-backend storage.
+    Provides abstraction layer for xwstorage.connect multi-backend storage.
     This is an optional BaaS feature.
     """
 

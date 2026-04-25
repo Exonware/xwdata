@@ -28,9 +28,9 @@ Requirements and downstream docs refreshed so REF_01_REQ is the single source an
 ## Downstream propagation (later runs)
 
 - Repo [docs/INDEX.md](../../../docs/INDEX.md): projects with REF_01_REQ set (xwsystem, xwlazy, xwdata).
-- xwdata README: ecosystem list + "Used by" (xwschema, xwaction, xwentity, xwstorage) and doc links.
-- Consumer REFs updated to link to xwdata docs: xwschema REF_22, xwaction REF_22, xwentity REF_13, xwstorage REF_22, xwquery REF_22 and REF_13.
-- xwdata REF_22 traceability: "Consumers" line with links to xwschema, xwaction, xwentity, xwstorage, xwquery.
+- xwdata README: ecosystem list + "Used by" (xwschema, xwaction, xwentity, xwstorage.connect) and doc links.
+- Consumer REFs updated to link to xwdata docs: xwschema REF_22, xwaction REF_22, xwentity REF_13, xwstorage.connect REF_22, xwquery REF_22 and REF_13.
+- xwdata REF_22 traceability: "Consumers" line with links to xwschema, xwaction, xwentity, xwstorage.connect, xwquery.
 - xwdata REF_13_ARCH: "Consumed by" section with same consumer links.
 
 ---

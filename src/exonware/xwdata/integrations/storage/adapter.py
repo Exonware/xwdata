@@ -2,12 +2,12 @@
 """
 #exonware/xwdata/src/exonware/xwdata/integrations/storage/adapter.py
 Storage Adapter Implementation (Optional BaaS Feature)
-Provides storage backend integration interface for xwstorage.
-This is an optional feature - xwstorage integration is optional.
+Provides storage backend integration interface for xwstorage.connect.
+This is an optional feature - xwstorage.connect integration is optional.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.17
+Version: 0.9.0.18
 Generation Date: 26-Jan-2025
 """
 
@@ -19,9 +19,9 @@ from ...contracts import IData
 from ...defs import DataFormat
 from ...errors import XWDataError
 logger = get_logger(__name__)
-# Optional xwstorage dependency
+# Optional xwstorage.connect dependency
 try:
-    # xwstorage integration would go here
+    # xwstorage.connect integration would go here
     # For now, this is a placeholder interface
     XWSTORAGE_AVAILABLE = False
 except ImportError:
@@ -30,17 +30,17 @@ except ImportError:
 
 class StorageAdapter(IStorageAdapter):
     """
-    Storage adapter for xwstorage backend integration.
-    Provides abstraction layer for xwstorage multi-backend storage.
-    This is an optional BaaS feature - xwstorage is an optional dependency.
+    Storage adapter for xwstorage.connect backend integration.
+    Provides abstraction layer for xwstorage.connect multi-backend storage.
+    This is an optional BaaS feature - xwstorage.connect is an optional dependency.
     """
 
     def __init__(self):
         """Initialize storage adapter."""
         if not XWSTORAGE_AVAILABLE:
             logger.warning(
-                "StorageAdapter requires xwstorage library. "
-                "Install with: pip install exonware-xwstorage"
+                "StorageAdapter requires xwstorage.connect library. "
+                "Install with: pip install exonware-xwstorage.connect"
             )
         self._backends: dict[str, Any] = {}
 
@@ -63,8 +63,8 @@ class StorageAdapter(IStorageAdapter):
         """
         if not XWSTORAGE_AVAILABLE:
             raise XWDataError(
-                "StorageAdapter requires xwstorage library. "
-                "Install with: pip install exonware-xwstorage"
+                "StorageAdapter requires xwstorage.connect library. "
+                "Install with: pip install exonware-xwstorage.connect"
             )
         # Get backend instance
         backend_instance = self._get_backend(backend)
@@ -98,8 +98,8 @@ class StorageAdapter(IStorageAdapter):
         """
         if not XWSTORAGE_AVAILABLE:
             raise XWDataError(
-                "StorageAdapter requires xwstorage library. "
-                "Install with: pip install exonware-xwstorage"
+                "StorageAdapter requires xwstorage.connect library. "
+                "Install with: pip install exonware-xwstorage.connect"
             )
         # Get backend instance
         backend_instance = self._get_backend(backend)
@@ -133,8 +133,8 @@ class StorageAdapter(IStorageAdapter):
         """
         if not XWSTORAGE_AVAILABLE:
             raise XWDataError(
-                "StorageAdapter requires xwstorage library. "
-                "Install with: pip install exonware-xwstorage"
+                "StorageAdapter requires xwstorage.connect library. "
+                "Install with: pip install exonware-xwstorage.connect"
             )
         backend_instance = self._get_backend(backend)
         result = await backend_instance.delete(location, **opts)
@@ -158,16 +158,16 @@ class StorageAdapter(IStorageAdapter):
         """
         if not XWSTORAGE_AVAILABLE:
             raise XWDataError(
-                "StorageAdapter requires xwstorage library. "
-                "Install with: pip install exonware-xwstorage"
+                "StorageAdapter requires xwstorage.connect library. "
+                "Install with: pip install exonware-xwstorage.connect"
             )
         backend_instance = self._get_backend(backend)
         return await backend_instance.exists(location, **opts)
 
     def _get_backend(self, backend: str) -> Any:
-        """Get backend instance (placeholder - would integrate with xwstorage)."""
+        """Get backend instance (placeholder - would integrate with xwstorage.connect)."""
         if backend not in self._backends:
-            # Placeholder - would create xwstorage backend instance here
+            # Placeholder - would create xwstorage.connect backend instance here
             raise XWDataError(f"Backend '{backend}' not configured")
         return self._backends[backend]
 

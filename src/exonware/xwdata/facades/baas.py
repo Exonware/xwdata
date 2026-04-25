@@ -6,7 +6,7 @@ Provides convenience methods for BaaS multi-format storage operations.
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com
-Version: 0.9.0.17
+Version: 0.9.0.18
 Generation Date: 26-Jan-2025
 """
 
@@ -50,7 +50,7 @@ class XWDataBaaSFacade:
     BaaS facade for xwdata BaaS platform capabilities.
     Provides convenience methods for:
     - Format conversion (using xwjson XWJSONConverter)
-    - Storage integration (optional - requires xwstorage)
+    - Storage integration (optional - requires xwstorage.connect)
     - Schema validation (optional - requires xwschema)
     - Entity operations (optional - requires xwentity)
     - Batch operations
@@ -175,13 +175,13 @@ class XWDataBaaSFacade:
             data = XWData(data)
         return await self._validator.validate(data.to_native(), format, **opts)
     # ============================================================================
-    # STORAGE INTEGRATION (Optional - Requires xwstorage)
+    # STORAGE INTEGRATION (Optional - Requires xwstorage.connect)
     # ============================================================================
 
     def get_storage_adapter(self) -> StorageAdapter | None:
-        """Get storage adapter (optional - requires xwstorage)."""
+        """Get storage adapter (optional - requires xwstorage.connect)."""
         if not STORAGE_AVAILABLE:
-            logger.warning("Storage integration requires xwstorage library")
+            logger.warning("Storage integration requires xwstorage.connect library")
             return None
         if self._storage_adapter is None:
             self._storage_adapter = StorageAdapter()
@@ -208,7 +208,7 @@ class XWDataBaaSFacade:
         if adapter:
             await adapter.store(data, backend, location, format_hint, **opts)
         else:
-            raise RuntimeError("Storage integration not available (xwstorage required)")
+            raise RuntimeError("Storage integration not available (xwstorage.connect required)")
 
     async def load_from_backend(
         self,
@@ -231,7 +231,7 @@ class XWDataBaaSFacade:
         if adapter:
             return await adapter.load(backend, location, format_hint, **opts)
         else:
-            raise RuntimeError("Storage integration not available (xwstorage required)")
+            raise RuntimeError("Storage integration not available (xwstorage.connect required)")
     # ============================================================================
     # SCHEMA INTEGRATION (Optional - Requires xwschema)
     # ============================================================================

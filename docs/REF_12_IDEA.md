@@ -20,7 +20,7 @@ Idea context and evaluation for xwdata, filled from REF_01_REQ. Used for traceab
 | **Problem statement** | When we want to create other libraries we don’t need to worry about save/load and the optimization of that. xwdata handles it; it can even play as a database (front-end or backend). |
 | **Solution direction** | Linking xwnode with xwobject and serialization — all combined creates xwdata. Data structure using xwnode; reference and reference capabilities; lazy capabilities (extended from serialization or xwnode). Only the data structure. |
 | **One-sentence purpose** | xwdata is an implementation of xwnode plus serialization: enabling serializations (JSON, TOML, and more) to be saved as data nodes; it is the base of any data structure and will be used for saving data, getting data, and many data operations. |
-| **Primary beneficiaries** | Developers; xwschema, xwaction, xwentity, xwstorage and others. Extends XW object (xwsystem) by linking xwnode capabilities and serialization. |
+| **Primary beneficiaries** | Developers; xwschema, xwaction, xwentity, xwstorage.connect and others. Extends XW object (xwsystem) by linking xwnode capabilities and serialization. |
 | **Top goals (ordered)** | (1) Support for all serialization formats in ExonWare. (2) Save/load efficiently — performance. (3) Extensibility. (4) So other libraries don’t worry about save/load. (5) xwdata can play as a database; links xwnode + xwobject + serialization. |
 | **Out of scope** | Concrete schema; actions; xwentity features; node/edge strategies (in xwnode). xwdata only mixes xwobject + xwnode + serialization. |
 
@@ -36,4 +36,4 @@ Idea context and evaluation for xwdata, filled from REF_01_REQ. Used for traceab
 
 ---
 
-*See REF_01_REQ.md for full requirements. See REF_22_PROJECT.md for project status. **Consumers:** xwschema, xwaction, xwentity, xwstorage, xwquery — see [REF_22_PROJECT](REF_22_PROJECT.md) traceability.*
+*See REF_01_REQ.md for full requirements. See REF_22_PROJECT.md for project status. **Consumers:** xwschema, xwaction, xwentity, xwstorage.connect, xwquery — see [REF_22_PROJECT](REF_22_PROJECT.md) traceability.*

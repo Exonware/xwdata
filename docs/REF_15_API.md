@@ -38,7 +38,7 @@ Internal engine wiring, format-strategy internals, cache keys; node/edge strateg
 
 ### xwsystem reuse
 
-**Caching:** Engine uses **xwsystem** `create_cache` for the global xwdata cache (configurable capacity/namespace). **JSON:** All JSON parsing in the engine (including the hyper-fast path for tiny `.json` files) uses **get_serializer(JsonSerializer)** so the same parser stack and flyweight as xwschema, xwstorage json_utils, and xwsystem indexing/catalog are used.
+**Caching:** Engine uses **xwsystem** `create_cache` for the global xwdata cache (configurable capacity/namespace). **JSON:** All JSON parsing in the engine (including the hyper-fast path for tiny `.json` files) uses **get_serializer(JsonSerializer)** so the same parser stack and flyweight as xwschema, xwstorage.connect json_utils, and xwsystem indexing/catalog are used.
 
 ---
 

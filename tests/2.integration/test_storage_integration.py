@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 #exonware/xwdata/tests/2.integration/test_storage_integration.py
-Integration tests for storage integration (optional - requires xwstorage).
+Integration tests for storage integration (optional - requires xwstorage.connect).
 Company: eXonware.com
 Author: eXonware Backend Team
 Email: connect@exonware.com

@@ -30,7 +30,7 @@ xwdata is an implementation of **xwnode plus serialization**: enabling serializa
 4. **Other libraries don’t worry** about save/load and its optimization; xwdata handles it.
 5. **xwdata can play as a database** (front-end or backend); it links xwnode with xwobject and serialization into one.
 
-**Ecosystem alignment (future):** When used with xwstorage/xwquery, xwdata can align with a Firebase Firestore/Realtime DB–style data layer role. This is not in REF_01_REQ scope; it is ecosystem positioning only.
+**Ecosystem alignment (future):** When used with xwstorage.connect/xwquery, xwdata can align with a Firebase Firestore/Realtime DB–style data layer role. This is not in REF_01_REQ scope; it is ecosystem positioning only.
 
 ---
 
@@ -110,7 +110,7 @@ Roadmap (v1–v4): see [REF_21_PLAN.md](REF_21_PLAN.md).
 - **Ideas | DX | API | Planning:** [REF_12_IDEA.md](REF_12_IDEA.md) | [REF_14_DX.md](REF_14_DX.md) | [REF_15_API.md](REF_15_API.md) | [REF_21_PLAN.md](REF_21_PLAN.md)
 - **Project → Arch:** This document → [REF_13_ARCH.md](REF_13_ARCH.md)
 - **Review evidence:** [REF_35_REVIEW.md](REF_35_REVIEW.md), [logs/reviews/](logs/reviews/)
-- **Consumers (use xwdata as base):** [xwschema](../../xwschema/docs/REF_22_PROJECT.md), [xwaction](../../xwaction/docs/REF_22_PROJECT.md), [xwentity](../../xwentity/docs/REF_13_ARCH.md), [xwstorage](../../xwstorage/docs/REF_22_PROJECT.md), [xwquery](../../xwquery/docs/REF_22_PROJECT.md) — each links back to xwdata docs.
+- **Consumers (use xwdata as base):** [xwschema](../../xwschema/docs/REF_22_PROJECT.md), [xwaction](../../xwaction/docs/REF_22_PROJECT.md), [xwentity](../../xwentity/docs/REF_13_ARCH.md), [xwstorage.connect](../../xwstorage.connect/docs/REF_22_PROJECT.md), [xwquery](../../xwquery/docs/REF_22_PROJECT.md) — each links back to xwdata docs.
 
 ---
 
