@@ -11,21 +11,19 @@ Generation Date: October 27, 2025
 
 import pytest
 import asyncio
-import tempfile
-from pathlib import Path
 from exonware.xwdata import XWData
 @pytest.mark.xdata_integration
 
 class TestAsyncSyncPatterns:
     """Test async/sync event loop patterns work correctly."""
 
-    def test_to_file_no_hang(self, tmp_path):
-        """Test to_file() completes without hanging."""
+    def test_save_no_hang(self, tmp_path):
+        """Test save() completes without hanging."""
         # Create XWData instance
         data = XWData({'key': 'value', 'number': 42})
-        # Save to file (sync wrapper)
+        # Save to file via canonical async API
         output_path = tmp_path / "test.json"
-        result = data.to_file(output_path)
+        result = asyncio.run(data.save(output_path))
         # Should complete and return self
         assert result is data
         assert output_path.exists()
@@ -69,11 +67,11 @@ class TestAsyncSyncPatterns:
         # First operation
         data1 = XWData({'first': 'operation'})
         file1 = tmp_path / "first.json"
-        data1.to_file(file1)
+        asyncio.run(data1.save(file1))
         # Second operation
         data2 = XWData({'second': 'operation'})
         file2 = tmp_path / "second.json"
-        data2.to_file(file2)
+        asyncio.run(data2.save(file2))
         # Third operation - load back
         data3 = XWData(file1)
         # All should work
@@ -81,28 +79,28 @@ class TestAsyncSyncPatterns:
         assert file2.exists()
         assert data3['first'] == 'operation'
 
-    def test_to_file_with_formats(self, tmp_path):
-        """Test to_file() with different formats."""
+    def test_save_with_formats(self, tmp_path):
+        """Test save() with different formats."""
         data = XWData({'test': 'data', 'nested': {'x': 1}})
         # JSON
         json_file = tmp_path / "test.json"
-        data.to_file(json_file)
+        asyncio.run(data.save(json_file))
         assert json_file.exists()
         # YAML
         yaml_file = tmp_path / "test.yaml"
-        data.to_file(yaml_file)
+        asyncio.run(data.save(yaml_file))
         assert yaml_file.exists()
         # XML
         xml_file = tmp_path / "test.xml"
-        data.to_file(xml_file)
+        asyncio.run(data.save(xml_file))
         assert xml_file.exists()
 
     def test_sync_wrapper_with_universal_options(self, tmp_path):
-        """Test sync wrapper accepts universal options."""
+        """Test save() accepts universal options."""
         data = XWData({'z': 1, 'a': 2, 'm': 3})
         # Save with universal options
         output_path = tmp_path / "sorted.json"
-        data.to_file(output_path, sorted=True, pretty=True)
+        asyncio.run(data.save(output_path, sorted=True, pretty=True))
         # Verify file created
         assert output_path.exists()
         # Verify sorted (a should come before m, m before z)
@@ -111,16 +109,16 @@ class TestAsyncSyncPatterns:
         assert content.index('"m"') < content.index('"z"')
 
     def test_no_event_loop_conflict(self, tmp_path):
-        """Test that sync wrappers don't conflict with each other."""
+        """Test that repeated save() calls don't conflict with each other."""
         # Create multiple instances and save them
         datasets = [
             XWData({'dataset': i, 'value': i * 10})
             for i in range(5)
         ]
-        # Save all (each should create/cleanup its own event loop)
+        # Save all with separate event loops
         for i, data in enumerate(datasets):
             output_path = tmp_path / f"dataset_{i}.json"
-            data.to_file(output_path)
+            asyncio.run(data.save(output_path))
         # Verify all saved
         for i in range(5):
             assert (tmp_path / f"dataset_{i}.json").exists()
@@ -128,8 +126,8 @@ class TestAsyncSyncPatterns:
 
     async def test_async_methods_still_work(self, tmp_path):
         """Test that async methods still work correctly."""
-        # Create via async factory
-        data = await XWData.from_native({'async': 'test'})
+        # Create via canonical sync factory
+        data = XWData.from_native({'async': 'test'})
         # Save via async method
         output_path = tmp_path / "async_test.json"
         await data.save(output_path)
@@ -166,7 +164,7 @@ class TestEventLoopCleanup:
         # Perform operation
         data = XWData({'test': 'data'})
         output_path = tmp_path / "test.json"
-        data.to_file(output_path)
+        asyncio.run(data.save(output_path))
         # Event loop should be None or not running
         try:
             loop = asyncio.get_event_loop()

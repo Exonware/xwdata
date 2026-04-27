@@ -13,6 +13,7 @@ Generation Date: 07-Jan-2025
 import pytest
 import time
 import asyncio
+import json
 from pathlib import Path
 from exonware.xwdata import XWData
 @pytest.mark.xwdata_advance
@@ -155,3 +156,102 @@ class TestMemoryPerformance:
         # Verify data integrity
         result = await xwdata.get("items.0.id")
         assert result == 0
+
+
+@pytest.mark.xwdata_advance
+@pytest.mark.xwdata_performance
+class TestSerializerBackendBenchmark:
+    """Informational serializer backend benchmarks against native baselines."""
+
+    @staticmethod
+    def _measure_seconds(fn, iterations: int = 300) -> float:
+        start = time.perf_counter()
+        for _ in range(iterations):
+            fn()
+        return time.perf_counter() - start
+
+    def test_json_xwsystem_vs_stdlib_baseline(self, record_property):
+        """Compare xwsystem JSON serializer throughput with stdlib JSON."""
+        from exonware.xwsystem.io.serialization import JsonSerializer
+
+        payload = {
+            "id": 1,
+            "name": "benchmark",
+            "items": [{"k": i, "v": f"value-{i}"} for i in range(150)],
+            "flags": {"enabled": True, "retry": 3},
+        }
+        text = json.dumps(payload, ensure_ascii=False)
+        serializer = JsonSerializer()
+
+        # Correctness baseline first.
+        assert serializer.decode(text) == payload
+
+        xw_decode_s = self._measure_seconds(lambda: serializer.decode(text))
+        native_decode_s = self._measure_seconds(lambda: json.loads(text))
+        xw_encode_s = self._measure_seconds(
+            lambda: serializer.encode(payload, options={"ensure_ascii": False}),
+        )
+        native_encode_s = self._measure_seconds(lambda: json.dumps(payload, ensure_ascii=False))
+
+        record_property("json_decode_xwsystem_s", xw_decode_s)
+        record_property("json_decode_native_s", native_decode_s)
+        record_property("json_encode_xwsystem_s", xw_encode_s)
+        record_property("json_encode_native_s", native_encode_s)
+        # Informational benchmark test: avoid brittle speed assertions across CI/OS.
+        assert xw_decode_s > 0 and native_decode_s > 0
+        assert xw_encode_s > 0 and native_encode_s > 0
+
+    def test_toml_xwsystem_vs_native_decode_baseline(self, record_property):
+        """Compare xwsystem TOML decode with stdlib tomllib decode."""
+        from exonware.xwsystem.io.serialization import TomlSerializer
+        import tomllib
+
+        text = "\n".join(
+            [
+                'title = "benchmark"',
+                "",
+                "[owner]",
+                'name = "exonware"',
+                "",
+                "[settings]",
+                "enabled = true",
+                "retry = 5",
+            ]
+        )
+        serializer = TomlSerializer()
+
+        expected = tomllib.loads(text)
+        assert serializer.decode(text) == expected
+
+        xw_decode_s = self._measure_seconds(lambda: serializer.decode(text))
+        native_decode_s = self._measure_seconds(lambda: tomllib.loads(text))
+
+        record_property("toml_decode_xwsystem_s", xw_decode_s)
+        record_property("toml_decode_native_s", native_decode_s)
+        assert xw_decode_s > 0 and native_decode_s > 0
+
+    def test_yaml_xwsystem_vs_pyyaml_decode_baseline(self, record_property):
+        """Compare xwsystem YAML decode with PyYAML decode when available."""
+        from exonware.xwsystem.io.serialization import YamlSerializer
+
+        yaml = pytest.importorskip("yaml")
+        text = "\n".join(
+            [
+                "name: benchmark",
+                "enabled: true",
+                "tags:",
+                "  - xwdata",
+                "  - serializer",
+            ]
+        )
+        serializer = YamlSerializer()
+
+        expected = yaml.safe_load(text)
+        assert serializer.decode(text) == expected
+
+        xw_decode_s = self._measure_seconds(lambda: serializer.decode(text))
+        native_decode_s = self._measure_seconds(lambda: yaml.safe_load(text))
+
+        record_property("yaml_decode_xwsystem_s", xw_decode_s)
+        record_property("yaml_decode_pyyaml_s", native_decode_s)
+        assert xw_decode_s > 0 and native_decode_s > 0

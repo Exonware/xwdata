@@ -9,6 +9,13 @@ Author: eXonware Backend Team
 Email: connect@exonware.com
 Version: 0.9.0.18
 Generation Date: 26-Oct-2025
+
+WHY this strategy delegates serialization:
+- xwsystem provides the canonical YAML parse/serialize path used across
+  xwdata conversions, ensuring consistent normalization behavior.
+- This module intentionally handles only YAML-specific metadata/reference
+  semantics and avoids duplicating serializer logic.
+- Benchmark tests track relative performance vs native paths over time.
 """
 
 from typing import Any

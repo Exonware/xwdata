@@ -9,6 +9,13 @@ Author: eXonware Backend Team
 Email: connect@exonware.com
 Version: 0.9.0.18
 Generation Date: 26-Oct-2025
+
+WHY this strategy stays thin:
+- xwdata delegates parse/serialize to xwsystem so all formats share a unified
+  normalization and conversion contract.
+- Strategy code focuses only on JSON-specific metadata/reference semantics.
+- Performance assumptions are validated in benchmark tests instead of being
+  baked into implementation decisions.
 """
 
 from typing import Any

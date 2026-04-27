@@ -99,12 +99,6 @@ class XWData(AData):
             return _AwaitableLoad(cls.load(data, format_hint=fmt, **kwargs))
         return super().__new__(cls)
 
-    def __await__(self):
-        """Allow backward-compatible `await XWData.from_native(...)` usage."""
-        async def _return_self():
-            return self
-        return _return_self().__await__()
-
     def __init__(
         self,
         data: XWDataNode | dict | list | str | Path | XWData | list[dict | str | Path | XWData],
@@ -995,89 +989,6 @@ class XWData(AData):
         # Stream save via engine
         await self._engine.stream_save(self._node, path_obj, format=format_str, chunk_size=chunk_size, **opts)
         return self
-    # ==========================================================================
-    # FILE I/O ALIASES (from MIGRAT)
-    # ==========================================================================
-
-    def to_file(
-        self,
-        path: str | Path,
-        format: str | DataFormat | None = None,
-        overwrite: bool = True,
-        **opts
-    ) -> XWData:
-        """
-        Save to file (alias for save) - synchronous wrapper.
-        Args:
-            path: Output file path
-            format: Optional format override
-            overwrite: Whether to overwrite existing files
-            **opts: Format-specific options
-        Returns:
-            Self for chaining
-        """
-        import asyncio
-        # Create and use a new event loop to avoid conflicts
-        new_loop = asyncio.new_event_loop()
-        try:
-            asyncio.set_event_loop(new_loop)
-            result = new_loop.run_until_complete(self.save(path, format, overwrite, **opts))
-            return result
-        finally:
-            new_loop.close()
-            asyncio.set_event_loop(None)
-    @classmethod
-
-    async def from_file_async(
-        cls,
-        path: str | Path,
-        format: str | DataFormat | None = None,
-        config: XWDataConfig | None = None,
-        **opts
-    ) -> XWData:
-        """
-        Load from file (async version, alias for load).
-        Args:
-            path: File path
-            format: Optional format hint (auto-detected from extension if not provided)
-            config: Optional configuration
-            **opts: Format-specific options
-        Returns:
-            XWData instance
-        """
-        return await cls.load(path, format, config, **opts)
-    @classmethod
-
-    def from_file(
-        cls,
-        path: str | Path,
-        format: str | DataFormat | None = None,
-        config: XWDataConfig | None = None,
-        **opts
-    ) -> XWData:
-        """
-        Synchronously load from file (auto-detects format from extension).
-        Args:
-            path: File path
-            format: Optional format hint (auto-detected from extension if not provided)
-            config: Optional configuration
-            **opts: Format-specific options
-        Returns:
-            XWData instance
-        Example:
-            >>> data = XWData.from_file("config.json")  # Auto-detects JSON from extension
-            >>> data = XWData.from_file("data.xml", format="xml")  # Explicit format
-        """
-        # Sync wrapper for load()
-        new_loop = asyncio.new_event_loop()
-        try:
-            asyncio.set_event_loop(new_loop)
-            return new_loop.run_until_complete(cls.load(path, format, config, **opts))
-        finally:
-            new_loop.close()
-            asyncio.set_event_loop(None)
-    @classmethod
-
     def from_format(
         cls,
         content: str | bytes,
@@ -1251,22 +1162,6 @@ class XWData(AData):
                 current = await current.set(path, value_to_copy)
         return current
 
-    def native(self, copy: bool = False) -> Any:
-        """
-        Get native Python data (alias for to_native with copy option).
-        Args:
-            copy: Whether to return a deep copy
-        Returns:
-            Native Python data
-        Example:
-            >>> data = await XWData.load('users.json')
-            >>> native = data.native(copy=True)  # Deep copy
-        """
-        data = self.to_native()
-        if copy:
-            import copy as copy_module
-            return copy_module.deepcopy(data)
-        return data
     # ==========================================================================
     # UTILITY METHODS
     # ==========================================================================

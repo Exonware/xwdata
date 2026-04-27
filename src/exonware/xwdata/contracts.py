@@ -62,10 +62,6 @@ class IData(Protocol):
         """Save to file (returns self for chaining)."""
         ...
 
-    def to_file(self, path: str | Path, format: str | DataFormat | None = None, **opts) -> IData:
-        """Synchronously save to file (returns self for chaining)."""
-        ...
-
     async def merge(self, other: IData, strategy: str | MergeStrategy = 'deep') -> IData:
         """Merge with another IData instance."""
         ...

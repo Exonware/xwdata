@@ -178,7 +178,21 @@ class StorageAdapter(IStorageAdapter):
         return str(format).lower()
 
     def _detect_format(self, data: Any) -> str:
-        """Detect format from data (placeholder)."""
-        # Would use format detection from xwsystem
-        return 'json'  # Default
+        """Best-effort format detection for serialized payloads."""
+        if isinstance(data, bytes):
+            sample = data.decode("utf-8", errors="ignore").lstrip()
+        else:
+            sample = str(data).lstrip()
+        if not sample:
+            return "json"
+        if sample.startswith("{") or sample.startswith("["):
+            return "json"
+        if sample.startswith("<?xml") or sample.startswith("<"):
+            return "xml"
+        # TOML often contains section headers; keep this check before YAML.
+        if sample.startswith("[") and "]" in sample.splitlines()[0]:
+            return "toml"
+        if ":" in sample and "\n" in sample:
+            return "yaml"
+        return "json"
 __all__ = ['StorageAdapter']

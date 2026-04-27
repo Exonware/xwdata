@@ -7,27 +7,23 @@ Author: eXonware Backend Team
 Email: connect@exonware.com
 Version: 0.9.0.18
 Generation Date: 15-Nov-2025
+
+WHY this strategy uses xwsystem serializers:
+- xwdata standardizes all format parsing/encoding through xwsystem to keep
+  normalization behavior consistent across JSON/YAML/TOML/XML conversions.
+- This avoids drift where one format path behaves differently from another.
+- Performance can shift as xwsystem parsers evolve, so benchmark coverage
+  lives in xwdata tests rather than hard-coding assumptions in implementation.
 """
 
 from typing import Any
 from pathlib import Path
-try:
-    import tomli
-    import tomli_w
-    TOML_AVAILABLE = True
-except ImportError:
-    try:
-        import toml
-        TOML_AVAILABLE = True
-        tomli = toml
-        tomli_w = toml
-    except ImportError:
-        TOML_AVAILABLE = False
-        tomli = None
-        tomli_w = None
+from exonware.xwsystem.io.serialization import TomlSerializer
 from ...base import AFormatStrategy
 from ...errors import XWDataStrategyError
 
+_TOML = TomlSerializer()
+TOML_AVAILABLE = True
 
 class TOMLFormatStrategy(AFormatStrategy):
     """
@@ -80,11 +76,8 @@ class TOMLFormatStrategy(AFormatStrategy):
         if not TOML_AVAILABLE:
             raise XWDataStrategyError("TOML library not available")
         try:
-            toml_data = path.read_bytes()
-            if hasattr(tomli, 'loads'):
-                return tomli.loads(toml_data.decode('utf-8'))
-            else:
-                return tomli.load(toml_data.decode('utf-8'))
+            toml_data = path.read_text(encoding='utf-8')
+            return _TOML.decode(toml_data)
         except Exception as e:
             raise XWDataStrategyError(f"Failed to load TOML file: {e}") from e
 
@@ -100,10 +93,8 @@ class TOMLFormatStrategy(AFormatStrategy):
         if not TOML_AVAILABLE:
             raise XWDataStrategyError("TOML library not available")
         try:
-            if hasattr(tomli_w, 'dumps'):
-                toml_str = tomli_w.dumps(data)
-            else:
-                toml_str = tomli_w.dump(data)
+            encoded = _TOML.encode(data)
+            toml_str = encoded.decode('utf-8') if isinstance(encoded, bytes) else encoded
             path.write_text(toml_str, encoding='utf-8')
         except Exception as e:
             raise XWDataStrategyError(f"Failed to save TOML file: {e}") from e
@@ -119,10 +110,7 @@ class TOMLFormatStrategy(AFormatStrategy):
         if not TOML_AVAILABLE:
             raise XWDataStrategyError("TOML library not available")
         try:
-            if hasattr(tomli, 'loads'):
-                return tomli.loads(content)
-            else:
-                return tomli.load(content)
+            return _TOML.decode(content)
         except Exception as e:
             raise XWDataStrategyError(f"Failed to parse TOML: {e}") from e
 
@@ -137,9 +125,7 @@ class TOMLFormatStrategy(AFormatStrategy):
         if not TOML_AVAILABLE:
             raise XWDataStrategyError("TOML library not available")
         try:
-            if hasattr(tomli_w, 'dumps'):
-                return tomli_w.dumps(data)
-            else:
-                return tomli_w.dump(data)
+            encoded = _TOML.encode(data)
+            return encoded.decode('utf-8') if isinstance(encoded, bytes) else encoded
         except Exception as e:
             raise XWDataStrategyError(f"Failed to serialize TOML: {e}") from e
